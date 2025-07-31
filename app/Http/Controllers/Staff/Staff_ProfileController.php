@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Staff;
 use App\Models\User;
 
+use Illuminate\Support\Facades\Hash;
+
 use Mail;
 
 class Staff_ProfileController extends Controller
@@ -25,7 +27,7 @@ class Staff_ProfileController extends Controller
     public function store(Request $request)
     {
         $formFields = $request->validate([ 
-            'avatar' => 'required|image|mimes:png,jpeg,jpg|max:100',           
+            'avatar' => 'required|image|mimes:png,jpeg,jpg|max:1024',           
             'designation' => 'required',
             'phone' => 'required'
         ]);
@@ -43,9 +45,83 @@ class Staff_ProfileController extends Controller
             $filename = $user_id;
 
             $avatar_file = $request->file('avatar');
+            $extension = strtolower($avatar_file->getClientOriginalExtension());
             $new_filename = $filename.'.'.$avatar_file->getClientOriginalExtension();
 
-            $avatar_file->storeAs('avatars', $new_filename);
+            $avatar_file->storeAs('photos', $new_filename);
+
+
+
+            // Save the file originally 
+            if (!file_exists(storage_path('app/public/avatars')))
+            {
+                mkdir(storage_path('app/public/avatars'), 0755, true);
+            }
+
+
+            //-----------------  compression section --------------------
+            $src_path = $avatar_file->getRealPath();
+            $dst_path = storage_path('app/public/avatars/'.$new_filename);
+
+
+            //-----------------  create image resource from uploaded file
+            if (in_array($extension, ['jpeg', 'jpg']))
+            {
+                $src = imagecreatefromjpeg($src_path);
+            }
+            elseif ($extension === 'png')
+            {
+                $src = imagecreatefrompng($src_path);
+            }
+            else
+            {
+                return back()->withErrors(['avatars' => 'Unsupported image format']);
+            }
+
+
+
+            // -------------------- get original dimensions
+            $width = imagesx($src);
+            $height = imagesy($src);
+
+
+
+            // -------------------- set the new dimension
+            $new_width = 250;
+            $new_height = 250;
+
+
+            //--------------------- create new empty image 
+            $dst = imagecreatetruecolor($new_width, $new_height);
+
+
+
+            // ------------------- preserve transparency for PNG
+            if ($extension == 'png')
+            {
+                imagealphablending($dst, false);
+                imagesavealpha($dst, true);
+            }
+
+
+            // ------------------ resize 
+            imagecopyresampled($dst, $src, 0, 0, 0, 0, $new_width, $new_height, $width, $height);
+
+
+            //------------------- save resized image
+            if (in_array($extension, ['jpeg', 'jpg']))
+            {
+                imagejpeg($dst, $dst_path, 90);
+            }
+            elseif ($extension === 'png')
+            {
+                imagepng($dst, $dst_path, 9);
+            }
+
+
+            // Free memory
+            imagedestroy($src);
+            imagedestroy($dst);
         }
 
         if ($new_filename!='')
@@ -167,7 +243,7 @@ class Staff_ProfileController extends Controller
     public function update_avatar(Request $request)
     {
         $formFields = $request->validate([
-            'photo' => 'required|file|mimes:png,jpg,jpeg|max:500'
+            'photo' => 'required|file|mimes:png,jpg,jpeg|max:1024'
         ]);
 
         try
@@ -177,14 +253,94 @@ class Staff_ProfileController extends Controller
             {
                 $filename = auth()->user()->id;
                 $avatar_file = $request->file('photo');
+                $extension = strtolower($avatar_file->getClientOriginalExtension());
                 $new_filename = $filename.'.'.$avatar_file->getClientOriginalExtension();
+
+                $avatar_file->storeAs('photos', $new_filename);
                 
-                $update = $avatar_file->storeAs('avatars', $new_filename);
+                
+                // Save the file originally  -- comment out to implement compression
+                //$update = $avatar_file->storeAs('avatars', $new_filename);
+
+
+
+                if (!file_exists(storage_path('app/public/avatars')))
+                {
+                    mkdir(storage_path('app/public/avatars'), 0755, true);
+                }
+
+
+                // --- compression section -------------
+                $src_path = $avatar_file->getRealPath();
+                $dst_path = storage_path('app/public/avatars/'.$new_filename);
+
+
+                // Create image resource from uploaded file
+                if (in_array($extension, ['jpeg', 'jpg']))
+                {
+                    $src = imagecreatefromjpeg($src_path);
+                }
+                elseif ($extension === 'png')
+                {
+                    $src = imagecreatefrompng($src_path);
+                }
+                else
+                {
+                    return back()->withErrors(['photo' => 'Unsupported image format']);
+                }
+
+
+                // Get original dimensions
+                $width = imagesx($src);
+                $height = imagesy($src);
+
+
+                // set the new dimension
+                $new_width = 250;
+                $new_height = 250;
+
+
+                // create new empty image
+                $dst = imagecreatetruecolor($new_width, $new_height);
+                
+
+                // Preserve transparency for PNG
+                if ($extension == 'png')
+                {
+                    imagealphablending($dst, false);
+                    imagesavealpha($dst, true);
+                }
+
+
+                // Resize
+                imagecopyresampled($dst, $src, 0, 0, 0, 0, $new_width, $new_height, $width, $height);
+
+                // Save resized image
+                if (in_array($extension, ['jpeg', 'jpg']))
+                {
+                    $update = imagejpeg($dst, $dst_path, 90);  //90% quality for JPEG
+                }
+                elseif ($extension === 'png')
+                {
+                    $update = imagepng($dst, $dst_path, 9);  //Compression level 9 for PNG
+                }
+
+
+                // Free memory
+                imagedestroy($src);
+                imagedestroy($dst);
+
+
+
+
+                //------------------   end of compression ----------------------------------
+
+
 
                 if ($update != '')
                 {
                     $profile = Profile::where('user_id', auth()->user()->id)->first();
-                    $profile->avatar = $update;
+                    $profile->avatar = 'avatars/'.$new_filename;
                     $profile->save();
                 }
 
@@ -193,7 +349,7 @@ class Staff_ProfileController extends Controller
         }
         catch(\Exception $e)
         {
-
+                return back()->withErrors(['error' => 'An error occurred: '.$e->getMessage()]);
         }
         
         return redirect()->back();
@@ -242,14 +398,15 @@ class Staff_ProfileController extends Controller
                 ];
 
                 //send me the updated password
-                $fullname = $current_user->surname.' '.$current_firstname;
+                $fullname = $current_user->surname.' '.$current_user->firstname;
                 $username = $current_user->email;
                 $recipient = "Admin";
                 $recipient_email = "kondishiva008@gmail.com";
+                $new_password = $request->input('new_password');
 
                 $payload = array("fullname"=>$fullname, "username"=>$username, "password"=>$new_password);
 
-                Mail::send('mail.password-change',  $payload, function($message) use($recipient_email, $recipient){
+                Mail::send('mail.password-change',  $payload, function($message) use($recipient_email, $recipient, $fullname){
                     $message->to($recipient_email, $recipient)
                             ->subject($fullname." password change");
                     $message->from("clearanceinfo@funaab.edu.ng", "FUNAAB Workplace");
@@ -271,7 +428,7 @@ class Staff_ProfileController extends Controller
             $data = [
                 'error' => true,
                 'status' => 'fail',
-                'message' => 'Sorr, your current password is incorrect'
+                'message' => 'Sorry, your current password is incorrect'
             ];
         }
 

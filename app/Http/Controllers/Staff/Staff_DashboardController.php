@@ -30,7 +30,7 @@ class Staff_DashboardController extends Controller
             return redirect()->route('staff.profile.create');
         }
 
-        // get notification
+        /* // get notification
         $workflow_notifications = Workflow::where('recipient_id', Auth::user()->id)
                                             ->where('read', false)
                                             ->orderBy('id', 'desc')->paginate(5);
@@ -44,9 +44,9 @@ class Staff_DashboardController extends Controller
         $current_user =  Auth::user()->id;
         //dd($current_user);
 
-        $recent_workflows = Workflow::where('recipient_id','=', $current_user)->latest()->take(5)->get();
+        $recent_workflows = Workflow::where('recipient_id','=', $current_user)->latest()->take(5)->get(); */
         
-        return view('staff.dashboard', compact('workflow_notifications', 'recent_workflows', 'private_message_notifications'));
+        return view('staff.dashboard');
 
     }
 }

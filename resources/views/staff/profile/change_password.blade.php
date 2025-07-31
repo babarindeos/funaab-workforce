@@ -12,7 +12,10 @@
                         border px-8 py-4 rounded-md">
                     <div class="">
                         @if (Auth::user()->profile->avatar != "" || Auth::user()->profile->avatar != null)
-                            <img src="{{ asset('storage/'.Auth::user()->profile->avatar) }}" class="w-36 h-36 rounded-full" />
+                            @php
+                                
+                            @endphp
+                            <img src="{{ asset('storage/'.Auth::user()->profile->avatar) }}" class="w-42 h-42 rounded-full" />
                         @else
                             <img src="{{ asset('images/avatar_150.jpg') }}" />
                         @endif
@@ -57,7 +60,7 @@
                                     {{ Auth::user()->surname }} {{ Auth::user()->firstname }} {{ Auth::user()->middlename }}                                
                             </div>
                             <div class="text-sm">
-                                    {{ Auth::user()->profile->designation}}, {{ Auth::user()->staff->fileno}}
+                                    {{ Auth::user()->profile->designation}}, {{ Auth::user()->fileno}}
                             </div>                            
                     </div>
 
@@ -77,7 +80,7 @@
                                 <div class="flex flex-col border-red-900 w-[80%] md:w-[60%] py-1">
                                                         
                                                         
-                                    <input type="text" name="current_password" placeholder="Current Password" 
+                                    <input type="password" name="current_password" placeholder="Current Password" 
                                                                             class="border border-1 border-gray-400 bg-gray-50
                                                                             w-full p-3 rounded-md 
                                                                             focus:outline-none
@@ -103,7 +106,7 @@
                                 <div class="flex flex-col border-red-900 w-[80%] md:w-[60%] py-1">
                                                         
                                                         
-                                    <input type="text" name="new_password" placeholder="New Password" 
+                                    <input type="password" name="new_password" placeholder="New Password" 
                                                                             class="border border-1 border-gray-400 bg-gray-50
                                                                             w-full p-3 rounded-md 
                                                                             focus:outline-none
@@ -128,7 +131,7 @@
                                 <div class="flex flex-col border-red-900 w-[80%] md:w-[60%] py-1">
                                                         
                                                         
-                                    <input type="text" name="new_password_confirmation" placeholder="Confirm Password" 
+                                    <input type="password" name="new_password_confirmation" placeholder="Confirm Password" 
                                                                             class="border border-1 border-gray-400 bg-gray-50
                                                                             w-full p-3 rounded-md 
                                                                             focus:outline-none

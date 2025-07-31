@@ -17,7 +17,7 @@
                     <div class="flex flex-col border border-1 border-yellow-500 
                                 w-full md:w-[20%] px-4 py-4 mt-1 rounded-md bg-yellow-500">
                         <div class="text-white text-3xl">
-                            {{ number_format($documents_count)}}
+                            
                         </div>
                         <div class="text-sm text-white font-normal">
                             Documents
@@ -27,7 +27,7 @@
                     <div class="flex flex-col border border-1 border-pink-500 
                                 w-full md:w-[20%] px-4 py-4 mt-1 rounded-md bg-pink-500">
                         <div class="text-white text-3xl">
-                            {{ $workflows_count}}
+                           
                         </div>
                         <div class="text-sm text-white font-normal">
                             Workflows
@@ -38,7 +38,7 @@
                     <div class="flex flex-col border border-1 border-blue-500 
                                 w-full md:w-[20%] px-4 py-4 mt-1 rounded-md bg-blue-500">
                         <div class="text-white text-3xl">
-                            {{ $staff_count}}
+                            
                         </div>
                         <div class="text-sm text-white">
                             Staff
@@ -48,7 +48,7 @@
                     <div class="flex flex-col border border-1 border-purple-500 
                                 w-full md:w-[20%] px-4 py-4 mt-1 rounded-md bg-purple-500">
                         <div class="text-white text-3xl">
-                            {{ $departments_count}}
+                            
                         </div>
                         <div class="text-sm text-white">
                             Departments

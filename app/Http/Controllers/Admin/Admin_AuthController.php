@@ -16,16 +16,18 @@ class Admin_AuthController extends Controller
 
         /*
          User::create([
-            'fileno' => 'sp1706',
+            'fileno' => 'SuperAdmin',
             'firstname' => 'Oluwaseyi',
             'surname' => 'Babarinde',
             'middlename' => 'Abiodun',
             'email' => 'seyibabs.ng@gmail.com',
-            'password' => bcrypt('123456'),
+            'password' => bcrypt('niger2013ia!'),
             'role' => 'admin'
 
         ]); 
+
         */
+        
         
 
         return view('admin.auth.login');
@@ -56,5 +58,29 @@ class Admin_AuthController extends Controller
     public function logout(Request $request){
         Auth::logout();
         return redirect()->route('admin.auth.index');
+    }
+
+    public function resignin()
+    {
+        
+        if (Auth::check())
+        {
+            if (Auth::user()->role === 'admin')
+            {
+                return redirect()->route('admin.dashboard.index');
+            }
+            else if (Auth::user()->role === 'staff')
+            {
+                return redirect()->route('staff.dashboard.index');
+            }
+            else if (Auth::user()->role === 'identity')
+            {
+                return redirect()->route('identity.dashboard.index');
+            }
+        }
+        else
+        {
+            return redirect()->route('/');
+        }
     }
 }

@@ -1,135 +1,76 @@
 <x-staff-layout>
 
-<div class="flex flex-col container mx-4 border border-0 md:mx-auto">
-    <section class="border-b border-gray-200 py-2 mt-2">
-            <div class="text-2xl font-semibold ">
-                Dashboard                
-            </div>
+<div class="flex flex-col w-[95%] mx-4 border border-0 mx-auto">
+    <section class="flex flex-col border-b border-gray-200 py-2 mt-2 md:flex-row md:justify-between">
             <div>
-                @if (Auth::check())
-                    @php
-                        $surname = ucfirst(strtolower(Auth::user()->surname))
-                    @endphp
+                    <div class="text-2xl font-semibold ">
+                        Dashboard                
+                    </div>
+                    <div>
+                        @if (Auth::check())
+                            @php
+                                $surname = ucfirst(strtolower(Auth::user()->surname))
+                            @endphp
 
-                    Welcome {{ $surname }} {{ Auth::user()->firstname}}
-                @endif
+                            Welcome, {{ $surname }} {{ Auth::user()->firstname}} 
+
+                            @if (Auth::user()->middlename != null)
+                                {{ Auth::user()->middlename }}
+                            @endif
+                        @endif
+                    </div>
+            </div>
+            <div class='text-sm mt-2 md:text-md flex flex-col md:items-center border-0 justify-center'>
+                    <div class='flex flex-row border-0 space-x-4'>
+                        <div>
+                            <a class='hover:underline' href="#">My Profile</a>
+                        </div> 
+                        <div>
+                            <a class='hover:underline' href="#">Change Password</a>
+                        </div>
+                    </div>
             </div>
     </section>
 
-    @include('partials._document_submenu1')
+    <!-- @include('partials._dashboard_submenu1') -->
 
 
-    <div class="flex flex-col md:flex-row space-x-4">
-        
+    <section class='border-0 mx-auto w-full py-16'>
+        <div class='flex flex-col md:flex-row mx-auto w-[80%] border-0 space-y-4 md:space-y-0 md:space-x-4'>
 
-        @if (count($workflow_notifications) > 0 )
-        <div class="md:flex-1 border-0">
-            <section class="py-8 mt-2">
-                    <div class="text-lg font-semibold text-gray-600 border-b border-gray-200 ">
-                        Workflow Notifications ({{ $workflow_notifications->count() }})
-                    </div>
-                    <div>
-                        <ul class="list-disc px-10">
-                            @foreach ($workflow_notifications as $notification)
-                                <li class="py-3 border-b border-gray-100">
-                                    <a title="{{ $notification->document->title }}" class="hover:underline" href="{{ route('staff.workflows.notification_update', ['workflow'=>$notification->id])}}" >
-                                    
-                                        <div class="font-medium text-gray-700">
-                                            {{$notification->document->title}}
-                                        </div>
-                                        <div class="text-xs">
-                                            from {{ $notification->sender->surname}} @ 
-                                            {{ $notification->created_at->format('l jS F, Y g:i a')}}
-                                        </div>
-                                    </a>
-                                </li>
-                            @endforeach
-                        </ul>
-                        <div class="py-2">
-                                {{ $workflow_notifications->links() }}
-                        </div>
+                <a href="#" class='flex flex-col w-full md:w-1/4 p-8 border items-center justify-center 
+                            bg-gradient-to-b from-purple-600 to-purple-500 text-white text-xl rounded-md 
+                            font-semibold hover:bg-gradient-to-b hover:from-purple-400 hover:to-purple-600'>
+                    Staff Data
+                </a>
 
-                    </div>
-            </section>
-        </div>
-        @endif
-
-        
-
-        
-        @if (count($private_message_notifications) > 0 )
-        <div class="md:flex-1 border-0">
-            <section class="py-8 mt-2">
-                    <div class="text-lg font-semibold text-gray-600 border-b border-gray-200 ">
-                        Message Notifications ({{ $private_message_notifications->count() }})
-                    </div>
-                    <div>
-                        <ul class="list-disc px-10">
-                            @foreach ($private_message_notifications as $notification)
-                                <li class="py-3 border-b border-gray-100">
-                                    <a href="{{ route('staff.workflows.private_message.index', ['document'=>$notification->doc_id, 'recipient'=>$notification->sender_id]) }}" title="{{ $notification->message }}" class="hover:underline"  >
-                                    
-                                        <div class="font-medium text-gray-700">
-                                            {{$notification->message}}
-                                        </div>
-                                        <div class="text-xs">
-                                            from {{ $notification->sender->surname}} @ 
-                                            {{ $notification->created_at->format('l jS F, Y g:i a')}}
-                                        </div>
-                                    </a>
-                                </li>
-                            @endforeach
-                        </ul>
-                        <div class="py-2">
-                                {{ $workflow_notifications->links() }}
-                        </div>
-
-                    </div>
-            </section>
-        </div>
-        @endif
+                 <a href="#" class='flex flex-col w-full md:w-1/4 p-8 border items-center justify-center 
+                            bg-gradient-to-b from-orange-600 to-orange-500 text-white text-xl rounded-md 
+                            font-semibold hover:bg-gradient-to-b hover:from-orange-400 hover:to-orange-600'>
+                    APER Form
+                 </a>
 
 
+                 <a href="#" class='flex flex-col w-full md:w-1/4 p-8 border items-center justify-center 
+                             bg-gradient-to-b from-blue-600 to-blue-500 text-white text-xl rounded-md 
+                             font-semibold hover:bg-gradient-to-b hover:from-blue-400 hover:to-blue-600'>
+                    Promotion
+                 </a>
 
-        <!-- recent workflows //-->
-        <div class="md:flex-1 border-0">
-                <div class="text-lg font-semibold text-gray-600 border-b border-gray-200 mt-10">
-                    Recent Workflows
-                </div>
-                <div>
-                    <ul class="list-disc  px-10">
-                    @foreach ($recent_workflows as $workflow)
-                            @if ($workflow->sender_id != Auth::user()->id)
-                                <li class="py-3 border-b border-gray-100">
-                                    <a title="{{$workflow->document->title}}" class="hover:underline" href="{{ route('staff.workflows.flow', ['document'=>$workflow->document->id]) }}" >
-                                    
-                                            <div class="font-medium text-gray-700">
-                                            {{$workflow->document->title}}
-                                            </div>
-                                            <div class="text-xs">
-                                                from {{ $workflow->sender->surname}} @ 
-                                                {{ $workflow->created_at->format('l jS F, Y g:i a')}}
-                                            </div>
-                                    </a>
-                                </li>
-                            @endif
-                    @endforeach
-                    </ul>
-                    <div class="py-2">
-                        {{ $workflow_notifications->links() }}
-                    </div>
-                </div>
+                 <a href="#" class='flex flex-col w-full md:w-1/4 p-8 border items-center justify-center 
+                             bg-gradient-to-b from-pink-600 to-pink-500 text-white text-xl rounded-md 
+                             font-semibold hover:bg-gradient-to-b hover:from-pink-400 hover:to-pink-600'>
+                    Leave
+                </a>
+
+
 
         </div>
-        <!-- end of recent workflows //-->
+
+    </section>
 
 
-
-
-        
-
-    </div>
-
+    
 
     
 </div>

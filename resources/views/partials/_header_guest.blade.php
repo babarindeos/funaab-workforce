@@ -6,14 +6,16 @@
         <div class="flex">
             <!-- logo //-->
             <div class="flex flex-row px-2 md:px-4 py-2">
-                <img src="{{ asset('images/logo.png')}}" />
+                 <a href="{{ route('welcome') }}">
+                        <img src="{{ asset('images/logo.png')}}" />
+                 </a>
             </div>
             <!-- end of logo //-->
             <!-- Name //-->
-            <div class="flex flex-col item-center justify-center">
-                    <div class="text-white font-bold text-2xl font-serif">FUNAAB WorkPlace</div>
-                    <div class="text-white font-semibold font-serif text-sm opacity-70">Where work happens...</div>
-            </div>
+            <a href="{{ route('welcome') }}" class="flex flex-col item-center justify-center">
+                    <div class="text-white font-bold text-2xl font-serif">FUNAAB WorkForce</div>
+                    <div class="text-white font-semibold font-serif text-sm opacity-70">Staff Resource Management Service...</div>
+            </a>
             <!-- end of name //-->
         </div>
 

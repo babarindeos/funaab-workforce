@@ -17,7 +17,8 @@ class User extends Authenticatable
      *
      * @var array<int, string>
      */
-    protected $fillable = [        
+    protected $fillable = [  
+        'fileno',      
         'surname',
         'firstname',
         'middlename',
@@ -58,11 +59,6 @@ class User extends Authenticatable
     public function profile()
     {
         return $this->hasOne(Profile::class, 'user_id', 'id');
-    }
-
-    public function circle()
-    {
-        return $this->hasMany(CellUser::class, 'user_id', 'id');
     }
 
     public function announcement_permission()

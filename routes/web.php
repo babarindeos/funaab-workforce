@@ -4,24 +4,19 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Middleware\AdminAuth;
 
+
+use App\Http\Controllers\Identity\Identity_AuthController;
+use App\Http\Controllers\Identity\Identity_DashboardController;
+use App\Http\Controllers\Identity\Identity_StaffController;
+
 use App\Http\Controllers\Admin\Admin_AuthController;
 use App\Http\Controllers\Admin\Admin_DashboardController;
-use App\Http\Controllers\Admin\Admin_CollegeController;
+use App\Http\Controllers\Admin\Admin_DivisionTypeController;
+use App\Http\Controllers\Admin\Admin_IdentityController;
+use App\Http\Controllers\Admin\Admin_DivisionController;
 use App\Http\Controllers\Admin\Admin_DepartmentController;
-use App\Http\Controllers\Admin\Admin_StaffController;
-use App\Http\Controllers\Admin\Admin_DeanController;
-use App\Http\Controllers\Admin\Admin_MinistryController;
-use App\Http\Controllers\Admin\Admin_DocumentController;
-use App\Http\Controllers\Admin\Admin_ProfileController;
-
-use App\Http\Controllers\Admin\Admin_TrackerController;
-use App\Http\Controllers\Admin\Admin_AnalyticsController;
-
-use App\Http\Controllers\Admin\Admin_CellController;
-use App\Http\Controllers\Admin\Admin_CellTypeController;
-use App\Http\Controllers\Admin\Admin_CircleController;
-
-use App\Http\Controllers\Admin\Admin_PermissionController;
+use App\Http\Controllers\Admin\Admin_ContactTypeController;
+use App\Http\Controllers\Admin\Admin_GenderController;
 
 
 use App\Http\Controllers\Staff\Staff_AuthController;
@@ -39,7 +34,7 @@ use App\Http\Controllers\Staff\Staff_CircleTeamController;
 use App\Http\Controllers\Staff\Staff_CircleAnnouncementController;
 
 
-
+use App\Http\Controllers\StaffUpdateController;
 
 use App\Http\Controllers\Staff\Staff_CategoryController;
 
@@ -56,84 +51,49 @@ use App\Http\Controllers\MailTestController;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
-class User
-{
-    public $name;
-    public $email;
-};
 
-class Job
-{
-    public $title;
-}
-
-Route::get('test', function(){
-
-    $user = (object) [
-        'name' => 'Seyi Babs',
-        'email' => 'babarindeos@funaab.edu.ng'
-    ];
-
-    $user = new User();
-    $user->name = "Seyi Babs";
-    $user->email = "babarindeos@funaab.edu.ng";
+Route::get('/re-signin', [Admin_AuthController::class, 'resignin'])->name('admin.auth.re-signin');
 
 
-    //dd($user->email);
-
-    /* $job = (object) [
-        'title' => 'Laravel Developer'
-    ]; */
-
-    $job = new Job();
-    $job->title = "Laravel Developer";
-
-    //dd($job->title);
-
+Route::middleware('guest')->group(function(){
+    Route::get('/', [Staff_AuthController::class, 'index'])->name('welcome');
     
+    Route::post('/', [Staff_AuthController::class, 'login'])->name('staff.auth.login');
 
-    \Illuminate\Support\Facades\Mail::to($user)->send(
-        new \App\Mail\JobPosted($job)
-    );
+    Route::get('/sign-up', [Staff_AuthController::class, 'create_signup'])->name('staff.auth.create_signup');
+    Route::post('/sign-up', [Staff_AuthController::class, 'store_signup'])->name('staff.auth.store_signup');
 
-    return "Done";
+    Route::get('/admin', [Admin_AuthController::class, 'index'])->name('admin.auth.index');
+    Route::post('/admin', [Admin_AuthController::class, 'login'])->name('admin.auth.login');
+
+
+    Route::get('/identity', [Identity_AuthController::class, 'index'])->name('identity.auth.index');
+    Route::post('/identity', [Identity_AuthController::class, 'login'])->name('identity.auth.login');
+
+
+    // Staff Update Login
+    Route::get('staff_updates/login', [StaffUpdateController::class, 'login'])->name('guest.staff_updates.login');
+    Route::post('staff_updates/login', [StaffUpdateController::class, 'login_auth'])->name('guest.staff_updates.login_auth');
+
+    Route::get('staff_updates/auth_credentials', [StaffUpdateController::class, 'create_auth_credentials'])->name('guests.staff_updates.create_auth_credentials');
+    Route::post('staff_updates/auth_credentials', [StaffUpdateController::class, 'store_auth_credentials'])->name('guests.staff_updates.store_auth_credentials');
+
+    Route::get('staff_updates/upload_photograph', [StaffUpdateController::class, 'upload_photograph'])->name('guests.staff_updates.upload_photograph');
+    Route::post('staff_updates/upload_photograph', [StaffUpdateController::class, 'store_photograph'])->name('guests.staff_updates.store_photograph');
+
+    Route::get('staff_updates/staff_update_form', [StaffUpdateController::class, 'create_update_form'])->name('guests.staff_updates.create_update_form');
+    Route::post('staff_updates/staff_update_form', [StaffUpdateController::class, 'store_update_form'])->name('guests.staff_updates.store_update_form');
+    
+    Route::get('staff_updates/completed', [StaffUpdateController::class, 'completed'])->name('guests.staff_updates.completed');
+
 });
 
 
-Route::get('testmail', function(){
-    $user = new User();
-    $user->name = "Kondi Shiva";
-    $user->email = "leakscrime@gmail.com";
-
-    \Illuminate\Support\Facades\Mail::to($user)->send(
-        new \App\Mail\SimpleMail()
-    );
-
-    return "Mail successfully sent";
-});
-
-Route::get('testmailcontroller', [MailTestController::class, 'dispatch']);
-
-Route::get('testmailparams', [MailTestController::class, 'param_dispatch']);
-
-Route::get('testmailbody', function(){
-    $name = "Babarinde Oluwaseyi Abiodun";
-    return new App\Mail\MarkupMail($name);
-
-});
 
 
 
-Route::get('/', function () {
-    return view('welcome');
-})->name('welcome');
-
-Route::post('/', [Staff_AuthController::class, 'login'])->name('staff.auth.login');
 
 
-
-Route::get('/admin', [Admin_AuthController::class, 'index'])->name('admin.auth.index');
-Route::post('/admin', [Admin_AuthController::class, 'login'])->name('admin.auth.login');
 
 
 Route::prefix('staff')->middleware(['auth', 'staff'])->group(function(){
@@ -192,6 +152,8 @@ Route::prefix('staff')->middleware(['auth', 'staff'])->group(function(){
 
 
 
+
+
     // Profile
     Route::get('/profile/create', [Staff_ProfileController::class, 'create'])->name('staff.profile.create');
     Route::post('/profile/create', [Staff_ProfileController::class, 'store'])->name('staff.profile.store');
@@ -215,130 +177,97 @@ Route::prefix('staff')->middleware(['auth', 'staff'])->group(function(){
     // Categories
     Route::get('/categories/create', [Staff_CategoryController::class, 'create'])->name('staff.categories.create');
     Route::post('/categories/store', [Staff_CategoryController::class, 'store'])->name('staff.categories.store');
+
+
+    
+    
 });
 
+Route::prefix('identity')->middleware(['auth', 'identity'])->group(function(){
+    Route::get('/dashboard', [Identity_DashboardController::class, 'index'])->name('identity.dashboard.index');
+    Route::get('/staff/{identity}/show', [Identity_StaffController::class, 'show'])->name('identity.staff.details');    
+
+    Route::get('/my_profile', [Identity_DashboardController::class, 'my_profile'])->name('identity.dashboard.my_profile');
+    Route::get('/change_password', [Identity_AuthController::class, 'change_password'])->name('identity.auth.change_password');
+    Route::post('/change_password', [Identity_AuthController::class, 'update_password'])->name('identity.auth.update_password');
+
+    Route::post('/logout', [Identity_AuthController::class, 'logout'])->name('identity.auth.logout');
+});
 
 
 Route::prefix('admin')->middleware(['auth','admin'])->group(function(){
     
     Route::get('/dashboard', [Admin_DashboardController::class, 'index'])->name('admin.dashboard.index');
-    Route::post('/logout', [Admin_AuthController::class, 'logout'])->name('admin.auth.logout');
+    Route::post('/logout', [Admin_AuthController::class, 'logout'])->name('admin.auth.logout');   
+
+    // Division Types
+    Route::get('division_types', [Admin_DivisionTypeController::class, 'index'])->name('admin.division_types.index');
+    Route::get('division_types/create', [Admin_DivisionTypeController::class, 'create'])->name('admin.division_types.create');
+    Route::post('division_types/store', [Admin_DivisionTypeController::class, 'store'])->name('admin.division_types.store');
+    Route::get('division_types{division_type}/show', [Admin_DivisionTypeController::class, 'show'])->name('admin.division_types.show');
+    Route::get('division_types/{division_type}/edit', [Admin_DivisionTypeController::class, 'edit'])->name('admin.division_types.edit');
+    Route::post('division_types/{division_type}/update', [Admin_DivisionTypeController::class, 'update'])->name('admin.division_types.update');
+    Route::get('division_types/{division_type}/confirm_delete', [Admin_DivisionTypeController::class, 'confirm_delete'])->name('admin.division_types.confirm_delete');
+    Route::delete('division_types/{division_type}/delete', [Admin_DivisionTypeController::class, 'destroy'])->name('admin.division_types.delete');
 
 
-    //Cell
-    Route::get('/cells', [Admin_CellController::class, 'index'])->name('admin.cells.index');
-    Route::get('cells/create', [Admin_CellController::class, 'create'])->name('admin.cells.create');
-    Route::post('cells/store', [Admin_CellController::class, 'store'])->name('admin.cells.store');
-    
-    Route::get('cells/{cell}/edit', [Admin_CellController::class, 'edit'])->name('admin.cells.edit');
-    Route::post('cells/{cell}/update', [Admin_CellController::class, 'update'])->name('admin.cells.update');
-
-    Route::get('cells/{cell}/confirm_delete', [Admin_CellController::class, 'confirm_delete'])->name('admin.cells.confirm_delete');
-    Route::post('cells/{cell}/destroy', [Admin_CellController::class, 'destroy'])->name('admin.cells.destroy');
+    // Identity
+    Route::get('identity', [Admin_IdentityController::class, 'index'])->name('admin.identity.index');
+    Route::get('identity/{identity}/show', [Admin_IdentityController::class, 'show'])->name('admin.identity.show');
+    Route::get('identity/{identity}/edit', [Admin_IdentityController::class, 'edit'])->name('admin.identity.edit');
+    Route::post('identity/{identity}/update', [Admin_IdentityController::class, 'update'])->name('admin.identity.update');
 
 
-
-
-    // Cell Type
-    Route::get('/cell_types', [Admin_CellTypeController::class, 'index'])->name('admin.cell_types.index');
-    Route::get('cell_types/create', [Admin_CellTypeController::class, 'create'])->name('admin.cell_types.create');
-    Route::post('cell_types/store', [Admin_CellTypeController::class, 'store'])->name('admin.cell_types.store');
-    
-    Route::get('cell_types/{cell_type}/edit', [Admin_CellTypeController::class, 'edit'])->name('admin.cell_types.edit');
-    Route::post('cell_types/{cell_type}/update', [Admin_CellTypeController::class, 'update'])->name('admin.cell_types.update');
-
-    Route::get('cell_types/{cell_type}/confirm_delete', [Admin_CellTypeController::class, 'confirm_delete'])->name('admin.cell_types.confirm_delete');
-    Route::post('cell_types/{cell_type}/destroy', [Admin_CellTypeController::class, 'destroy'])->name('admin.cell_types.destroy');
-
-    
-    // Circle    
-    Route::get('circles/{cell}/show', [Admin_CircleController::class, 'show'])->name('admin.circles.show');
-    Route::post('circles/{cell}/add_user', [Admin_CircleController::class, 'add_user'])->name('admin.circles.add_user');
-
-    Route::get('circles/{cell}/user/{user}/permissions', [Admin_PermissionController::class, 'index'])->name('admin.circles.permissions');
-    Route::post('circles/{cell}/user/{user}/permissions/create_announcement_set', [Admin_PermissionController::class, 'create_announcement_set'])->name('admin.circles.permissions.create_announcement_set');
-    Route::post('circles/{cell}/user/{user}/permissions/create_announcement_on', [Admin_PermissionController::class, 'create_announcement_on'])->name('admin.circles.permissions.create_announcement_on');
-    Route::post('circles/{cell}/user/{user}/permissions/create_announcement_off', [Admin_PermissionController::class, 'create_announcement_off'])->name('admin.circles.permissions.create_announcement_off');
-    
-    
-    //college
-    Route::get('/colleges', [Admin_CollegeController::class, 'index'])->name('admin.colleges.index');
-    Route::get('/colleges/create', [Admin_CollegeController::class, 'create'])->name('admin.colleges.create');
-    Route::post('colleges/store', [Admin_CollegeController::class, 'store'])->name('admin.colleges.store');
-
-    Route::get('colleges/{college}/edit', [Admin_CollegeController::class, 'edit'])->name('admin.colleges.edit');
-    Route::post('colleges/{college}/update', [Admin_CollegeController::class, 'update'])->name('admin.colleges.update');
-    Route::delete('college/{college}/destroy', [Admin_CollegeController::class, 'destroy'])->name('admin.colleges.destroy');
-
-
-
-    // ministry
-    Route::get('/ministries', [Admin_MinistryController::class, 'index'])->name('admin.ministries.index');
-    Route::get('/ministries/create', [Admin_MinistryController::class, 'create'])->name('admin.ministries.create');
-    Route::post('/ministries/store', [Admin_MinistryController::class, 'store'])->name('admin.ministries.store');
-    
-    Route::get('/ministries/{ministry}/show', [Admin_MinistryController::class, 'show'])->name('admin.ministries.show');
-    Route::get('/ministries/{ministry}/edit', [Admin_MinistryController::class, 'edit'])->name('admin.ministries.edit');
-    Route::post('/ministries/{ministry}/update', [Admin_MinistryController::class, 'update'])->name('admin.ministries.update');
-
-    Route::get('/ministries/{ministry}/destroy', [Admin_MinistryController::class, 'destroy'])->name('admin.ministries.destroy');
-    Route::post('/ministries/{ministry}/confirm_delete', [Admin_MinistryController::class, 'confirm_delete'])->name('admin.ministries.confirm_delete');
-
+    // Divisions
+    Route::get('divisions', [Admin_DivisionController::class, 'index'])->name('admin.divisions.index');
+    Route::get('divisions/create', [Admin_DivisionController::class, 'create'])->name('admin.divisions.create');
+    Route::post('divisions/store', [Admin_DivisionController::class, 'store'])->name('admin.divisions.store');
+    Route::get('divisions/{division}/show', [Admin_DivisionController::class, 'show'])->name('admin.divisions.show');
+    Route::get('divisions/{division}/edit', [Admin_DivisionController::class, 'edit'])->name('admin.divisions.edit');
+    Route::post('divisions/{division}/update', [Admin_DivisionController::class, 'update'])->name('admin.divisions.update');
+    Route::get('divisions/{division}/confirm_delete', [Admin_DivisionController::class, 'confirm_delete'])->name('admin.divisions.confirm_delete');
+    Route::delete('divisions/{division}/delete', [Admin_DivisionController::class, 'destroy'])->name('admin.divisions.delete');
     
 
-    // Department
-    Route::get('/departments', [Admin_DepartmentController::class, 'index'])->name('admin.departments.index');
+    // Departments
+    Route::get('departments', [Admin_DepartmentController::class, 'index'])->name('admin.departments.index');
     Route::get('departments/create', [Admin_DepartmentController::class, 'create'])->name('admin.departments.create');
     Route::post('departments/store', [Admin_DepartmentController::class, 'store'])->name('admin.departments.store');
-    
+    Route::get('departments/{department}/show', [Admin_DepartmentController::class, 'show'])->name('admin.departments.show');
     Route::get('departments/{department}/edit', [Admin_DepartmentController::class, 'edit'])->name('admin.departments.edit');
     Route::post('departments/{department}/update', [Admin_DepartmentController::class, 'update'])->name('admin.departments.update');
-
-    Route::post('departments/{department}/destroy', [Admin_DepartmentController::class, 'destroy'])->name('admin.departments.destroy');
-
-
-    // Staff
-    Route::get('staff', [Admin_StaffController::class, 'index'])->name('admin.staff.index');
-    Route::get('staff/create', [Admin_StaffController::class, 'create'])->name('admin.staff.create');
-    Route::post('staff/store', [Admin_StaffController::class, 'store'])->name('admin.staff.store');
-
-    Route::get('staff/{staff}/edit', [Admin_StaffController::class, 'edit'])->name('admin.staff.edit');
-    Route::post('staff/{staff}/update', [Admin_StaffController::class, 'update'])->name('admin.staff.update');
-
-    // Document
-    Route::get('documents', [Admin_DocumentController::class, 'index'])->name('admin.documents.index');
-    Route::get('document_details/{document}', [Admin_DocumentController::class, 'show'])->name('admin.documents.show');
-
-    // User Profile
-    Route::get('/profile/user/{fileno}', [Admin_ProfileController::class, 'user_profile'])->name('admin.profile.user_profile');
-
-    // Tracker
-    Route::get('tracker', [Admin_TrackerController::class, 'index'])->name('admin.tracker.index');
-    Route::get('analytics', [Admin_AnalyticsController::class, 'index'])->name('admin.analytics.index');
-    Route::post('tracker', [Admin_TrackerController::class, 'index'])->name('admin.tracker.index');
+    Route::get('departments/{department}/confirm_delete', [Admin_DepartmentController::class, 'confirm_delete'])->name('admin.departments.confirm_delete');
+    Route::delete('departments/{department}/delete', [Admin_DepartmentController::class, 'destroy'])->name('admin.departments.delete');
 
 
-    // Deans
-    Route::get('deans', [Admin_DeanController::class, 'index'])->name('admin.deans.index');
-    Route::get('dean/create', [Admin_DeanController::class, 'create'])->name('admin.deans.create');
-    Route::post('dean/get_assigned_dean', [Admin_DeanController::class, 'get_assigned_dean'])->name('admin.deans.get_assigned_dean');
+    // Contact Types
+    Route::get('contact_types', [Admin_ContactTypeController::class, 'index'])->name('admin.contact_types.index');
+    Route::get('contact_types/create', [Admin_ContactTypeController::class, 'create'])->name('admin.contact_types.create');
+    Route::post('contact_types/store', [Admin_ContactTypeController::class, 'store'])->name('admin.contact_types.store');
+    Route::get('contact_types/{contact_type}/show', [Admin_ContactTypeController::class, 'show'])->name('admin.contact_types.show');
+    Route::get('contact_types/{contact_type}/edit', [Admin_ContactTypeController::class, 'edit'])->name('admin.contact_types.edit');
+    Route::post('contact_types/{contact_type}/update', [Admin_ContactTypeController::class, 'update'])->name('admin.contact_types.update');
+    Route::get('contact_types/{contact_type}/confirm_delete', [Admin_ContactTypeController::class, 'confirm_delete'])->name('admin.contact_types.confirm_delete');
+    Route::delete('comtact_types/{contact_type}/delete', [Admin_ContactTypeController::class, 'destroy'])->name('admin.contact_type.delete');
 
-    Route::get('dean/assign_dean', [Admin_DeanController::class, 'assign_dean'])->name('admin.deans.assign_dean');
-    Route::post('dean/assign_dean', [Admin_DeanController::class, 'store_assign_dean'])->name('admin.deans.store_assign_dean');
 
+    // Gender
+    Route::get('gender', [Admin_GenderController::class, 'index'])->name('admin.gender.index');
     
+
 });
 
 
 
-Route::get('/dashboard', function () {
+/* Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
+ */
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-require __DIR__.'/auth.php';
+

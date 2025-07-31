@@ -15,8 +15,8 @@
                     <!-- end of logo //-->
                     <!-- Name //-->
                     <div class="flex flex-col item-center justify-center">
-                            <div class="text-white font-bold text-2xl font-serif">FUNAAB WorkPlace</div>
-                            <div class="text-white font-semibold font-serif text-sm opacity-70">Where work happens...</div>
+                            <div class="text-white font-bold text-2xl font-serif">FUNAAB WorkForce</div>
+                            <div class="text-white font-semibold font-serif text-sm opacity-70">Staff Resource Management Service</div>
                                 
                     </div>
                     <!-- end of name //-->
@@ -29,31 +29,102 @@
                     </button>
                 </div>
                 <!-- Main Menu -->
-                <div class="hidden lg:flex lg:px-4 space-x-4">
+                <div class="hidden lg:flex lg:px-4 space-x-2">
                     @auth
                         @if (Auth::user()->role==='admin')
 
-                            <a href='{{ route('admin.dashboard.index') }}' class="flex font-semibold items-center text-white hover:border-b-yellow-100 hover:border-b-4 mx-2 ">Dashboard</a>
+                            <a href='{{ route('admin.dashboard.index') }}' class="flex font-semibold items-center text-white hover:border-b-yellow-100 hover:border-b-4 mx-0 
+                                    hover:bg-green-500 px-4 hover:rounded-t ">Dashboard</a>
 
                             <div class="relative group">
-                                <button class="text-white px-1 py-2 rounded-md font-semibold">
-                                    Office
+                                <button class="text-white px-1 py-2 font-semibold hover:bg-green-500 px-4 hover:rounded-t">
+                                    Staff
                                 </button>
                                 <!-- Sub-menu -->
-                                <div class="absolute hidden group-hover:block bg-white text-gray-800 mt-0 py-2 shadow-lg">
-                                    <a href="{{ route('admin.cells.index') }}" class="flex flex-row px-4 py-2 hover:bg-gray-200 hover:border-l-yellow-500 hover:border-l-4 pr-8">Cells</a>
-                                    <a href="#" class="flex flex-row px-4 py-2 hover:bg-gray-200  hover:border-l-yellow-500 hover:border-l-4 pr-8">Admin</a>
-                                    <a href="{{ route('admin.staff.index') }}" class="flex flex-row px-4 py-2 hover:bg-gray-200  hover:border-l-yellow-500 hover:border-l-4 pr-8">Staff</a>
+                                <div class="absolute hidden group-hover:block bg-white text-gray-800 mt-0 py-2 shadow-lg w-[300%]">
+                                    <a href="#" class="flex flex-row px-4 py-2 hover:bg-gray-200 hover:border-l-yellow-500 hover:border-l-4 pr-8">Staff Management</a>
+                                    <a href="#" class="flex flex-row px-4 py-2 hover:bg-gray-200  hover:border-l-yellow-500 hover:border-l-4 pr-8">Employment Types</a>
+                                    <a href="#" class="flex flex-row px-4 py-2 hover:bg-gray-200  hover:border-l-yellow-500 hover:border-l-4 pr-8">Staff Categories</a>
+                                    <a href="#" class="flex flex-row px-4 py-2 hover:bg-gray-200  hover:border-l-yellow-500 hover:border-l-4 pr-8">Staff Titles</a>
+                                    <a href="#" class="flex flex-row px-4 py-2 hover:bg-gray-200  hover:border-l-yellow-500 hover:border-l-4 pr-8">Staff Status</a>
+                                    <a href="#" class="flex flex-row px-4 py-2 hover:bg-gray-200  hover:border-l-yellow-500 hover:border-l-4 pr-8">Class of Degree</a>                                     
+                                    <a href="#" class="flex flex-row px-4 py-2 hover:bg-gray-200  hover:border-l-yellow-500 hover:border-l-4 pr-8">Degrees</a>                                                                       
+                                    <a href="#" class="flex flex-row px-4 py-2 hover:bg-gray-200  hover:border-l-yellow-500 hover:border-l-4 pr-8">Deployment Post</a>
+                                    <a href="#" class="flex flex-row px-4 py-2 hover:bg-gray-200  hover:border-l-yellow-500 hover:border-l-4 pr-8">Deployment</a>
+                                    <a href="{{ route('admin.identity.index') }}" class="flex flex-row px-4 py-2 hover:bg-gray-200  hover:border-l-yellow-500 hover:border-l-4 pr-8">Identity</a>
+                                    <a href="#" class="flex flex-row px-4 py-2 hover:bg-gray-200  hover:border-l-yellow-500 hover:border-l-4 pr-8">Off Employment</a>
+                                    
+                                    
+                                    
+                                    
                                 </div>
                             </div>
-                            <a  href='{{ route('admin.staff.index') }}' class="flex font-semibold items-center text-white hover:border-b-yellow-100 hover:border-b-4 mx-3 ">Users</a>
-                            <a  href='{{ route('admin.documents.index') }}' class="flex font-semibold items-center text-white hover:border-b-yellow-100 hover:border-b-4 mx-3 ">Documents</a>
-                            <a  href='{{ route('admin.tracker.index') }}' class="flex font-semibold items-center text-white hover:border-b-yellow-100 hover:border-b-4 mx-3 ">Tracker</a>
-                            <a  href='{{ route('admin.analytics.index')}}' class="flex font-semibold items-center text-white hover:border-b-yellow-100 hover:border-b-4 mx-3 ">Analytics</a>
+
+                            <div class="relative group">
+                                <button class="text-white px-1 py-2  font-semibold hover:bg-green-500 px-2 hover:rounded-t">
+                                    Progression
+                                </button>
+                                <!-- Sub-menu -->
+                                <div class="absolute hidden group-hover:block bg-white text-gray-800 mt-0 py-2 shadow-lg w-[180%]">
+                                    <a href="#" class="flex flex-row px-4 py-2 hover:bg-gray-200 hover:border-l-yellow-500 hover:border-l-4 pr-8">Promotion</a>
+                                    <a href="#" class="flex flex-row px-4 py-2 hover:bg-gray-200  hover:border-l-yellow-500 hover:border-l-4 pr-8">Step Increment</a>
+                                    <a href="#" class="flex flex-row px-4 py-2 hover:bg-gray-200 hover:border-l-yellow-500 hover:border-l-4 pr-8">Cadre</a>
+                                    <a href="#" class="flex flex-row px-4 py-2 hover:bg-gray-200  hover:border-l-yellow-500 hover:border-l-4 pr-8">Rank</a>
+                                    <a href="#" class="flex flex-row px-4 py-2 hover:bg-gray-200  hover:border-l-yellow-500 hover:border-l-4 pr-8">Designation</a>
+                                    <a href="#" class="flex flex-row px-4 py-2 hover:bg-gray-200  hover:border-l-yellow-500 hover:border-l-4 pr-8">Salary Structure</a>
+                                    <a href="#" class="flex flex-row px-4 py-2 hover:bg-gray-200  hover:border-l-yellow-500 hover:border-l-4 pr-8">Salary Level</a>
+                                    <a href="#" class="flex flex-row px-4 py-2 hover:bg-gray-200  hover:border-l-yellow-500 hover:border-l-4 pr-8">Salary Step</a>
+                                    
+                                </div>
+                            </div>
+
+
+                            <div class="relative group">
+                                <button class="text-white px-1 py-2 rounded-md font-semibold hover:bg-green-500 px-4 hover:rounded-t">
+                                    Evaluation
+                                </button>
+                                <!-- Sub-menu -->
+                                <div class="absolute hidden group-hover:block bg-white text-gray-800 mt-0 py-2 shadow-lg w-[170%]">
+                                    <a href="#" class="flex flex-row px-4 py-2 hover:bg-gray-200 hover:border-l-yellow-500 hover:border-l-4 pr-8">APER Form</a>
+                                    
+                                </div>
+                            </div>
+
+
+                            <div class="relative group">
+                                <button class="text-white px-1 py-2 font-semibold hover:bg-green-500 px-4 hover:rounded-t">
+                                    Leave
+                                </button>
+                                <!-- Sub-menu -->
+                                <div class="absolute hidden group-hover:block bg-white text-gray-800 mt-0 py-2 shadow-lg w-[250%]">
+                                    <a href="#" class="flex flex-row px-4 py-2 hover:bg-gray-200 hover:border-l-yellow-500 hover:border-l-4 pr-8">Leave Types</a>
+                                    <a href="#" class="flex flex-row px-4 py-2 hover:bg-gray-200  hover:border-l-yellow-500 hover:border-l-4 pr-8">Leaves</a>
+                                    <a href="#" class="flex flex-row px-4 py-2 hover:bg-gray-200  hover:border-l-yellow-500 hover:border-l-4 pr-8">Leave Application</a>
+                                </div>
+                            </div>
+
+                            <div class="relative group">
+                                <button class="text-white px-1 py-2 font-semibold hover:bg-green-500 px-4 hover:rounded-t">
+                                    Settings
+                                </button>
+                                <!-- Sub-menu -->
+                                <div class="absolute hidden group-hover:block bg-white text-gray-800 mt-0 py-2 shadow-lg w-[200%]">
+                                    <a href="{{ route('admin.division_types.index') }}" class="flex flex-row px-4 py-2 hover:bg-gray-200 hover:border-l-yellow-500 hover:border-l-4 pr-8">Division Types</a>
+                                    <a href="{{ route('admin.divisions.index') }}" class="flex flex-row px-4 py-2 hover:bg-gray-200  hover:border-l-yellow-500 hover:border-l-4 pr-8">Divisions</a>
+                                    <a href="{{ route('admin.departments.index') }}" class="flex flex-row px-4 py-2 hover:bg-gray-200  hover:border-l-yellow-500 hover:border-l-4 pr-8">Departments</a>
+                                    <a href="{{ route('admin.contact_types.index') }}" class="flex flex-row px-4 py-2 hover:bg-gray-200  hover:border-l-yellow-500 hover:border-l-4 pr-8">Contact Types</a>
+                                    <a href="{{ route('admin.gender.index') }}" class="flex flex-row px-4 py-2 hover:bg-gray-200  hover:border-l-yellow-500 hover:border-l-4 pr-8">Gender</a>
+                                    <a href="#" class="flex flex-row px-4 py-2 hover:bg-gray-200  hover:border-l-yellow-500 hover:border-l-4 pr-8">Marital Status</a>       
+                                    <a href="#" class="flex flex-row px-4 py-2 hover:bg-gray-200  hover:border-l-yellow-500 hover:border-l-4 pr-8">Geo-Pol Zones</a>
+                                    <a href="#" class="flex flex-row px-4 py-2 hover:bg-gray-200  hover:border-l-yellow-500 hover:border-l-4 pr-8">States</a>
+                                    <a href="#" class="flex flex-row px-4 py-2 hover:bg-gray-200  hover:border-l-yellow-500 hover:border-l-4 pr-8">LGAs</a>
+                                </div>
+                            </div>
+                            
                             <form action="{{ route('admin.auth.logout') }}" method="POST" class="flex items-center justify-center border-0">
                                 @csrf
                                 
-                                <button type="submit" class="flex font-semibold items-center hover:border-b-yellow-100 text-white hover:border-b-4 mx-3 ">Sign Out</button>
+                                <button type="submit" class="flex font-semibold items-center hover:border-b-yellow-100 text-white hover:border-b-4 mx-3 hover:bg-green-500 px-4 py-1 hover:rounded-t">Sign Out</button>
                             </form>  
                         @endif
                     @endauth     
@@ -70,7 +141,7 @@
                     </button>
                     <!-- Sub-menu for Mobile -->
                     <div class="hidden bg-slate-50 rounded-md" id="services-sub-menu-mobile">
-                        <a href="{{ route('admin.cells.index') }}" class="block px-4 py-2 hover:bg-gray-200">Cells</a>
+                        <a href="#" class="block px-4 py-2 hover:bg-gray-200">Cells</a>
                         <a href="#" class="block px-4 py-2 hover:bg-gray-200">Circles</a>
                         <a href="#" class="flex flex-row px-4 py-2 hover:bg-gray-200">Admin</a>
                         <a href="#" class="flex flex-row px-4 py-2 hover:bg-gray-200">Staff</a>

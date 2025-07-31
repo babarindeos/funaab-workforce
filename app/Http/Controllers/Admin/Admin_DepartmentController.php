@@ -7,31 +7,40 @@ use Illuminate\Http\Request;
 
 use App\Models\College;
 use App\Models\Department;
-use App\Models\Ministry;
+use App\Models\Division;
 
 class Admin_DepartmentController extends Controller
 {
     //
     public function index(){
-        $departments = Department::orderBy('department_name', 'asc')->paginate(2);
+        $departments = Department::orderBy('department_name', 'asc')->paginate(20);
         return view('admin.departments.index', compact('departments'));
     }
 
     public function create(){
         
-        $ministries = Ministry::orderBy('name', 'asc')->get();
-        return view('admin.departments.create', compact('ministries'));
+        $divisions = Division::orderBy('division_name', 'asc')->get();
+        $parent_departments = Department::orderBy('department_name', 'asc')->get();
+
+        return view('admin.departments.create', compact('divisions', 'parent_departments'));
     }
 
     public function store(Request $request){
         
-        $formFields = $request->validate([
-            'ministry' => 'required',
+         $request->validate([
+            'division' => 'required',
             'department_name' => 'required | string',
-            'department_code' => ['required', 'string']
+            'short_name' => ['required', 'string']
         ]);
 
-        $formFields['ministry_id'] = $formFields['ministry'];
+        $formFields = [
+            'division_id' => $request->division,
+            'parent_department' => $request->parent_department,
+            'department_name' => $request->department_name,
+            'short_name' => $request->short_name
+        ];
+
+        
 
         try{
             $create = Department::create($formFields);
@@ -40,22 +49,25 @@ class Admin_DepartmentController extends Controller
                 $data = [
                     'error' => true,
                     'status' => 'success',
-                    'message' => 'The Department or Agency has been successfully created'
+                    'message' => 'The Department has been successfully created'
                 ];
-            }else{
+            }
+            else
+            {
                 $data = [
                     'error' => true,
                     'status' => 'fail',
-                    'message' => 'An error occurred creating the Department or Agency'
+                    'message' => 'An error occurred creating the Department'
                 ];
             }
     
-        }catch(\Exception $e)
+        }
+        catch(\Exception $e)
         {
             $data = [
                     'error' => true,
                     'status' => 'fail',
-                    'message' => 'An error occurred creating the Department or Agency'.$e->getMessage()
+                    'message' => $e->getMessage()
             ];
         }
         
@@ -67,21 +79,29 @@ class Admin_DepartmentController extends Controller
 
 
     public function edit(Department $department){
-        //$colleges = College::orderBy('college_name', 'asc')->get();
-        $ministries = Ministry::orderBy('name', 'asc')->get();
+
+        $divisions = Division::orderBy('division_name', 'asc')->get();
+        $parent_departments = Department::orderBy('department_name', 'asc')->get();
         
 
-        return view('admin.departments.edit', compact('ministries', 'department'));
+        return view('admin.departments.edit', compact('divisions', 'parent_departments', 'department'));
     }
 
     public function update(Request $request, Department $department){
-        $formFields = $request->validate([
-            'ministry' => 'required',
+
+        $request->validate([
+            'division' => 'required',
             'department_name' => ['required', 'string'],
-            'department_code' => 'required | string'
+            'short_name' => 'required | string'
         ]);
 
-        $formFields['ministry_id'] = $formFields['ministry'];
+        $formFields = [
+            'division_id' => $request->division,
+            'parent_department' => $request->parent_department,
+            'department_name' => $request->department_name,
+            'short_name' => $request->short_name
+        ];
+
 
         try{
             $update = $department->update($formFields);
@@ -90,20 +110,24 @@ class Admin_DepartmentController extends Controller
                 $data = [
                     'error' => true,
                     'status' => 'success',
-                    'message' => 'The Department or Agency has been successfully updated'
-                ];
-            }else{
-                $data = [
-                    'error' => true,
-                    'status' => 'fail',
-                    'message' => 'An error occurred updating the Department or Agency'
+                    'message' => 'The Department has been successfully updated'
                 ];
             }
-        }catch(\Exception $e){
+            else
+            {
                 $data = [
                     'error' => true,
                     'status' => 'fail',
-                    'message' => 'An error occurred '.$e->getMessage()
+                    'message' => 'An error occurred updating the Department'
+                ];
+            }
+        }
+        catch(\Exception $e)
+        {
+                $data = [
+                    'error' => true,
+                    'status' => 'fail',
+                    'message' => $e->getMessage()
                 ];
         }
 

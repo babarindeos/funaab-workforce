@@ -23,7 +23,7 @@ class StaffAuth
         }
         
 
-        return redirect()->route('staff.auth.login');
+        return redirect()->route('welcome');
         
     }
 }

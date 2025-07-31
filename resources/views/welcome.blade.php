@@ -3,20 +3,24 @@
 
     <div class="flex flex-col md:flex-row h-full">
             <!-- left  panel //-->
-            <div class="flex flex-col border-0 py-16 h-full w-full md:w-[70%]"
-                style="background-image:url('{{asset('images/workplace.jpg')}}'); 
-                       background-size: cover; 
-                       background-repeat: repeat
-                       background-position: right; background-color:#f1f1f1;"
-            >
-                    <!-- <img src="{{ asset('images/goviflow_low.jpg') }}" /> //-->
+            <div class="flex w-full h-[40%] md:h-[40%] md:w-[70%]">
+                    <div class="flex flex-col border-0 py-16 w-full h-[100%] md:w-[100%]"
+                        style="background-image:url('{{asset('images/header.jpg')}}'); 
+                            background-size: cover; 
+                            background-repeat: no-repeat;
+                            background-position: center; background-color:#f1f1f1;"
+                    >
+                            <!-- <img src="{{ asset('images/goviflow_low.jpg') }}" /> //-->
+                    </div>
+                    <!-- end of left panel //-->
             </div>
-            <!-- end of left panel //-->
 
 
 
             <!-- Right  panel //-->
-            <div class="flex flex-col w-full  md:w-[30%] items-center justify-center py-4">
+            <div class="flex flex-col w-full  md:w-[30%] items-center justify-center py-4 border-l">
+
+                <a href="{{ route('guest.staff_updates.login') }}" class='text-2xl underline hidden'>Fill the Staff Update Form</a>
 
                 <section class="flex flex-col w-full border border-0">
                     <div class="flex flex-col w-full border border-0" >
@@ -37,7 +41,7 @@
                                                                         focus:outline-none
                                                                         focus:border-blue-500 
                                                                         focus:ring
-                                                                        focus:ring-blue-100" placeholder="Username"
+                                                                        focus:ring-blue-100" placeholder="Email"
                                                                         
                                                                         value="{{ old('email') }}"
                                                                         
@@ -88,6 +92,10 @@
                             </div>
 
                             <!-- end of submit //-->
+
+                             <div class='flex flex-row border-0 w-[80%] justify-end items-center space-x-5'>                                 
+                                <a href="#" class='flex flex-row text-sm border-0 hover:underline'>Forgot Password</a>
+                            </div>
 
                         </form>
                     </div>

@@ -24,7 +24,7 @@ class AdminAuth
         }
         
 
-        return redirect()->route('admin.auth.login');
+        return redirect()->route('/');
         
     }
 }

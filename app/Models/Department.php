@@ -9,19 +9,24 @@ class Department extends Model
 {
     use HasFactory;
 
+    
     protected $fillable = [
-        'ministry_id',
+        'division_id',
+        'parent_department',
         'department_name',
-        'department_code'
+        'short_name'
     ];
 
-    public function ministry(){
-        return $this->belongsTo(Ministry::class);
-    }
+   
 
     public function staff()
     {
         return $this->hasMany(Staff::class, 'department_id', 'id');
+    }
+
+    public function parent()
+    {
+        return $this->belongsTo(Department::class, 'parent_department', 'id');
     }
 
    
