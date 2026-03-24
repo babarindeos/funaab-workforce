@@ -15,4 +15,9 @@ class Division extends Model
     {
         return $this->belongsTo(DivisionType::class, 'division_type_id', 'id');
     }
+
+    public function parent()
+    {
+        return $this->belongsTo(Division::class, 'parent_division', 'id');
+    }
 }

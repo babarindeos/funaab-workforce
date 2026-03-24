@@ -9,9 +9,22 @@ use App\Models\DivisionType;
 class Admin_DivisionTypeController extends Controller
 {
     //
-    public function index()
+    public function index(Request $request)
     {
-        $division_types = DivisionType::orderBy('created_at', 'desc')->paginate(20);
+
+        $query = $request->query('q');
+
+        if ($query == null)
+        {
+            $division_types = DivisionType::orderBy('created_at', 'desc')->paginate(20);
+        }
+        else
+        {
+            $division_types = DivisionType::where('division_type_name', 'like', "%{$query}%")
+                                          ->orderBy('created_at', 'desc')
+                                          ->paginate(20);
+        }
+        
 
         return view('admin.division_types.index', compact('division_types'));
     }

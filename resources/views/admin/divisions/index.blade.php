@@ -109,10 +109,10 @@
                                 </td>
                                 <td></td>
                                 <td>
-                                            <span class="text-sm">
-                                                    <a href="{{ route('admin.divisions.edit',['division' => $division->id]) }}" class="hover:bg-blue-500 bg-blue-400 text-white rounded 
-                                                        px-4 py-1 text-xs" href="#">Edit</a>
-                                            </span>
+                                                <span class="text-sm">
+                                                        <a href="{{ route('admin.divisions.edit',['division' => $division->id]) }}" class="hover:bg-blue-500 bg-blue-400 text-white rounded 
+                                                            px-4 py-1 text-xs" href="#">Edit</a>
+                                                </span>
                                            
                                                 <span class="text-sm">
                                                         <a class="hover:bg-red-500 bg-red-400 text-white rounded 

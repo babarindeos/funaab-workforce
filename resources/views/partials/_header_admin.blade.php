@@ -15,8 +15,8 @@
                     <!-- end of logo //-->
                     <!-- Name //-->
                     <div class="flex flex-col item-center justify-center">
-                            <div class="text-white font-bold text-2xl font-serif">FUNAAB WorkForce</div>
-                            <div class="text-white font-semibold font-serif text-sm opacity-70">Staff Resource Management Service</div>
+                            <div class="text-white font-bold text-2xl">FUNAAB WorkForce</div>
+                            <div class="text-white font-semibold  text-sm opacity-70">Staff Resource Management Service</div>
                                 
                     </div>
                     <!-- end of name //-->
@@ -43,10 +43,10 @@
                                 <!-- Sub-menu -->
                                 <div class="absolute hidden group-hover:block bg-white text-gray-800 mt-0 py-2 shadow-lg w-[300%]">
                                     <a href="#" class="flex flex-row px-4 py-2 hover:bg-gray-200 hover:border-l-yellow-500 hover:border-l-4 pr-8">Staff Management</a>
-                                    <a href="#" class="flex flex-row px-4 py-2 hover:bg-gray-200  hover:border-l-yellow-500 hover:border-l-4 pr-8">Employment Types</a>
-                                    <a href="#" class="flex flex-row px-4 py-2 hover:bg-gray-200  hover:border-l-yellow-500 hover:border-l-4 pr-8">Staff Categories</a>
-                                    <a href="#" class="flex flex-row px-4 py-2 hover:bg-gray-200  hover:border-l-yellow-500 hover:border-l-4 pr-8">Staff Titles</a>
-                                    <a href="#" class="flex flex-row px-4 py-2 hover:bg-gray-200  hover:border-l-yellow-500 hover:border-l-4 pr-8">Staff Status</a>
+                                    <a href="{{ route('admin.employment_types.index') }}" class="flex flex-row px-4 py-2 hover:bg-gray-200  hover:border-l-yellow-500 hover:border-l-4 pr-8">Employment Types</a>
+                                    <a href="{{ route('admin.staff_categories.index') }}" class="flex flex-row px-4 py-2 hover:bg-gray-200  hover:border-l-yellow-500 hover:border-l-4 pr-8">Staff Categories</a>
+                                    <a href="{{ route('admin.staff_titles.index') }}" class="flex flex-row px-4 py-2 hover:bg-gray-200  hover:border-l-yellow-500 hover:border-l-4 pr-8">Staff Titles</a>
+                                    <a href="{{ route('admin.staff_statuses.index') }}" class="flex flex-row px-4 py-2 hover:bg-gray-200  hover:border-l-yellow-500 hover:border-l-4 pr-8">Staff Status</a>
                                     <a href="#" class="flex flex-row px-4 py-2 hover:bg-gray-200  hover:border-l-yellow-500 hover:border-l-4 pr-8">Class of Degree</a>                                     
                                     <a href="#" class="flex flex-row px-4 py-2 hover:bg-gray-200  hover:border-l-yellow-500 hover:border-l-4 pr-8">Degrees</a>                                                                       
                                     <a href="#" class="flex flex-row px-4 py-2 hover:bg-gray-200  hover:border-l-yellow-500 hover:border-l-4 pr-8">Deployment Post</a>
@@ -114,10 +114,10 @@
                                     <a href="{{ route('admin.departments.index') }}" class="flex flex-row px-4 py-2 hover:bg-gray-200  hover:border-l-yellow-500 hover:border-l-4 pr-8">Departments</a>
                                     <a href="{{ route('admin.contact_types.index') }}" class="flex flex-row px-4 py-2 hover:bg-gray-200  hover:border-l-yellow-500 hover:border-l-4 pr-8">Contact Types</a>
                                     <a href="{{ route('admin.gender.index') }}" class="flex flex-row px-4 py-2 hover:bg-gray-200  hover:border-l-yellow-500 hover:border-l-4 pr-8">Gender</a>
-                                    <a href="#" class="flex flex-row px-4 py-2 hover:bg-gray-200  hover:border-l-yellow-500 hover:border-l-4 pr-8">Marital Status</a>       
-                                    <a href="#" class="flex flex-row px-4 py-2 hover:bg-gray-200  hover:border-l-yellow-500 hover:border-l-4 pr-8">Geo-Pol Zones</a>
-                                    <a href="#" class="flex flex-row px-4 py-2 hover:bg-gray-200  hover:border-l-yellow-500 hover:border-l-4 pr-8">States</a>
-                                    <a href="#" class="flex flex-row px-4 py-2 hover:bg-gray-200  hover:border-l-yellow-500 hover:border-l-4 pr-8">LGAs</a>
+                                    <a href="{{ route('admin.marital_statuses.index') }}" class="flex flex-row px-4 py-2 hover:bg-gray-200  hover:border-l-yellow-500 hover:border-l-4 pr-8">Marital Status</a>       
+                                    <a href="{{ route('admin.geo_pol_zones.index') }}" class="flex flex-row px-4 py-2 hover:bg-gray-200  hover:border-l-yellow-500 hover:border-l-4 pr-8">Geo-Pol Zones</a>
+                                    <a href="{{ route('admin.states.index') }}" class="flex flex-row px-4 py-2 hover:bg-gray-200  hover:border-l-yellow-500 hover:border-l-4 pr-8">States</a>
+                                    <a href="{{ route('admin.lgas.index') }}" class="flex flex-row px-4 py-2 hover:bg-gray-200  hover:border-l-yellow-500 hover:border-l-4 pr-8">LGAs</a>
                                 </div>
                             </div>
                             

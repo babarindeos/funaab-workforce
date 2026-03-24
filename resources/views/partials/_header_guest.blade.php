@@ -13,8 +13,8 @@
             <!-- end of logo //-->
             <!-- Name //-->
             <a href="{{ route('welcome') }}" class="flex flex-col item-center justify-center">
-                    <div class="text-white font-bold text-2xl font-serif">FUNAAB WorkForce</div>
-                    <div class="text-white font-semibold font-serif text-sm opacity-70">Staff Resource Management Service...</div>
+                    <div class="text-white font-bold text-2xl">FUNAAB WorkForce</div>
+                    <div class="text-white font-semibold text-sm opacity-70">Staff Resource Management Service...</div>
             </a>
             <!-- end of name //-->
         </div>

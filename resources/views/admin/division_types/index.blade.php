@@ -28,16 +28,12 @@
 
         
         <section class="flex flex-col w-[95%] md:w-[60%] mx-auto py-2 mt-2 border-0">
-                   
-
-
-        @if ($division_types->count())
-                    <div class='flex flex-col w-full md:flex-row md:items-center'>
+                     <div class='flex flex-col w-full md:flex-row md:items-center'>
                         <div class='py-1 text-xl font-medium md:w-1/2'>Division Types ({{ $division_types->count() }})</div>
 
                         <!-- Search //-->
                         <div class='flex flex-col gap-2 w-full py-2 md:py-2 md:w-1/2 md:justify-end md:items-end border-0'>
-                                <form action="#" method="GET" class="flex flex-row items-center w-full border-0">
+                                <form action="{{ route('admin.division_types.index') }}" method="GET" class="flex flex-row items-center w-full border-0">
                                 
                                                 <div class="flex flex-col justify-end items-end border-0 w-full">
                                                 
@@ -64,6 +60,10 @@
                         </div>
                         <!-- end of Search //-->
                     </div>
+
+
+        @if ($division_types->count())
+                    
                     <table class="table-auto border-collapse border border-1 border-gray-200 w-[100%]">
                         <thead>
                             <tr class="bg-gray-200">

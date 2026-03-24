@@ -11,9 +11,31 @@ use App\Models\DivisionType;
 class Admin_DivisionController extends Controller
 {
     //
-    public function index()
+    public function index(Request $request)
     {
-        $divisions = Division::orderBy('created_at', 'desc')->paginate(50);
+        $query = $request->query('q');
+
+        if ($query== null)
+        {
+            $divisions = Division::orderBy('created_at', 'desc')->paginate(50);
+        }
+        else
+        {
+            $divisions = Division::with(['division_type', 'parent'])
+                                  ->where(function($q) use ($query){
+                                        $q->where('division_name', 'like', "%{$query}%")
+                                          ->orWhereHas('parent', function($q2) use ($query){
+                                                $q2->where('division_name', 'like', "%{$query}%");
+                                          })
+                                          ->orWhereHas('division_type', function($q3) use ($query){
+                                                $q3->where('division_type_name', 'like', "%{$query}%");
+                                          });
+                                  })
+                                  ->orderBy('created_at', 'desc')
+                                  ->paginate(50);
+        }
+
+        
         return view('admin.divisions.index', compact('divisions'));
     }
 

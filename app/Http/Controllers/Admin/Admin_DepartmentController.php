@@ -12,8 +12,28 @@ use App\Models\Division;
 class Admin_DepartmentController extends Controller
 {
     //
-    public function index(){
-        $departments = Department::orderBy('department_name', 'asc')->paginate(20);
+    public function index(Request $request)
+    {
+        $query = $request->query('q');
+
+        if ($query == null)
+        {
+             $departments = Department::orderBy('department_name', 'asc')->paginate(20);
+        }
+        else
+        {
+             $departments = Department::with('parent')
+                                      ->where(function($q) use ($query){
+                                            $q->where('department_name', 'like', "%{$query}%")
+                                              ->orWhere('short_name', 'like', "%{$query}%")
+                                              ->orWhereHas('parent', function($q2) use ($query){
+                                                    $q2->where('department_name', 'like', "%{$query}%");
+                                              });
+                                      })
+                                      ->paginate(20);
+        }
+
+       
         return view('admin.departments.index', compact('departments'));
     }
 

@@ -17,6 +17,16 @@ use App\Http\Controllers\Admin\Admin_DivisionController;
 use App\Http\Controllers\Admin\Admin_DepartmentController;
 use App\Http\Controllers\Admin\Admin_ContactTypeController;
 use App\Http\Controllers\Admin\Admin_GenderController;
+use App\Http\Controllers\Admin\Admin_MaritalStatusController;
+use App\Http\Controllers\Admin\Admin_GeoPolZoneController;
+
+use App\Http\Controllers\Admin\Admin_StateController;
+use App\Http\Controllers\Admin\Admin_LGAController;
+use App\Http\Controllers\Admin\Admin_EmploymentTypeController;
+use App\Http\Controllers\Admin\Admin_StaffCategoryController;
+
+use App\Http\Controllers\Admin\Admin_StaffTitleController;
+use App\Http\Controllers\Admin\Admin_StaffStatusController;
 
 
 use App\Http\Controllers\Staff\Staff_AuthController;
@@ -253,7 +263,88 @@ Route::prefix('admin')->middleware(['auth','admin'])->group(function(){
 
     // Gender
     Route::get('gender', [Admin_GenderController::class, 'index'])->name('admin.gender.index');
-    
+    Route::get('gender/{gender}/show', [Admin_GenderController::class, 'show'])->name('admin.gender.show');
+
+
+    // Marital Status
+    Route::get('marital_statuses', [Admin_MaritalStatusController::class, 'index'])->name('admin.marital_statuses.index');
+    Route::get('marital_statuses/create',[Admin_MaritalStatusController::class, 'create'])->name('admin.marital_statuses.create');
+    Route::post('marital_statuses/store', [Admin_MaritalStatusController::class, 'store'])->name('admin.marital_statuses.store');
+    Route::get('marital_statuses/{marital_status}/show', [Admin_MaritalStatusController::class, 'show'])->name('admin.marital_statuses.show');
+    Route::get('marital_statuses/{marital_status}/edit', [Admin_MaritalStatusController::class, 'edit'])->name('admin.marital_statuses.edit');
+    Route::post('marital_statuses/{marital_status}/update', [Admin_MaritalStatusController::class, 'update'])->name('admin.marital_statuses.update');
+    Route::get('marital_statuses/{marital_status}/confirm_delete', [Admin_MaritalStatusController::class, 'confirm_delete'])->name('admin.marital_statuses.confirm_delete');
+    Route::delete('martial_statuses/{marital_status}/delete', [Admin_MaritalStatusController::class, 'destroy'])->name('admin.marital_status.delete');
+
+
+
+    // GeoPolZone
+    Route::get('geo_pol_zones', [Admin_GeoPolZoneController::class, 'index'])->name('admin.geo_pol_zones.index');
+    Route::get('geo_pol_zones/create', [Admin_GeoPolZoneController::class, 'create'])->name('admin.geo_pol_zones.create');
+    Route::post('geo_pol_zones/store', [Admin_GeoPolZoneController::class, 'store'])->name('admin.geo_pol_zones.store');
+    Route::get('geo_pol_zones/{geo_pol_zone}/show', [Admin_GeoPolZoneController::class, 'show'])->name('admin.geo_pol_zones.show');
+    Route::get('geo_pol_zones/{geo_pol_zone}/edit', [Admin_GeoPolZoneController::class, 'edit'])->name('admin.geo_pol_zones.edit');
+    Route::post('geo_pol_zones/{geo_pol_zone}/update', [Admin_GeoPolZoneController::class, 'update'])->name('admin.geo_pol_zones.update');
+    Route::get('geo_pol_zones/{geo_pol_zone}/confirm_delete', [Admin_GeoPolZoneController::class, 'confirm_delete'])->name('admin.geo_pol_zones.confirm_delete');
+    Route::delete('geo_pol_zones/{geo_pol_zone}/delete', [Admin_GeoPolZoneController::class, 'destroy'])->name('admin.geo_pol_zones.delete');
+
+
+    // State
+    Route::get('states', [Admin_StateController::class, 'index'])->name('admin.states.index');
+    Route::get('states/{state}/show', [Admin_StateController::class, 'show'])->name('admin.states.show');
+
+
+    // LGA
+    Route::get('lgas', [Admin_LGAController::class, 'index'])->name('admin.lgas.index');
+    Route::get('lgas/{lga}/show', [Admin_LGAController::class, 'show'])->name('admin.lgas.show');
+
+
+    // Employment Types
+    Route::get('employment_types', [Admin_EmploymentTypeController::class, 'index'])->name('admin.employment_types.index');
+    Route::get('employment_types/create', [Admin_EmploymentTypeController::class, 'create'])->name('admin.employment_types.create');
+    Route::post('employment_types/store', [Admin_EmploymentTypeController::class, 'store'])->name('admin.employment_types.store');
+    Route::get('employment_types/{employment_type}/show', [Admin_EmploymentTypeController::class, 'show'])->name('admin.employment_types.show');
+    Route::get('employment_types/{employment_type}/edit' , [Admin_EmploymentTypeController::class, 'edit'])->name('admin.employment_types.edit');
+    Route::post('employment_types/{employment_type}/update', [Admin_EmploymentTypeController::class, 'update'])->name('admin.employment_types.update');
+    Route::get('employment_types/{employment_type}/confirm_delete', [Admin_EmploymentTypeController::class, 'confirm_delete'])->name('admin.employment_types.confirm_delete');
+    Route::delete('employment_types/{employment_type}/delete', [Admin_EmploymentTypeController::class. 'destroy'])->name('admin.employment_types.delete');
+
+
+    // Staff Categories
+    Route::get('staff_categories', [Admin_StaffCategoryController::class, 'index'])->name('admin.staff_categories.index');
+    Route::get('staff_categories/create', [Admin_StaffCategoryController::class, 'create'])->name('admin.staff_categories.create');
+    Route::post('staff_categories/store', [Admin_StaffCategoryController::class, 'store'])->name('admin.staff_categories.store');
+    Route::get('staff_categories/{staff_category}/show', [Admin_StaffCategoryController::class, 'show'])->name('admin.staff_categories.show');
+    Route::get('staff_categories/{staff_category}/edit' , [Admin_StaffCategoryController::class, 'edit'])->name('admin.staff_categories.edit');
+    Route::post('staff_categories/{staff_category}/update', [Admin_StaffCategoryController::class, 'update'])->name('admin.staff_categories.update');
+    Route::get('staff_categories/{staff_category}/confirm_delete', [Admin_StaffCategoryController::class, 'confirm_delete'])->name('admin.staff_categories.confirm_delete');
+    Route::delete('staff_categories/{staff_category}/delete', [Admin_StaffCategoryController::class. 'destroy'])->name('admin.staff_categories.delete');
+
+
+    // Staff Titles - Admin_StaffTitleController
+    Route::get('staff_titles', [Admin_StaffTitleController::class, 'index'])->name('admin.staff_titles.index');
+    Route::get('staff_titles/create', [Admin_StaffTitleController::class, 'create'])->name('admin.staff_titles.create');
+    Route::post('staff_titles/store', [Admin_StaffTitleController::class, 'store'])->name('admin.staff_titles.store');
+    Route::get('staff_titles/{staff_title}/show', [Admin_StaffTitleController::class, 'show'])->name('admin.staff_titles.show');
+    Route::get('staff_titles/{staff_title}/edit' , [Admin_StaffTitleController::class, 'edit'])->name('admin.staff_titles.edit');
+    Route::post('staff_titles/{staff_title}/update', [Admin_StaffTitleController::class, 'update'])->name('admin.staff_titles.update');
+    Route::get('staff_titles/{staff_title}/confirm_delete', [Admin_StaffTitleController::class, 'confirm_delete'])->name('admin.staff_titles.confirm_delete');
+    Route::delete('staff_titles/{staff_title}/delete', [Admin_StaffTitleController::class. 'destroy'])->name('admin.staff_titles.delete');
+
+
+    // Staff Status - Admin_StaffStatusController
+    Route::get('staff_statuses', [Admin_StaffStatusController::class, 'index'])->name('admin.staff_statuses.index');
+    Route::get('staff_statuses/create', [Admin_StaffStatusController::class, 'create'])->name('admin.staff_statuses.create');
+    Route::post('staff_statuses/store', [Admin_StaffStatusController::class, 'store'])->name('admin.staff_statuses.store');
+    Route::get('staff_statuses/{staff_status}/show', [Admin_StaffStatusController::class, 'show'])->name('admin.staff_statuses.show');
+    Route::get('staff_statuses/{staff_status}/edit' , [Admin_StaffStatusController::class, 'edit'])->name('admin.staff_statuses.edit');
+    Route::post('staff_statuses/{staff_status}/update', [Admin_StaffStatusController::class, 'update'])->name('admin.staff_statuses.update');
+    Route::get('staff_statuses/{staff_status}/confirm_delete', [Admin_StaffStatusController::class, 'confirm_delete'])->name('admin.staff_statuses.confirm_delete');
+    Route::delete('staff_statuses/{staff_status}/delete', [Admin_StaffStatusController::class. 'destroy'])->name('admin.staff_statuses.delete');
+
+
+
+
 
 });
 

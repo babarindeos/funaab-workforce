@@ -8,4 +8,11 @@ use Illuminate\Database\Eloquent\Model;
 class StaffCategory extends Model
 {
     use HasFactory;
+
+    protected $fillable = ['parent_staff_category', 'category'];
+
+    public function parent()
+    {
+        return $this->belongsTo(StaffCategory::class, 'parent_staff_category', 'id');
+    }
 }

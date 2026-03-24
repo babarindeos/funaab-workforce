@@ -10,9 +10,22 @@ use App\Models\ContactType;
 class Admin_ContactTypeController extends Controller
 {
     //
-    public function index()
+    public function index(Request $request)
     {
-            $contact_types = ContactType::orderBy('created_at', 'desc')->paginate(50);
+            $query = $request->query('q');
+
+            if ($query == null)
+            {
+                $contact_types = ContactType::orderBy('created_at', 'desc')->paginate(50);
+            }
+            else
+            {
+                $contact_types = ContactType::where('contact_type_name', 'like', "%{$query}%")
+                                            ->orderBy('created_at', 'desc')
+                                            ->paginate(50);
+            }
+
+            
             return view('admin.contact_types.index', compact('contact_types'));
     }
 

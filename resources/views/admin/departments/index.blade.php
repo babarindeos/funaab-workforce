@@ -91,7 +91,7 @@
                                     <div class='py-1'>
                                         
                                             <a class="font-semibold text-blue-800 underline" href="{{ route('admin.departments.show',['department'=>$department->id]) }}">
-                                                {{ $department->department_name }}
+                                                {{ $department->department_name }} ({{ $department->short_name }})
                                             </a>                             
                                     </div>
                                     <div class='flex flex-wrap md:flex-row gap-3 md:gap-4 text-sm'>

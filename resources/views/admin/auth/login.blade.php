@@ -1,4 +1,4 @@
-<x-guest-layout>
+<x-guest_admin-layout>
 
     <section class="flex border border-0 border-red-900 w-full">
         
@@ -118,4 +118,4 @@
 
 
 
-</x-guest-layout>
+</x-guest_admin-layout>

@@ -1,0 +1,87 @@
+<x-admin-layout>
+
+    <div class="flex flex-col border-0 w-[89%] md:w-[93%] mx-auto">
+        <section class="flex flex-row justify-between border-b border-gray-200 py-2 mt-6">
+                <div class="text-2xl font-semibold ">
+                    Geo-Political Zone        
+                </div>
+
+                <div>
+
+                            <a href="{{ route('admin.geo_pol_zones.index') }}" class="border border-green-600 text-green-600 py-2 px-6 
+                                            rounded-lg text-xs md:text-sm hover:bg-green-600 hover:text-white hover:border-green-600">Geo-Political Zones</a>
+                </div>
+                
+        </section>
+
+       
+
+
+        <!-- Create Geo-Pol Zone  //-->
+        
+       
+    
+        <section class="py-8 mt-2">
+                <div>
+                    <form  action="{{ route('admin.geo_pol_zones.update',['geo_pol_zone' => $geo_pol_zone->id]) }} " method="POST" enctype="multipart/form-data" class="flex flex-col mx-auto w-full md:w-[95%] items-center justify-center">
+                        @csrf
+    
+                        
+    
+                        <div class="flex flex-col w-[80%] md:w-[60%] py-2 md:py-4" style="font-family:'Lato'; font-size:18px; font-weight:400;">
+                            <h2 class="font-semibold text-xl py-1" >Edit Geo-Political Zones</h2>
+                            
+                        </div>
+    
+                        <div class="flex flex-col w-[80%] md:w-[60%]" >
+                                @include('partials._session_response')
+                        </div>                 
+                        
+    
+                        <!-- Zone //-->
+                        <div class="flex flex-col border-red-900 w-[80%] md:w-[60%] py-3">
+                        
+                            
+                            <input type="text" name="zone" class="border border-1 border-gray-400 bg-gray-50
+                                                                    w-full p-4 rounded-md 
+                                                                    focus:outline-none
+                                                                    focus:border-blue-500 
+                                                                    focus:ring
+                                                                    focus:ring-blue-100" placeholder="Zone"
+                                                                    
+                                                                    value="{{ $geo_pol_zone->zone }}"
+                                                                    
+                                                                    style="font-family:'Lato';font-size:16px;font-weight:500;"                                                                     
+                                                                    required
+                                                                    />  
+                                                                                                                                        
+    
+                                                                    @error('zone')
+                                                                        <span class="text-red-700 text-sm">
+                                                                            {{$message}}
+                                                                        </span>
+                                                                    @enderror
+                            
+                        </div><!-- end of Zone //-->      
+                        
+                                    
+    
+                        <div class="flex flex-col border-red-900 w-[80%] md:w-[60%] mt-4">
+                            <button type="submit" class="border border-1 bg-gray-400 py-4 text-white 
+                                           hover:bg-gray-500
+                                           rounded-md text-lg" style="font-family:'Lato';font-weight:500;">Update Geo-Pol Zone</button>
+                        </div>
+                        
+                    </form><!-- end of Geo-Pol Zone form //-->
+                <div>
+    
+            
+
+        </section>
+        <!-- End of Geo-Pol Zone Section //-->
+
+
+
+    </div>
+
+</x-admin-layout>

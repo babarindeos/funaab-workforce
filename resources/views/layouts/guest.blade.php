@@ -19,11 +19,11 @@
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
-    <body class="font-sans text-gray-900 antialiased flex flex-col min-h-screen  justify-between ">
+    <body class="font-sans text-gray-900 antialiased flex flex-col min-h-screen justify-between ">
         <header>
                 @include('partials._header_guest')
         </header>
-        <main class="flex flex-1 border-0">
+        <main class="flex-grow border-0">
                 {{ $slot }}
         </main>
         <footer>
