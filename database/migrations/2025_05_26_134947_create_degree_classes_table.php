@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('degree_classes', function (Blueprint $table) {
             $table->id();
             $table->string('degree_class_name')->unique();
+            $table->integer('order_level')->nullable();
             $table->timestamps();
         });
     }

@@ -80,6 +80,12 @@ class Admin_DivisionTypeController extends Controller
 
     }
 
+
+    public function show(DivisionType $division_type)
+    {
+        return view('admin.division_types.show', compact('division_type'));
+    }
+
     public function edit(DivisionType $division_type)
     {
         return view('admin.division_types.edit', compact('division_type'));

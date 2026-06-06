@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('staff_categories', function (Blueprint $table) {
             $table->id();
+            $table->uuid()->unique();
             $table->unsignedBigInteger('parent_staff_category');
             $table->foreign('parent_staff_category')->references('id')->on('staff_categories')->onDelete('cascade');
             $table->string('category')->unique();

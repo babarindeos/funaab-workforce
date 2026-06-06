@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('division_types', function (Blueprint $table) {
             $table->id();
+            $table->uuid()->unique();
             $table->string('division_type_name')->unique();
             $table->timestamps();
         });

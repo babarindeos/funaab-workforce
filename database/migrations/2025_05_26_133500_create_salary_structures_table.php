@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('salary_structures', function (Blueprint $table) {
             $table->id();
+            $table->uuid()->unique();
             $table->string('salary_structure_name')->unique();
             $table->timestamps();
         });

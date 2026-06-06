@@ -3,64 +3,18 @@
 
     <div class="flex flex-col md:flex-row h-full">
             <!-- left  panel //-->
-            <div class="md:w-[80%] h-[25%] md:h-[100%] border-0 border-red-900">
-                    <div class="relative flex w-full h-[100%] md:h-[40%] md:w-[100%]">
-                            <div class="flex flex-col border-0 py-32 w-full h-[100%] md:w-[100%]"
-                                style="background-image:url('{{asset('images/header.jpg')}}'); 
-                                    background-size: cover; 
-                                    background-repeat: no-repeat;
-                                    background-position: center; background-color:#f1f1f1;"
-                            >
-                                    <!-- <img src="{{ asset('images/goviflow_low.jpg') }}" /> //-->
-                            </div>
+            <div class="md:w-[70%]  border-0 border-red-900">
+                    <div class="relative flex w-full h-[100%] md:w-[100%]">
+                           
+                                    <img src="{{ asset('images/frontimg.webp') }}" /> 
+                            
 
 
-                            <!-- end of left panel //-->                            
-                            <div class="absolute inset-0 flex items-center justify-center z-10 bg-black bg-opacity-50 py-16">
-                                <h1 class="text-white text-xl md:text-2xl font-bold">Federal University of Agriculture, Abeokuta</h1>
-                            </div>
+                         
                             
                     </div>
 
-                    <div>
-                                <div class="hidden md:flex md:flex-row mx-auto w-full border-0 justify-center gap-16 py-16">
-                                    <div class='border-0'>
-                                            <img src="{{ asset('images/prof_kehinde.jpg') }}" class='w-64 h-64 rounded-xl' />
-                                            <div class='text-center font-semibold text-lg mt-1'>Prof. O.B Kehinde</div>
-                                            <div class='text-center'>Vice-Chancellor</div>
-                                    </div>
-                                    <div class="border-0">
-                                            <img src="{{ asset('images/prof_dairo.jpg') }}" class='w-64 h-64 rounded-xl' />
-                                            <div class='text-center font-semibold text-lg mt-1'>Prof. O.U Dairo</div>
-                                            <div class='text-center'>Deputy Vice-Chancellor (Development)</div>
-                                    </div>
-                                    <div class="border-0">
-                                            <img src="{{ asset('images/prof_akinyemi.jpg') }}" class='w-64 h-64 rounded-xl' />
-                                            <div class='text-center font-semibold text-lg mt-1'>Prof. O.D Akinyemi</div>
-                                            <div class='text-center'>Deputy Vice-Chancellor (Academics)</div>
-                                    </div>
-
-                                </div>
-
-                                <div class="hidden md:flex md:flex-row mx-auto w-full border-0 justify-center gap-16 py-16">
-                                    <div class='border-0'>
-                                            <img src="{{ asset('images/dr_titus.jpg') }}" class='w-64 h-64 rounded-xl' />
-                                            <div class='text-center font-semibold text-lg mt-1'>Dr. T.A Adeniyi</div>
-                                            <div class='text-center'>Registrar</div>
-                                    </div>
-                                    <div class="border-0">
-                                            <img src="{{ asset('images/osinuga.png') }}" class='w-64 h-64 rounded-xl' />
-                                            <div class='text-center font-semibold text-lg mt-1'>Mr. O.O Osinuga</div>
-                                            <div class='text-center'>Bursar</div>
-                                    </div>
-                                    <div class="border-0">
-                                            <img src="{{ asset('images/dr_owolabi.jpg') }}" class='w-64 h-64 rounded-xl' />
-                                            <div class='text-center font-semibold text-lg mt-1'>Prof. K.A Owolabi</div>
-                                            <div class='text-center'>Librarian</div>
-                                    </div>
-
-                                </div>
-                    </div>
+                    
             </div>
 
             
@@ -68,7 +22,7 @@
 
 
             <!-- Right  panel //-->
-            <div class="flex flex-col w-full  md:w-[30%] items-start justify-center md:justify-start md:py-32 py-4 border-l">
+            <div class="flex flex-col w-full  md:w-[30%] items-start justify-center md:justify-start md:py-32 py-4 border-l bg-gray-50">
 
                 <a href="{{ route('guest.staff_updates.login') }}" class='text-2xl underline hidden'>Fill the Staff Update Form</a>
 
@@ -91,7 +45,9 @@
                                                                         focus:outline-none
                                                                         focus:border-blue-500 
                                                                         focus:ring
-                                                                        focus:ring-blue-100" placeholder="Email"
+                                                                        focus:ring-blue-100 
+                                                                        focus:bg-white
+                                                                        " placeholder="Email"
                                                                         
                                                                         value="{{ old('email') }}"
                                                                         
@@ -116,7 +72,9 @@
                                     focus:outline-none
                                     focus:border-blue-500 
                                     focus:ring
-                                    focus:ring-blue-100" placeholder="Password"
+                                    focus:ring-blue-100
+                                    focus:bg-white
+                                    " placeholder="Password"
                                     
                                     value="{{ old('password') }}"
                                     

@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('lgas', function (Blueprint $table) {
             $table->id();
+            $table->uuid()->unique();
             $table->unsignedBigInteger('state_id');
             $table->foreign('state_id')->references('id')->on('states')->onDelete('cascade');
             $table->string('lga_name')->unique();

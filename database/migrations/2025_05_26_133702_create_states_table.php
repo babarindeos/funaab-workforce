@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('states', function (Blueprint $table) {
             $table->id();
+            $table->uuid()->unique();
             $table->unsignedBigInteger('geo_pol_zone_id');
             $table->foreign('geo_pol_zone_id')->references('id')->on('geo_pol_zones')->onDelete('cascade');
             $table->string('state_name')->unique();

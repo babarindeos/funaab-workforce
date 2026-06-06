@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('contact_types', function (Blueprint $table) {
             $table->id();
+            $table->uuid()->unique();
             $table->string('contact_type_name')->unique();
             $table->timestamps();
         });

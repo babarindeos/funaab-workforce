@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('salary_steps', function (Blueprint $table) {
             $table->id();
+            $table->uuid()->unique();
             $table->string('step',3)->unique();
             $table->timestamps();
         });

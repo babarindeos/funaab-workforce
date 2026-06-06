@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('geo_pol_zones', function (Blueprint $table) {
             $table->id();
+            $table->uuid()->unique();
             $table->string('zone')->unique();
             $table->timestamps();
         });

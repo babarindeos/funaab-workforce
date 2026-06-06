@@ -28,6 +28,12 @@ use App\Http\Controllers\Admin\Admin_StaffCategoryController;
 use App\Http\Controllers\Admin\Admin_StaffTitleController;
 use App\Http\Controllers\Admin\Admin_StaffStatusController;
 
+use App\Http\Controllers\Admin\Admin_DegreeController;
+use App\Http\Controllers\Admin\Admin_ClassOfDegreeController;
+
+use App\Http\Controllers\Admin\Admin_DeploymentPostController;
+use App\Http\Controllers\Admin\Admin_DeploymentController;
+
 
 use App\Http\Controllers\Staff\Staff_AuthController;
 use App\Http\Controllers\Staff\Staff_DashboardController;
@@ -214,7 +220,7 @@ Route::prefix('admin')->middleware(['auth','admin'])->group(function(){
     Route::get('division_types', [Admin_DivisionTypeController::class, 'index'])->name('admin.division_types.index');
     Route::get('division_types/create', [Admin_DivisionTypeController::class, 'create'])->name('admin.division_types.create');
     Route::post('division_types/store', [Admin_DivisionTypeController::class, 'store'])->name('admin.division_types.store');
-    Route::get('division_types{division_type}/show', [Admin_DivisionTypeController::class, 'show'])->name('admin.division_types.show');
+    Route::get('division_types/{division_type}/show', [Admin_DivisionTypeController::class, 'show'])->name('admin.division_types.show');
     Route::get('division_types/{division_type}/edit', [Admin_DivisionTypeController::class, 'edit'])->name('admin.division_types.edit');
     Route::post('division_types/{division_type}/update', [Admin_DivisionTypeController::class, 'update'])->name('admin.division_types.update');
     Route::get('division_types/{division_type}/confirm_delete', [Admin_DivisionTypeController::class, 'confirm_delete'])->name('admin.division_types.confirm_delete');
@@ -341,6 +347,52 @@ Route::prefix('admin')->middleware(['auth','admin'])->group(function(){
     Route::post('staff_statuses/{staff_status}/update', [Admin_StaffStatusController::class, 'update'])->name('admin.staff_statuses.update');
     Route::get('staff_statuses/{staff_status}/confirm_delete', [Admin_StaffStatusController::class, 'confirm_delete'])->name('admin.staff_statuses.confirm_delete');
     Route::delete('staff_statuses/{staff_status}/delete', [Admin_StaffStatusController::class. 'destroy'])->name('admin.staff_statuses.delete');
+
+
+    // Degree - Admin_DegreeController
+    Route::get('degrees', [Admin_DegreeController::class, 'index'])->name('admin.degrees.index');
+    Route::get('degrees/create', [Admin_DegreeController::class, 'create'])->name('admin.degrees.create');
+    Route::post('degrees/store', [Admin_DegreeController::class, 'store'])->name('admin.degrees.store');
+    Route::get('degrees/{degree}/show', [Admin_DegreeController::class, 'show'])->name('admin.degrees.show');
+    Route::get('degrees/{degree}/edit' , [Admin_DegreeController::class, 'edit'])->name('admin.degrees.edit');
+    Route::post('degrees/{degree}/update', [Admin_DegreeController::class, 'update'])->name('admin.degrees.update');
+    Route::get('degrees/{degree}/confirm_delete', [Admin_DegreeController::class, 'confirm_delete'])->name('admin.degrees.confirm_delete');
+    Route::delete('degrees/{degree}/delete', [Admin_DegreeController::class. 'destroy'])->name('admin.degrees.delete');
+
+
+    // Class of Degree - Admin_ClassOfDegreeController
+    Route::get('classes_of_degrees', [Admin_ClassOfDegreeController::class, 'index'])->name('admin.classes_of_degrees.index');
+    Route::get('classes_of_degrees/create', [Admin_ClassOfDegreeController::class, 'create'])->name('admin.classes_of_degrees.create');
+    Route::post('classes_of_degrees/store', [Admin_ClassOfDegreeController::class, 'store'])->name('admin.classes_of_degrees.store');
+    Route::get('classes_of_degrees/{class_of_degree}/show', [Admin_ClassOfDegreeController::class, 'show'])->name('admin.classes_of_degrees.show');
+    Route::get('classes_of_degrees/{class_of_degree}/edit' , [Admin_ClassOfDegreeController::class, 'edit'])->name('admin.classes_of_degrees.edit');
+    Route::post('classes_of_degrees/{class_of_degree}/update', [Admin_ClassOfDegreeController::class, 'update'])->name('admin.classes_of_degrees.update');
+    Route::get('classes_of_degrees/{class_of_degree}/confirm_delete', [Admin_ClassOfDegreeController::class, 'confirm_delete'])->name('admin.classes_of_degrees.confirm_delete');
+    Route::delete('classes_of_degrees/{class_of_degree}/delete', [Admin_ClassOfDegreeController::class. 'destroy'])->name('admin.classes_of_degrees.delete');
+
+
+    // Deployment of Post - Admin_DeploymentPostController 
+    Route::get('deployment_posts', [Admin_DeploymentPostController::class, 'index'])->name('admin.deployment_posts.index');
+    Route::get('deployment_posts/create', [Admin_DeploymentPostController::class, 'create'])->name('admin.deployment_posts.create');
+    Route::post('deployment_posts/store', [Admin_DeploymentPostController::class, 'store'])->name('admin.deployment_posts.store');
+    Route::get('deployment_posts/{deployment_post}/show', [Admin_DeploymentPostController::class, 'show'])->name('admin.deployment_posts.show');
+    Route::get('deployment_posts/{deployment_post}/edit' , [Admin_DeploymentPostController::class, 'edit'])->name('admin.deployment_posts.edit');
+    Route::post('deployment_posts/{deployment_post}/update', [Admin_DeploymentPostController::class, 'update'])->name('admin.deployment_posts.update');
+    Route::get('deployment_posts/{deployment_post}/confirm_delete', [Admin_DeploymentPostController::class, 'confirm_delete'])->name('admin.deployment_posts.confirm_delete');
+    Route::delete('deployment_posts/{deployment_post}/delete', [Admin_DeploymentPostController::class. 'destroy'])->name('admin.deployment_posts.delete');
+
+
+    // Deployment - Admin_DeploymentsController 
+    Route::get('deployments', [Admin_DeploymentController::class, 'index'])->name('admin.deployments.index');
+    Route::get('deployments/create', [Admin_DeploymentController::class, 'create'])->name('admin.deployments.create');
+    Route::post('deployments/store', [Admin_DeploymentController::class, 'store'])->name('admin.deployments.store');
+    Route::get('deployments/{deployment}/show', [Admin_DeploymentController::class, 'show'])->name('admin.deployments.show');
+    Route::get('deployments/{deployment}/edit' , [Admin_DeploymentController::class, 'edit'])->name('admin.deployments.edit');
+    Route::post('deployments/{deployment}/update', [Admin_DeploymentController::class, 'update'])->name('admin.deployments.update');
+    Route::get('deployments/{deployment}/confirm_delete', [Admin_DeploymentController::class, 'confirm_delete'])->name('admin.deployments.confirm_delete');
+    Route::delete('deployments/{deployment}/delete', [Admin_DeploymentController::class. 'destroy'])->name('admin.deployments.delete');
+
+
 
 
 

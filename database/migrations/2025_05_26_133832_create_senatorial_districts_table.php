@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('senatorial_districts', function (Blueprint $table) {
             $table->id();
+            $table->uuid()->unique();
             $table->unsignedBigInteger('lga_id');
             $table->foreign('lga_id')->references('id')->on('lgas')->onDelete('cascade');
             $table->string('senatorial_district_name')->unique();

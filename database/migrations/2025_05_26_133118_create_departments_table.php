@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('departments', function (Blueprint $table) {
             $table->id();
+            $table->uuid()->unique();
             $table->unsignedBigInteger('division_id');
             $table->foreign('division_id')->references('id')->on('divisions')->onDelete('cascade');
             $table->unsignedBigInteger('parent_department')->nullable();
