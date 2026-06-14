@@ -11,6 +11,12 @@ use App\Http\Controllers\Identity\Identity_StaffController;
 
 use App\Http\Controllers\Admin\Admin_AuthController;
 use App\Http\Controllers\Admin\Admin_DashboardController;
+use App\Http\Controllers\Admin\Admin_LeaveTypeController;
+use App\Http\Controllers\Admin\Admin_LeaveController;
+use App\Http\Controllers\Admin\Admin_LeaveApplicationController;
+use App\Http\Controllers\Admin\Admin_StaffController;
+use App\Http\Controllers\Admin\Admin_SettingsController;
+use App\Http\Controllers\Admin\Admin_ProgressionController;
 use App\Http\Controllers\Admin\Admin_DivisionTypeController;
 use App\Http\Controllers\Admin\Admin_IdentityController;
 use App\Http\Controllers\Admin\Admin_DivisionController;
@@ -216,6 +222,18 @@ Route::prefix('admin')->middleware(['auth','admin'])->group(function(){
     Route::get('/dashboard', [Admin_DashboardController::class, 'index'])->name('admin.dashboard.index');
     Route::post('/logout', [Admin_AuthController::class, 'logout'])->name('admin.auth.logout');   
 
+
+    
+    // ── Staff Management ─────────────────────────────────────
+    Route::get('staff',                [Admin_StaffController::class, 'index'])->name('admin.staff.index');
+    Route::get('staff/create',         [Admin_StaffController::class, 'create'])->name('admin.staff.create');
+    Route::post('staff',               [Admin_StaffController::class, 'store'])->name('admin.staff.store');
+    Route::get('staff/{staff}',        [Admin_StaffController::class, 'show'])->name('admin.staff.show');
+    Route::get('staff/{staff}/edit',   [Admin_StaffController::class, 'edit'])->name('admin.staff.edit');
+    Route::put('staff/{staff}',        [Admin_StaffController::class, 'update'])->name('admin.staff.update');
+    Route::delete('staff/{staff}',     [Admin_StaffController::class, 'destroy'])->name('admin.staff.destroy');
+
+
     // Division Types
     Route::get('division_types', [Admin_DivisionTypeController::class, 'index'])->name('admin.division_types.index');
     Route::get('division_types/create', [Admin_DivisionTypeController::class, 'create'])->name('admin.division_types.create');
@@ -393,7 +411,148 @@ Route::prefix('admin')->middleware(['auth','admin'])->group(function(){
     Route::delete('deployments/{deployment}/delete', [Admin_DeploymentController::class. 'destroy'])->name('admin.deployments.delete');
 
 
+    // ── Gender (add store/update/delete) ─────────────────────
+    Route::post('gender',             [Admin_GenderController::class, 'store'])->name('admin.gender.store');
+    Route::put('gender/{gender}',     [Admin_GenderController::class, 'update'])->name('admin.gender.update');
+    Route::delete('gender/{gender}',  [Admin_GenderController::class, 'destroy'])->name('admin.gender.delete');
+ 
+    // ── Classes of Degree (add store/update/delete) ───────────
+    Route::post('classes_of_degrees/store',                      [Admin_ClassOfDegreeController::class, 'store'])->name('admin.classes_of_degrees.store');
+    Route::post('classes_of_degrees/{class_of_degree}/update',   [Admin_ClassOfDegreeController::class, 'update'])->name('admin.classes_of_degrees.update');
+    Route::put('classes_of_degrees/{class_of_degree}',           [Admin_ClassOfDegreeController::class, 'update'])->name('admin.classes_of_degrees.update_put');
+    Route::delete('classes_of_degrees/{class_of_degree}/delete', [Admin_ClassOfDegreeController::class, 'destroy'])->name('admin.classes_of_degrees.delete');
+ 
+    // ── Staff Categories (add update PUT + delete) ────────────
+    Route::put('staff_categories/{staff_category}',        [Admin_StaffCategoryController::class, 'update'])->name('admin.staff_categories.update_put');
+    Route::delete('staff_categories/{staff_category}',     [Admin_StaffCategoryController::class, 'destroy'])->name('admin.staff_categories.delete');
+ 
+    // ── Deployments (ensure PUT + DELETE exist) ───────────────
+    Route::put('deployments/{deployment}',    [Admin_DeploymentController::class, 'update'])->name('admin.deployments.update_put');
+    Route::delete('deployments/{deployment}', [Admin_DeploymentController::class, 'destroy'])->name('admin.deployments.delete');
+ 
 
+
+        // ── Progression: Promotions ──────────────────────────────
+    Route::get('promotions',              [Admin_ProgressionController::class, 'promotions'])->name('admin.promotions.index');
+    Route::post('promotions',             [Admin_ProgressionController::class, 'storePromotion'])->name('admin.promotions.store');
+    Route::put('promotions/{promotion}',  [Admin_ProgressionController::class, 'updatePromotion'])->name('admin.promotions.update');
+    Route::delete('promotions/{promotion}',[Admin_ProgressionController::class, 'destroyPromotion'])->name('admin.promotions.destroy');
+ 
+    // ── Progression: Step Increments ─────────────────────────
+    Route::get('step_increments',                  [Admin_ProgressionController::class, 'stepIncrements'])->name('admin.step_increments.index');
+    Route::post('step_increments',                 [Admin_ProgressionController::class, 'storeStepIncrement'])->name('admin.step_increments.store');
+    Route::put('step_increments/{stepIncrement}',  [Admin_ProgressionController::class, 'updateStepIncrement'])->name('admin.step_increments.update');
+    Route::delete('step_increments/{stepIncrement}',[Admin_ProgressionController::class, 'destroyStepIncrement'])->name('admin.step_increments.destroy');
+ 
+    // ── Progression: Cadres ──────────────────────────────────
+    Route::get('cadres',           [Admin_ProgressionController::class, 'cadres'])->name('admin.cadres.index');
+    Route::post('cadres',          [Admin_ProgressionController::class, 'storeCadre'])->name('admin.cadres.store');
+    Route::put('cadres/{cadre}',   [Admin_ProgressionController::class, 'updateCadre'])->name('admin.cadres.update');
+    Route::delete('cadres/{cadre}',[Admin_ProgressionController::class, 'destroyCadre'])->name('admin.cadres.destroy');
+ 
+    // ── Progression: Cadre Ranks ─────────────────────────────
+    Route::get('cadre_ranks',              [Admin_ProgressionController::class, 'cadreRanks'])->name('admin.cadre_ranks.index');
+    Route::post('cadre_ranks',             [Admin_ProgressionController::class, 'storeCadreRank'])->name('admin.cadre_ranks.store');
+    Route::put('cadre_ranks/{cadreRank}',  [Admin_ProgressionController::class, 'updateCadreRank'])->name('admin.cadre_ranks.update');
+    Route::delete('cadre_ranks/{cadreRank}',[Admin_ProgressionController::class, 'destroyCadreRank'])->name('admin.cadre_ranks.destroy');
+ 
+    // ── Progression: Designations ────────────────────────────
+    Route::get('designations',                [Admin_ProgressionController::class, 'designations'])->name('admin.designations.index');
+    Route::post('designations',               [Admin_ProgressionController::class, 'storeDesignation'])->name('admin.designations.store');
+    Route::put('designations/{designation}',  [Admin_ProgressionController::class, 'updateDesignation'])->name('admin.designations.update');
+    Route::delete('designations/{designation}',[Admin_ProgressionController::class, 'destroyDesignation'])->name('admin.designations.destroy');
+ 
+    // ── Progression: Salary Structures ──────────────────────
+    Route::get('salary_structures',                      [Admin_ProgressionController::class, 'salaryStructures'])->name('admin.salary_structures.index');
+    Route::post('salary_structures',                     [Admin_ProgressionController::class, 'storeSalaryStructure'])->name('admin.salary_structures.store');
+    Route::put('salary_structures/{salaryStructure}',    [Admin_ProgressionController::class, 'updateSalaryStructure'])->name('admin.salary_structures.update');
+    Route::delete('salary_structures/{salaryStructure}', [Admin_ProgressionController::class, 'destroySalaryStructure'])->name('admin.salary_structures.destroy');
+ 
+    // ── Progression: Salary Levels ───────────────────────────
+    Route::get('salary_levels',                  [Admin_ProgressionController::class, 'salaryLevels'])->name('admin.salary_levels.index');
+    Route::post('salary_levels',                 [Admin_ProgressionController::class, 'storeSalaryLevel'])->name('admin.salary_levels.store');
+    Route::put('salary_levels/{salaryLevel}',    [Admin_ProgressionController::class, 'updateSalaryLevel'])->name('admin.salary_levels.update');
+    Route::delete('salary_levels/{salaryLevel}', [Admin_ProgressionController::class, 'destroySalaryLevel'])->name('admin.salary_levels.destroy');
+ 
+    // ── Progression: Salary Steps ────────────────────────────
+    Route::get('salary_steps',               [Admin_ProgressionController::class, 'salarySteps'])->name('admin.salary_steps.index');
+    Route::post('salary_steps',              [Admin_ProgressionController::class, 'storeSalaryStep'])->name('admin.salary_steps.store');
+    Route::put('salary_steps/{salaryStep}',  [Admin_ProgressionController::class, 'updateSalaryStep'])->name('admin.salary_steps.update');
+    Route::delete('salary_steps/{salaryStep}',[Admin_ProgressionController::class, 'destroySalaryStep'])->name('admin.salary_steps.destroy');
+ 
+
+
+    // ── Settings Hub ─────────────────────────────────────────
+    Route::get('settings', [Admin_SettingsController::class, 'index'])->name('admin.settings.index');
+
+    // ── States (missing store/update/delete) ──────────────────
+    Route::post('states',             [Admin_StateController::class, 'store'])->name('admin.states.store');
+    Route::put('states/{state}',      [Admin_StateController::class, 'update'])->name('admin.states.update');
+    Route::delete('states/{state}',   [Admin_StateController::class, 'destroy'])->name('admin.states.delete');
+
+    // ── LGAs (missing store/update/delete) ────────────────────
+    Route::post('lgas',               [Admin_LGAController::class, 'store'])->name('admin.lgas.store');
+    Route::put('lgas/{lga}',          [Admin_LGAController::class, 'update'])->name('admin.lgas.update');
+    Route::delete('lgas/{lga}',       [Admin_LGAController::class, 'destroy'])->name('admin.lgas.delete');
+
+    // ── Degrees (missing update/delete) ───────────────────────
+    Route::put('degrees/{degree}',    [Admin_DegreeController::class, 'update'])->name('admin.degrees.update');
+    Route::delete('degrees/{degree}', [Admin_DegreeController::class, 'destroy'])->name('admin.degrees.delete');
+
+    // ── Deployment Posts (missing store/update/delete) ────────
+    Route::post('deployment_posts',               [Admin_DeploymentPostController::class, 'store'])->name('admin.deployment_posts.store');
+    Route::put('deployment_posts/{deploymentPost}',[Admin_DeploymentPostController::class, 'update'])->name('admin.deployment_posts.update');
+    Route::delete('deployment_posts/{deploymentPost}',[Admin_DeploymentPostController::class, 'destroy'])->name('admin.deployment_posts.delete');
+
+    // ── Staff Titles (missing delete) ─────────────────────────
+    Route::delete('staff_titles/{staff_title}', [Admin_StaffTitleController::class, 'destroy'])->name('admin.staff_titles.delete');
+
+    // ── Staff Statuses (missing store/update/delete) ──────────
+    Route::post('staff_statuses',               [Admin_StaffStatusController::class, 'store'])->name('admin.staff_statuses.store');
+    Route::put('staff_statuses/{staff_status}', [Admin_StaffStatusController::class, 'update'])->name('admin.staff_statuses.update');
+    Route::delete('staff_statuses/{staff_status}',[Admin_StaffStatusController::class, 'destroy'])->name('admin.staff_statuses.delete');
+
+    // ── Employment Types (fix update route to PUT) ────────────
+    Route::put('employment_types/{employment_type}', [Admin_EmploymentTypeController::class, 'update'])->name('admin.employment_types.update_put');
+    Route::delete('employment_types/{employment_type}', [Admin_EmploymentTypeController::class, 'destroy'])->name('admin.employment_types.delete');
+
+    // ── Contact Types (missing delete) ───────────────────────
+    Route::delete('contact_types/{contact_type}', [Admin_ContactTypeController::class, 'destroy'])->name('admin.contact_types.delete');
+
+    // ── Marital Statuses (missing delete) ─────────────────────
+    Route::delete('marital_statuses/{marital_status}', [Admin_MaritalStatusController::class, 'destroy'])->name('admin.marital_statuses.delete');
+
+    // ── Division Types (ensure PUT exists) ───────────────────
+    Route::put('division_types/{division_type}', [Admin_DivisionTypeController::class, 'update'])->name('admin.division_types.update_put');
+    Route::delete('division_types/{division_type}', [Admin_DivisionTypeController::class, 'destroy'])->name('admin.division_types.delete');
+
+    // ── Geo-Pol Zones (ensure PUT exists) ─────────────────────
+    Route::put('geo_pol_zones/{geo_pol_zone}', [Admin_GeoPolZoneController::class, 'update'])->name('admin.geo_pol_zones.update_put');
+    Route::delete('geo_pol_zones/{geo_pol_zone}', [Admin_GeoPolZoneController::class, 'destroy'])->name('admin.geo_pol_zones.delete');
+
+
+
+
+    // ── Leave Types ──────────────────────────────────────────
+    Route::get('leave-types',              [Admin_LeaveTypeController::class, 'index'])->name('admin.leave_types.index');
+    Route::post('leave-types',             [Admin_LeaveTypeController::class, 'store'])->name('admin.leave_types.store');
+    Route::put('leave-types/{leaveType}',  [Admin_LeaveTypeController::class, 'update'])->name('admin.leave_types.update');
+    Route::delete('leave-types/{leaveType}', [Admin_LeaveTypeController::class, 'destroy'])->name('admin.leave_types.destroy');
+ 
+    // ── Leave Records ────────────────────────────────────────
+    Route::get('leaves',                   [Admin_LeaveController::class, 'index'])->name('admin.leaves.index');
+    Route::get('leaves/create',            [Admin_LeaveController::class, 'create'])->name('admin.leaves.create');
+    Route::post('leaves',                  [Admin_LeaveController::class, 'store'])->name('admin.leaves.store');
+    Route::get('leaves/{leave}',           [Admin_LeaveController::class, 'show'])->name('admin.leaves.show');
+    Route::get('leaves/{leave}/edit',      [Admin_LeaveController::class, 'edit'])->name('admin.leaves.edit');
+    Route::put('leaves/{leave}',           [Admin_LeaveController::class, 'update'])->name('admin.leaves.update');
+    Route::delete('leaves/{leave}',        [Admin_LeaveController::class, 'destroy'])->name('admin.leaves.destroy');
+ 
+    // ── Leave Applications ───────────────────────────────────
+    Route::get('leave-applications',                        [Admin_LeaveApplicationController::class, 'index'])->name('admin.leave_applications.index');
+    Route::get('leave-applications/{leave}',                [Admin_LeaveApplicationController::class, 'show'])->name('admin.leave_applications.show');
+    Route::patch('leave-applications/{leave}/approve',      [Admin_LeaveApplicationController::class, 'approve'])->name('admin.leave_applications.approve');
+    Route::patch('leave-applications/{leave}/reject',       [Admin_LeaveApplicationController::class, 'reject'])->name('admin.leave_applications.reject');
 
 
 

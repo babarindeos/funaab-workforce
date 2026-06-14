@@ -48,7 +48,7 @@ class User extends Authenticatable
 
     public function staff()
     {
-        return $this->hasOne(Staff::class);
+        return $this->hasOne(Staff::class, 'staff_no', 'fileno');
     }
 
     public function contributor()

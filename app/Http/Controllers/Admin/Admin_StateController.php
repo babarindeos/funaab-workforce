@@ -17,18 +17,19 @@ class Admin_StateController extends Controller
 
         if ($query == null)
         {
-            $states = State::orderBy('state_name', 'asc')->get();
+            $states = State::orderBy('state_name', 'asc')->paginate(10);
         }
         else
         {
             $states = State::with(['geo_pol_zone'])
                             ->where(function($q) use ($query){
                                 $q->where('state_name', 'like', "%{$query}%")
+                                  ->orWhere('id', '{$query}')
                                   ->orWhereHas('geo_pol_zone', function($q2) use ($query){
                                         $q2->where('zone', 'like', "%{$query}%");
                                   });
                             })
-                            ->get();
+                            ->paginate(10);
         }
 
         

@@ -1,150 +1,84 @@
-<x-admin-layout>
+<x-settings-page title="Degrees" subtitle="Academic degree types awarded to staff"
+    back-route="admin.settings.index"
+    add-label="Add Degree"
+    add-onclick="document.getElementById('modal-create').classList.remove('hidden')">
 
-    <div class="flex flex-col border-0 w-[95%]  mx-auto">
-        
-
-        <!-- page header //-->
-        <section class="flex flex-col w-full md:w-full py-6 px-2 md:px-4 border-0 border-red-900 mx-auto border border-1">
-        
-            <div class="flex border-b border-gray-300 py-2 justify-between">
-                    <div class='flex'>
-                            <h1 class="text-2xl font-semibold text-gray-800">Degrees</h1>
-                        
-                    </div>
-                    <div>
-
-                            <a href="{{ route('admin.degrees.create') }}" class="border border-green-600 text-green-600 py-2 px-6 
-                                            rounded-lg text-xs md:text-sm hover:bg-green-600 hover:text-white hover:border-green-600">Create Degree</a>
-                    </div>
-
-                    
-            </div>
-        </section>
-        <!-- end of page header //-->
-
-        
-
-
-        <!-- Degree Section  //-->
-        
-
-        
-        <section class="flex flex-col w-[95%] md:w-[60%] mx-auto py-2 mt-2 border-0">
-                   
-
-
-        @if ($degrees->count())
-                    <div class='flex flex-col w-full md:flex-row md:items-center'>
-                        <div class='py-1 text-xl font-medium md:w-1/2'>Degrees ({{ $degrees->count() }})</div>
-
-                        <!-- Search //-->
-                        <div class='flex flex-col gap-2 w-full py-2 md:py-2 md:w-1/2 md:justify-end md:items-end border-0'>
-                                <form action="{{ route('admin.degrees.index') }}" method="GET" class="flex flex-row items-center w-full border-0">
-                                
-                                                <div class="flex flex-col justify-end items-end border-0 w-full">
-                                                
-                                                        <input type="text" name="q" class="w-full md:w-4/5 border border-1 border-gray-400 bg-gray-50
-                                                                p-2 rounded-l-md 
-                                                                focus:outline-none
-                                                                focus:border-blue-500 
-                                                                focus:ring
-                                                                focus:ring-blue-100" placeholder="Search..."                
-                                                                
-                                                                                                                                  
-                                                        
-                                                        />  
-                                                </div>
-                                                <div class='border-0'>
-                                                        
-                                                        <button type='submit' class="hover:bg-blue-500 hover:border-blue-500 bg-blue-400 text-white rounded-r-md 
-                                                                px-4 py-2 text-md border-blue-400 border-0" ><i class="fa-solid fa-magnifying-glass"></i></button>
-                                                        
-                                                </div>
-                                                
-                                        
-                                </form>
+    <div class="wf-card">
+        <table class="wf-table">
+            <thead>
+                <tr><th>#</th><th>DEGREE NAME</th><th>ORDER LEVEL</th><th>REMARK</th><th>CREATED</th><th class="text-right">ACTIONS</th></tr>
+            </thead>
+            <tbody>
+                @forelse($degrees as $degree)
+                <tr>
+                    <td class="text-gray-400">{{ $loop->iteration }}</td>
+                    <td class="col-name">{{ $degree->degree_name }}</td>
+                    <td class="text-gray-500">{{ $degree->order_level ?? '—' }}</td>
+                    <td class="text-gray-400 text-xs max-w-[180px] truncate">{{ $degree->remark ?? '—' }}</td>
+                    <td class="text-gray-400 text-xs">{{ $degree->created_at->format('d M Y') }}</td>
+                    <td>
+                        <div class="flex items-center justify-end gap-1">
+                            <button onclick="openEdit({{ $degree->id }}, '{{ addslashes($degree->degree_name) }}', {{ $degree->order_level ?? 'null' }}, '{{ addslashes($degree->remark ?? '') }}')"
+                                    class="btn-wf-ghost btn-wf-sm"><i class="ti ti-edit text-xs"></i> Edit</button>
+                            <form action="{{ route('admin.degrees.delete', $degree) }}" method="POST"
+                                  onsubmit="return confirm('Delete this degree?')">
+                                @csrf @method('DELETE')
+                                <button class="btn-wf-danger btn-wf-sm"><i class="ti ti-trash text-xs"></i></button>
+                            </form>
                         </div>
-                        <!-- end of Search //-->
-                    </div>
-                   
-
-                    <table class="table-auto border-collapse border border-1 border-gray-200 w-[100%]">
-                        <thead>
-                            <tr class="bg-gray-200">
-                                <th width='15%' class="text-center font-semibold py-4 w-16">#</th>
-                                <th width='70%' class="font-semibold py-2 text-left">Status</th>                               
-                                <th width='20%' class="font-semibold py-2 text-left">Action</th>                     
-                                                        
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @php
-                                $counter = 0;
-                            @endphp
-                            @foreach($degrees as $degree)
-                            <tr class="border border-b border-gray-200 ">
-                                <td class='text-center py-8'>{{ ++$counter }}.</td>
-                                <td class="py-4 pr-4">
-                                    
-                                    <div class='py-1'>
-                                        
-                                            <a class="font-semibold text-blue-800 underline" href="{{ route('admin.degrees.show',['degree'=>$degree->id]) }}">
-                                                {{ $degree->degree_name }}
-                                            </a>                             
-                                    </div>
-                                    <div class='flex flex-wrap md:flex-row gap-3 md:gap-4 text-sm'>
-                                            <a href="#" class='hover:underline'>Staff (0)</a> 
-                                                       
-                                           
-                                    </div>                     
-                                </td>
-                                
-                                <td>
-                                                <span class="text-sm">
-                                                            <a href="{{ route('admin.degrees.edit',['degree' => $degree->id]) }}" class="hover:bg-blue-500 bg-blue-400 text-white rounded 
-                                                                px-4 py-1 text-xs" href="#">Edit</a>
-                                                </span>
-                                           
-                                                <span class="text-sm">
-                                                        <a class="hover:bg-red-500 bg-red-400 text-white rounded 
-                                                            px-4 py-1 text-xs" href="{{ route('admin.degrees.confirm_delete',['degree' => $degree->id]) }}">Delete</a>
-                                                </span>
-                                </td>
-                              
-                               
-                                
-                                
-                                
-                                
-                            </tr>
-                            @endforeach
-                        
-
-                        </tbody>
-                    </table>
-
-                   
-
-            @else
-                    <section class="flex flex-col w-[95%] md:w-[95%] mx-auto px-0 py-8 border-0">
-                        <div class="flex flex-row border-0 justify-center text-2xl font-semibold text-gray-300">
-                                There is currently no Degree
-                        </div>
-                    </section>
-            @endif
-
-
-
-        </section>
-       
-        <!-- end of Staff Categories Section //-->
-    
-        
-    
-    
-        
+                    </td>
+                </tr>
+                @empty
+                <tr><td colspan="6" class="text-center py-10 text-gray-400"><i class="ti ti-school text-3xl block mb-2"></i>No degrees defined.</td></tr>
+                @endforelse
+            </tbody>
+        </table>
     </div>
-    
 
+    @foreach(['create','edit'] as $mode)
+    <div id="modal-{{ $mode }}" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4">
+            <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+                <h2 class="font-bold text-gray-800 text-sm">{{ $mode === 'create' ? 'Add Degree' : 'Edit Degree' }}</h2>
+                <button onclick="document.getElementById('modal-{{ $mode }}').classList.add('hidden')" class="text-gray-400"><i class="ti ti-x"></i></button>
+            </div>
+            <form id="{{ $mode }}-form" method="POST" class="px-5 py-4 space-y-3">
+                @csrf
+                @if($mode === 'edit') @method('PUT') @endif
+                <div>
+                    <label class="block text-[10.5px] font-bold tracking-wider text-gray-500 mb-1.5">DEGREE NAME <span class="text-red-500">*</span></label>
+                    <input type="text" name="degree_name" id="{{ $mode }}-name"
+                           @if($mode === 'create') value="{{ old('degree_name') }}" @endif
+                           class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-funaab-500" required />
+                </div>
+                <div>
+                    <label class="block text-[10.5px] font-bold tracking-wider text-gray-500 mb-1.5">ORDER LEVEL</label>
+                    <input type="number" name="order_level" id="{{ $mode }}-order"
+                           class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-funaab-500" />
+                </div>
+                <div>
+                    <label class="block text-[10.5px] font-bold tracking-wider text-gray-500 mb-1.5">REMARK</label>
+                    <textarea name="remark" id="{{ $mode }}-remark" rows="2"
+                              class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-funaab-500 resize-none"></textarea>
+                </div>
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button" onclick="document.getElementById('modal-{{ $mode }}').classList.add('hidden')" class="btn-wf-ghost">Cancel</button>
+                    <button type="submit" class="btn-wf-primary">{{ $mode === 'create' ? 'Save' : 'Update' }}</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    @endforeach
 
-</x-admin-layout>
+    <script>
+        document.getElementById('create-form').action = '{{ route("admin.degrees.store") }}';
+        function openEdit(id, name, order, remark) {
+            document.getElementById('edit-name').value = name;
+            document.getElementById('edit-order').value = order || '';
+            document.getElementById('edit-remark').value = remark || '';
+            document.getElementById('edit-form').action = `/admin/degrees/${id}`;
+            document.getElementById('modal-edit').classList.remove('hidden');
+        }
+    </script>
+
+</x-settings-page>

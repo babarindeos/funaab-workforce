@@ -14,6 +14,11 @@ class State extends Model
         return $this->belongsTo(GeoPolZone::class, 'geo_pol_zone_id', 'id');
     }
 
+    public function geoPolZone()
+    {
+        return $this->belongsTo(GeoPolZone::class, 'geo_pol_zone_id', 'id');
+    }
+
     public function lgas()
     {
         return $this->hasMany(Lga::class, 'state_id', 'id');

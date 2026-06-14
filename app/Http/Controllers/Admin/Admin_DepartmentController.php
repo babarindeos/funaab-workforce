@@ -3,156 +3,81 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-
-use App\Models\College;
 use App\Models\Department;
 use App\Models\Division;
+use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class Admin_DepartmentController extends Controller
 {
-    //
     public function index(Request $request)
     {
-        $query = $request->query('q');
+        $query = Department::with(['division.division_type', 'parent'])
+                           ->withCount('employments')
+                           ->orderBy('department_name');
 
-        if ($query == null)
-        {
-             $departments = Department::orderBy('department_name', 'asc')->paginate(20);
-        }
-        else
-        {
-             $departments = Department::with('parent')
-                                      ->where(function($q) use ($query){
-                                            $q->where('department_name', 'like', "%{$query}%")
-                                              ->orWhere('short_name', 'like', "%{$query}%")
-                                              ->orWhereHas('parent', function($q2) use ($query){
-                                                    $q2->where('department_name', 'like', "%{$query}%");
-                                              });
-                                      })
-                                      ->paginate(20);
+        if ($request->filled('search')) {
+            $term = $request->search;
+            $query->where(function ($q) use ($term) {
+                $q->where('department_name', 'like', "%{$term}%")
+                  ->orWhere('short_name', 'like', "%{$term}%");
+            });
         }
 
-       
-        return view('admin.departments.index', compact('departments'));
-    }
-
-    public function create(){
-        
-        $divisions = Division::orderBy('division_name', 'asc')->get();
-        $parent_departments = Department::orderBy('department_name', 'asc')->get();
-
-        return view('admin.departments.create', compact('divisions', 'parent_departments'));
-    }
-
-    public function store(Request $request){
-        
-         $request->validate([
-            'division' => 'required',
-            'department_name' => 'required | string',
-            'short_name' => ['required', 'string']
-        ]);
-
-        $formFields = [
-            'division_id' => $request->division,
-            'parent_department' => $request->parent_department,
-            'department_name' => $request->department_name,
-            'short_name' => $request->short_name
-        ];
-
-        
-
-        try{
-            $create = Department::create($formFields);
-
-            if ($create){
-                $data = [
-                    'error' => true,
-                    'status' => 'success',
-                    'message' => 'The Department has been successfully created'
-                ];
-            }
-            else
-            {
-                $data = [
-                    'error' => true,
-                    'status' => 'fail',
-                    'message' => 'An error occurred creating the Department'
-                ];
-            }
-    
+        if ($request->filled('division_id')) {
+            $query->where('division_id', $request->division_id);
         }
-        catch(\Exception $e)
-        {
-            $data = [
-                    'error' => true,
-                    'status' => 'fail',
-                    'message' => $e->getMessage()
-            ];
-        }
-        
 
-        
-        return redirect()->back()->with($data);
-        
+        $departments = $query->paginate(25)->withQueryString();
+        $divisions   = Division::with('division_type')->orderBy('division_name')->get();
+        $total       = Department::count();
+
+        return view('admin.departments.index', compact('departments', 'divisions', 'total'));
     }
 
-
-    public function edit(Department $department){
-
-        $divisions = Division::orderBy('division_name', 'asc')->get();
-        $parent_departments = Department::orderBy('department_name', 'asc')->get();
-        
-
-        return view('admin.departments.edit', compact('divisions', 'parent_departments', 'department'));
-    }
-
-    public function update(Request $request, Department $department){
-
+    public function store(Request $request)
+    {
         $request->validate([
-            'division' => 'required',
-            'department_name' => ['required', 'string'],
-            'short_name' => 'required | string'
+            'division_id'     => 'required|exists:divisions,id',
+            'department_name' => 'required|string|unique:departments,department_name',
+            'short_name'      => 'required|string|unique:departments,short_name',
         ]);
 
-        $formFields = [
-            'division_id' => $request->division,
-            'parent_department' => $request->parent_department,
-            'department_name' => $request->department_name,
-            'short_name' => $request->short_name
-        ];
+        Department::create([
+            'uuid'              => Str::uuid(),
+            'division_id'       => $request->division_id,
+            'parent_department' => $request->parent_department ?: null,
+            'department_name'   => $request->department_name,
+            'short_name'        => strtoupper($request->short_name),
+        ]);
 
-
-        try{
-            $update = $department->update($formFields);
-
-            if ($update){
-                $data = [
-                    'error' => true,
-                    'status' => 'success',
-                    'message' => 'The Department has been successfully updated'
-                ];
-            }
-            else
-            {
-                $data = [
-                    'error' => true,
-                    'status' => 'fail',
-                    'message' => 'An error occurred updating the Department'
-                ];
-            }
-        }
-        catch(\Exception $e)
-        {
-                $data = [
-                    'error' => true,
-                    'status' => 'fail',
-                    'message' => $e->getMessage()
-                ];
-        }
-
-        return redirect()->back()->with($data);
-        
+        return back()->with('success', 'Department created successfully.');
     }
 
+    public function update(Request $request, Department $department)
+    {
+        $request->validate([
+            'division_id'     => 'required|exists:divisions,id',
+            'department_name' => 'required|string|unique:departments,department_name,' . $department->id,
+            'short_name'      => 'required|string|unique:departments,short_name,' . $department->id,
+        ]);
+
+        $department->update([
+            'division_id'       => $request->division_id,
+            'parent_department' => $request->parent_department ?: null,
+            'department_name'   => $request->department_name,
+            'short_name'        => strtoupper($request->short_name),
+        ]);
+
+        return back()->with('success', 'Department updated successfully.');
+    }
+
+    public function destroy(Department $department)
+    {
+        if ($department->employments()->count() > 0) {
+            return back()->with('error', 'Cannot delete — this department has staff assigned to it.');
+        }
+        $department->delete();
+        return back()->with('success', 'Department deleted.');
+    }
 }

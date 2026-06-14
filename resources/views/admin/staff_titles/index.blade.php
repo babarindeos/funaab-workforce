@@ -1,150 +1,120 @@
-<x-admin-layout>
+<x-settings-page title="Staff Titles" subtitle="Honorific titles used for staff members"
+    back-route="admin.settings.index"
+    add-label="Add Title"
+    add-onclick="document.getElementById('modal-create').classList.remove('hidden')">
 
-    <div class="flex flex-col border-0 w-[95%]  mx-auto">
-        
-
-        <!-- page header //-->
-        <section class="flex flex-col w-full md:w-full py-6 px-2 md:px-4 border-0 border-red-900 mx-auto border border-1">
-        
-            <div class="flex border-b border-gray-300 py-2 justify-between">
-                    <div class='flex'>
-                            <h1 class="text-2xl font-semibold text-gray-800">Staff Titles</h1>
-                        
-                    </div>
-                    <div>
-
-                            <a href="{{ route('admin.staff_titles.create') }}" class="border border-green-600 text-green-600 py-2 px-6 
-                                            rounded-lg text-xs md:text-sm hover:bg-green-600 hover:text-white hover:border-green-600">Create Staff Title</a>
-                    </div>
-
-                    
-            </div>
-        </section>
-        <!-- end of page header //-->
-
-        
-
-
-        <!-- Staff Titles Section  //-->
-        
-
-        
-        <section class="flex flex-col w-[95%] md:w-[60%] mx-auto py-2 mt-2 border-0">
-                   
-
-
-        @if ($staff_titles->count())
-                    <div class='flex flex-col w-full md:flex-row md:items-center'>
-                        <div class='py-1 text-xl font-medium md:w-1/2'>Staff Titles ({{ $staff_titles->count() }})</div>
-
-                        <!-- Search //-->
-                        <div class='flex flex-col gap-2 w-full py-2 md:py-2 md:w-1/2 md:justify-end md:items-end border-0'>
-                                <form action="{{ route('admin.staff_titles.index') }}" method="GET" class="flex flex-row items-center w-full border-0">
-                                
-                                                <div class="flex flex-col justify-end items-end border-0 w-full">
-                                                
-                                                        <input type="text" name="q" class="w-full md:w-4/5 border border-1 border-gray-400 bg-gray-50
-                                                                p-2 rounded-l-md 
-                                                                focus:outline-none
-                                                                focus:border-blue-500 
-                                                                focus:ring
-                                                                focus:ring-blue-100" placeholder="Search..."                
-                                                                
-                                                                                                                                  
-                                                        
-                                                        />  
-                                                </div>
-                                                <div class='border-0'>
-                                                        
-                                                        <button type='submit' class="hover:bg-blue-500 hover:border-blue-500 bg-blue-400 text-white rounded-r-md 
-                                                                px-4 py-2 text-md border-blue-400 border-0" ><i class="fa-solid fa-magnifying-glass"></i></button>
-                                                        
-                                                </div>
-                                                
-                                        
-                                </form>
+    <div class="wf-card">
+        <table class="wf-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>TITLE</th>
+                    <th>CREATED</th>
+                    <th class="text-right">ACTIONS</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse($staff_titles as $item)
+                <tr>
+                    <td class="text-gray-400">{{$loop->iteration}}</td>
+                    <td class="col-name">{{$item->title}}</td>
+                    <td class="text-gray-400 text-xs">{{$item->created_at->format('d M Y')}}</td>
+                    <td>
+                        <div class="flex items-center justify-end gap-1">
+                            <button onclick="openEdit({{$item->id}}, '{{ addslashes($item->title) }}')"
+                                    class="btn-wf-ghost btn-wf-sm">
+                                <i class="ti ti-edit text-xs"></i> Edit
+                            </button>
+                            <form action="{{route('admin.staff_titles.delete', $item)}}" method="POST"
+                                  onsubmit="return confirm('Delete this record?')">
+                                @csrf @method('DELETE')
+                                <button class="btn-wf-danger btn-wf-sm">
+                                    <i class="ti ti-trash text-xs"></i>
+                                </button>
+                            </form>
                         </div>
-                        <!-- end of Search //-->
-                    </div>
-                   
-
-                    <table class="table-auto border-collapse border border-1 border-gray-200 w-[100%]">
-                        <thead>
-                            <tr class="bg-gray-200">
-                                <th width='15%' class="text-center font-semibold py-4 w-16">#</th>
-                                <th width='70%' class="font-semibold py-2 text-left">Titles</th>                               
-                                <th width='20%' class="font-semibold py-2 text-left">Action</th>                     
-                                                        
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @php
-                                $counter = 0;
-                            @endphp
-                            @foreach($staff_titles as $staff_title)
-                            <tr class="border border-b border-gray-200 ">
-                                <td class='text-center py-8'>{{ ++$counter }}.</td>
-                                <td class="py-4 pr-4">
-                                    
-                                    <div class='py-1'>
-                                        
-                                            <a class="font-semibold text-blue-800 underline" href="{{ route('admin.staff_titles.show',['staff_title'=>$staff_title->id]) }}">
-                                                {{ $staff_title->title }}
-                                            </a>                             
-                                    </div>
-                                    <div class='flex flex-wrap md:flex-row gap-3 md:gap-4 text-sm'>
-                                            <a href="#" class='hover:underline'>Staff (0)</a> 
-                                                       
-                                           
-                                    </div>                     
-                                </td>
-                                
-                                <td>
-                                                <span class="text-sm">
-                                                            <a href="{{ route('admin.staff_titles.edit',['staff_title' => $staff_title->id]) }}" class="hover:bg-blue-500 bg-blue-400 text-white rounded 
-                                                                px-4 py-1 text-xs" href="#">Edit</a>
-                                                </span>
-                                           
-                                                <span class="text-sm">
-                                                        <a class="hover:bg-red-500 bg-red-400 text-white rounded 
-                                                            px-4 py-1 text-xs" href="{{ route('admin.staff_titles.confirm_delete',['staff_title' => $staff_title->id]) }}">Delete</a>
-                                                </span>
-                                </td>
-                              
-                               
-                                
-                                
-                                
-                                
-                            </tr>
-                            @endforeach
-                        
-
-                        </tbody>
-                    </table>
-
-                   
-
-            @else
-                    <section class="flex flex-col w-[95%] md:w-[95%] mx-auto px-0 py-8 border-0">
-                        <div class="flex flex-row border-0 justify-center text-2xl font-semibold text-gray-300">
-                                There is currently no Staff Titles
-                        </div>
-                    </section>
-            @endif
-
-
-
-        </section>
-       
-        <!-- end of Staff Categories Section //-->
-    
-        
-    
-    
-        
+                    </td>
+                </tr>
+                @empty
+                <tr>
+                    <td colspan="4" class="text-center py-10 text-gray-400">
+                        <i class="ti ti-inbox text-3xl block mb-2"></i>
+                        No records yet.
+                    </td>
+                </tr>
+                @endforelse
+            </tbody>
+        </table>
     </div>
-    
 
+    {{-- CREATE MODAL --}}
+    <div id="modal-create" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4">
+            <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+                <h2 class="font-bold text-gray-800 text-sm">Add Title</h2>
+                <button onclick="document.getElementById('modal-create').classList.add('hidden')"
+                        class="text-gray-400 hover:text-gray-600"><i class="ti ti-x"></i></button>
+            </div>
+            <form action="{{route('admin.staff_titles.store')}}" method="POST" class="px-5 py-4">
+                @csrf
+                <div class="mb-4">
+                    <label class="block text-[10.5px] font-bold tracking-wider text-gray-500 mb-1.5">
+                        TITLE <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" name="title" value="{{old('title')}}"
+                           class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm
+                                  focus:outline-none focus:border-funaab-500 focus:ring-2 focus:ring-funaab-50"
+                           required autofocus />
+                    @error('title')<p class="text-red-500 text-xs mt-1">{{$message}}</p>@enderror
+                </div>
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button"
+                            onclick="document.getElementById('modal-create').classList.add('hidden')"
+                            class="btn-wf-ghost">Cancel</button>
+                    <button type="submit" class="btn-wf-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
-</x-admin-layout>
+    {{-- EDIT MODAL --}}
+    <div id="modal-edit" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4">
+            <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+                <h2 class="font-bold text-gray-800 text-sm">Edit Staff Titles</h2>
+                <button onclick="document.getElementById('modal-edit').classList.add('hidden')"
+                        class="text-gray-400 hover:text-gray-600"><i class="ti ti-x"></i></button>
+            </div>
+            <form id="edit-form" method="POST" class="px-5 py-4">
+                @csrf @method('PUT')
+                <div class="mb-4">
+                    <label class="block text-[10.5px] font-bold tracking-wider text-gray-500 mb-1.5">
+                        TITLE <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" name="title" id="edit-field"
+                           class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm
+                                  focus:outline-none focus:border-funaab-500 focus:ring-2 focus:ring-funaab-50"
+                           required />
+                </div>
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button"
+                            onclick="document.getElementById('modal-edit').classList.add('hidden')"
+                            class="btn-wf-ghost">Cancel</button>
+                    <button type="submit" class="btn-wf-primary">Update</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function openEdit(id, value) {
+            document.getElementById('edit-field').value = value;
+            document.getElementById('edit-form').action = `/admin/staff_titles/${id}`;
+            document.getElementById('modal-edit').classList.remove('hidden');
+        }
+        @if($errors->any())
+            document.getElementById('modal-create').classList.remove('hidden');
+        @endif
+    </script>
+
+</x-settings-page>

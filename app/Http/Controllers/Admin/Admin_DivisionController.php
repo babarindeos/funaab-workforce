@@ -3,164 +3,82 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-
 use App\Models\Division;
 use App\Models\DivisionType;
+use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class Admin_DivisionController extends Controller
 {
-    //
     public function index(Request $request)
     {
-        $query = $request->query('q');
+        $query = Division::with(['division_type', 'parent'])
+                         ->withCount('departments')
+                         ->orderBy('division_name');
 
-        if ($query== null)
-        {
-            $divisions = Division::orderBy('created_at', 'desc')->paginate(50);
-        }
-        else
-        {
-            $divisions = Division::with(['division_type', 'parent'])
-                                  ->where(function($q) use ($query){
-                                        $q->where('division_name', 'like', "%{$query}%")
-                                          ->orWhereHas('parent', function($q2) use ($query){
-                                                $q2->where('division_name', 'like', "%{$query}%");
-                                          })
-                                          ->orWhereHas('division_type', function($q3) use ($query){
-                                                $q3->where('division_type_name', 'like', "%{$query}%");
-                                          });
-                                  })
-                                  ->orderBy('created_at', 'desc')
-                                  ->paginate(50);
+        if ($request->filled('search')) {
+            $term = $request->search;
+            $query->where(function ($q) use ($term) {
+                $q->where('division_name', 'like', "%{$term}%")
+                  ->orWhere('short_name',   'like', "%{$term}%")
+                  ->orWhereHas('division_type', fn($q2) => $q2->where('division_type_name', 'like', "%{$term}%"));
+            });
         }
 
-        
-        return view('admin.divisions.index', compact('divisions'));
+        if ($request->filled('division_type_id')) {
+            $query->where('division_type_id', $request->division_type_id);
+        }
+
+        $divisions      = $query->paginate(25)->withQueryString();
+        $division_types = DivisionType::orderBy('division_type_name')->get();
+        $total          = Division::count();
+
+        return view('admin.divisions.index', compact('divisions', 'division_types', 'total'));
     }
-
-    public function create()
-    {
-        $division_types = DivisionType::orderBy('division_type_name', 'asc')->get();
-        $divisions = Division::orderBy('division_name', 'asc')->get();
-
-        return view('admin.divisions.create', compact('division_types', 'divisions'));
-    }
-
 
     public function store(Request $request)
     {
         $request->validate([
-            'division_type' => 'required',
-            'division_name' => 'required|unique:divisions,division_name',
-            'short_name' => 'required|unique:divisions,short_name'
+            'division_type_id' => 'required|exists:division_types,id',
+            'division_name'    => 'required|string|unique:divisions,division_name',
+            'short_name'       => 'required|string|unique:divisions,short_name',
         ]);
 
-        try
-        {
-            $formFields = [
-                'division_type_id' => trim($request->division_type),
-                'parent_division' => $request->parent_division,
-                'division_name' => $request->division_name,
-                'short_name' => $request->short_name
-            ];
+        Division::create([
+            'uuid'             => Str::uuid(),
+            'division_type_id' => $request->division_type_id,
+            'parent_division'  => $request->parent_division ?: null,
+            'division_name'    => $request->division_name,
+            'short_name'       => strtoupper($request->short_name),
+        ]);
 
-
-            $create = Division::create($formFields);
-
-            
-            if ($create)
-            {
-                $data = [
-                    'error' => true,
-                    'status' => 'success',
-                    'message' => 'The Division has been successfully created'
-                ];
-
-            }
-            else
-            {
-                $data = [
-                    'error' => true,
-                    'status' => 'fail',
-                    'message' => 'An error occurred creating the Division'
-                ];
-
-            }
-
-        }
-        catch(\Exception $e)
-        {
-                 $data = [
-                    'error' => true,
-                    'status' => 'fail',
-                    'message' => $e->getMessage()
-                ];
-        }
-
-        return redirect()->back()->with($data);
-    }
-
-    public function edit(Division $division)
-    {
-
-        $division_types = DivisionType::orderBy('division_type_name', 'asc')->get();
-        $parent_divisions = Division::orderBy('division_name', 'asc')->get();
-
-        return view('admin.divisions.edit', compact('division', 'division_types', 'parent_divisions'));
+        return back()->with('success', 'Division created successfully.');
     }
 
     public function update(Request $request, Division $division)
     {
         $request->validate([
-            'division_type' => 'required',
-            'division_name' => 'required',
-            'short_name' => 'required'
+            'division_type_id' => 'required|exists:division_types,id',
+            'division_name'    => 'required|string|unique:divisions,division_name,' . $division->id,
+            'short_name'       => 'required|string|unique:divisions,short_name,' . $division->id,
         ]);
 
-        try
-        {
-            $formFields = [
-                'division_type_id' => trim($request->division_type),
-                'parent_division' => $request->parent_division,
-                'division_name' => $request->division_name,
-                'short_name' => $request->short_name
-            ];
+        $division->update([
+            'division_type_id' => $request->division_type_id,
+            'parent_division'  => $request->parent_division ?: null,
+            'division_name'    => $request->division_name,
+            'short_name'       => strtoupper($request->short_name),
+        ]);
 
+        return back()->with('success', 'Division updated successfully.');
+    }
 
-            $update = $division->update($formFields);
-
-            
-            if ($update)
-            {
-                $data = [
-                    'error' => true,
-                    'status' => 'success',
-                    'message' => 'The Division has been successfully updated'
-                ];
-
-            }
-            else
-            {
-                $data = [
-                    'error' => true,
-                    'status' => 'fail',
-                    'message' => 'An error occurred updating the Division'
-                ];
-
-            }
-
+    public function destroy(Division $division)
+    {
+        if ($division->departments()->count() > 0) {
+            return back()->with('error', 'Cannot delete — this division has departments assigned to it.');
         }
-        catch(\Exception $e)
-        {
-                 $data = [
-                    'error' => true,
-                    'status' => 'fail',
-                    'message' => $e->getMessage()
-                ];
-        }
-
-        return redirect()->back()->with($data);
-
+        $division->delete();
+        return back()->with('success', 'Division deleted.');
     }
 }

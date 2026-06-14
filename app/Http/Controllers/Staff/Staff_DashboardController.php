@@ -3,50 +3,131 @@
 namespace App\Http\Controllers\Staff;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Models\Workflow;
-use App\Models\PrivateMessage;
-use Illuminate\Support\Facades\Auth;
 use App\Models\Profile;
+use App\Models\Leave;
+use App\Models\Promotion;
+use App\Models\StepIncrement;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Carbon;
+use App\Models\Staff;
 
 class Staff_DashboardController extends Controller
 {
-
-    public function __construct()
-    {
-        // check if the user profile has been filled
-       
-    }
-
-    //
     public function index()
     {
-        
-        $profileExists = Profile::where('user_id', Auth::user()->id)->exists();
+        $user = Auth::user();
+        //dd($user->staff); // Debugging line to check staff relationship
+       
 
-        // if user profile does not exist, create it
-        if (!$profileExists)
-        {
+        // Redirect to create profile if not exists
+        if (!Profile::where('user_id', $user->id)->exists()) {
             return redirect()->route('staff.profile.create');
         }
 
-        /* // get notification
-        $workflow_notifications = Workflow::where('recipient_id', Auth::user()->id)
-                                            ->where('read', false)
-                                            ->orderBy('id', 'desc')->paginate(5);
-
-        $private_message_notifications = PrivateMessage::where('recipient_id', Auth::user()->id)
-                                                       ->where('read', false)
-                                                       ->orderBy('id', 'desc')->paginate(5);
-
-        $recent_workflows = Workflow::latest()->take(5)->get();      
+        $profile = $user->profile;
+        $staff = Staff::where('staff_no', $user->file_no)->first();
         
-        $current_user =  Auth::user()->id;
-        //dd($current_user);
 
-        $recent_workflows = Workflow::where('recipient_id','=', $current_user)->latest()->take(5)->get(); */
-        
-        return view('staff.dashboard');
+        // Leave stats
+        $leaveBalance  = 30; // placeholder until leave entitlement is built
+        $leaveTaken    = Leave::whereHas('staff', fn($q) => $q->where('staff_no', $user->fileno))
+                              ->whereYear('start_date', now()->year)
+                              ->where('approval_status', 'approved')
+                              ->sum(\DB::raw('DATEDIFF(end_date, start_date) + 1'));
+        $leaveRemaining = max(0, $leaveBalance - $leaveTaken);
 
+        $pendingLeaves = Leave::whereHas('staff', fn($q) => $q->where('staff_no', $user->fileno))
+                              ->where('approval_status', 'pending')->count();
+
+        // Build notification feed from real events
+        $notifications = collect();
+
+        // Pending leave awaiting approval
+        if ($pendingLeaves > 0) {
+            $notifications->push([
+                'type'    => 'leave',
+                'message' => "You have {$pendingLeaves} leave application(s) awaiting approval.",
+                'time'    => 'Pending',
+                'href'    => '#',
+            ]);
+        }
+
+        // Recently approved leave
+        $approvedLeave = Leave::whereHas('staff', fn($q) => $q->where('staff_no', $user->fileno))
+            ->where('approval_status', 'approved')
+            ->whereYear('updated_at', now()->year)
+            ->latest('updated_at')
+            ->first();
+        if ($approvedLeave) {
+            $notifications->push([
+                'type'    => 'leave',
+                'message' => 'Your leave application has been approved.',
+                'time'    => Carbon::parse($approvedLeave->updated_at)->diffForHumans(),
+                'href'    => '#',
+            ]);
+        }
+
+        // Pending promotion notification
+        $pendingPromotion = Promotion::where('staff_id', $user->staff->id)
+            ->where('status', 'pending')
+            ->latest()
+            ->first();
+        if ($pendingPromotion) {
+            $notifications->push([
+                'type'    => 'promotion',
+                'message' => 'Your promotion recommendation is under review.',
+                'time'    => Carbon::parse($pendingPromotion->created_at)->diffForHumans(),
+                'href'    => '#',
+            ]);
+        }
+
+        // Approved promotion notification
+        $approvedPromotion = Promotion::where('staff_id', $user->staff->id)
+            ->where('status', 'approved')
+            ->whereYear('updated_at', now()->year)
+            ->latest('updated_at')
+            ->first();
+        if ($approvedPromotion) {
+            $notifications->push([
+                'type'    => 'promotion',
+                'message' => 'Congratulations! Your promotion has been approved.',
+                'time'    => Carbon::parse($approvedPromotion->updated_at)->diffForHumans(),
+                'href'    => '#',
+            ]);
+        }
+
+        // Step increment notification
+        $stepIncrement = StepIncrement::where('staff_id', $user->staff->id)
+            ->latest()
+            ->first();
+        if ($stepIncrement) {
+            $notifications->push([
+                'type'    => 'info',
+                'message' => 'A step increment record has been added to your profile.',
+                'time'    => Carbon::parse($stepIncrement->created_at)->diffForHumans(),
+                'href'    => route('staff.profile.myprofile'),
+            ]);
+        }
+
+        // Profile incomplete nudge
+        $missingFields = collect(['phone', 'next_of_kin', 'bank_account_no'])
+            ->filter(fn($f) => empty($profile->$f))
+            ->values();
+        if ($missingFields->count() > 0) {
+            $notifications->push([
+                'type'    => 'alert',
+                'message' => 'Your profile is incomplete. Please update missing information.',
+                'time'    => 'Action required',
+                'href'    => route('staff.profile.myprofile.edit'),
+            ]);
+        }
+
+        // Keep only the 5 most relevant notifications
+        $notifications = $notifications->take(5);
+
+        return view('staff.dashboard', compact(
+            'profile', 'leaveRemaining', 'pendingLeaves', 'leaveTaken',
+            'notifications'
+        ));
     }
 }

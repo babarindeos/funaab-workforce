@@ -17,6 +17,8 @@ return new class extends Migration
             $table->foreign('staff_id')->references('id')->on('staff')->onDelete('cascade');
             $table->unsignedBigInteger('staff_category_id');
             $table->foreign('staff_category_id')->references('id')->on('staff_categories')->onDelete('cascade');
+            $table->unsignedBigInteger('employment_type_id');
+            $table->foreign('employment_type_id')->references('id')->on('employment_types')->onDelete('cascade');
             $table->string('ippis_no')->nullable();
             $table->unsignedBigInteger('division_id')->nullable();
             $table->foreign('division_id')->references('id')->on('divisions')->onDelete('cascade');

@@ -1,110 +1,200 @@
-<x-staff-layout>
-    <div class="flex flex-col w-4/5 md:w-1/3 mx-auto items-center justify-center rounded-md mt-0 mb-8">
-        <form name="profile_create" action="{{ route('staff.profile.myprofile.update') }}" method="POST"  enctype="multipart/form-data" 
-             class="flex flex-col border border-1 justify-center items-center w-full rounded-md shadow-md py-16">
-            @csrf
-            <div class="flex flex-col py-2 justify-center items-center font-semibold text-xl">
-                    Edit Profile
-            </div>
-            <div class="flex flex-row justify-center">
-                    
-                    @if (Auth::user()->profile==null)
-                    <img src="{{ asset('images/avatar_150.jpg')}}" class="w-150" />
-                    @else
-                        <img src="{{ asset('storage/'.Auth::user()->profile->avatar) }}" class="w-36 h-36 rounded-full" />
-                    @endif
-                    
-            </div>
-            
-            <!-- Display name, designation and fileno //-->
-            <div class="flex flex-col border-red-900 w-[80%] md:w-[60%] py-1 mb-4">                             
-                    <div class="mx-auto text-lg font-semibold">
-                            {{ Auth::user()->surname }} {{ Auth::user()->firstname }} {{ Auth::user()->middlename }}
-                    </div>
-                    <div class="text-sm mx-auto">
-                            {{ Auth::user()->profile->designation }}, {{ Auth::user()->fileno}}
-                    </div>
-                    
-            </div>
-           <!-- end of display name, designation and fileno //-->
+<x-staff-layout title="Edit Profile">
 
-
-            <!-- designation  //-->
-            <div class="flex flex-col border-red-900 w-[80%] md:w-[60%] py-1">
-                                    
-                                    
-                <input type="text" name="designation" placeholder="Designation" class="border border-1 border-gray-400 bg-gray-50
-                                                        w-full p-3 rounded-md 
-                                                        focus:outline-none
-                                                        focus:border-blue-500 
-                                                        focus:ring
-                                                        focus:ring-blue-100" 
-                @if (Auth::user()->profile !=null)  value="{{Auth::user()->profile->designation}} " @endif
-                style="font-family:'Lato';font-size:16px;font-weight:500;"   
-                required          
-                 />
-                    
-
-                @error('designation')
-                    <span class="text-red-700 text-sm">
-                        {{$message}}
-                    </span>
-                @enderror
-                
-            </div>
-            <!-- end of designation //-->
-
-
-            <!-- phone  //-->
-            <div class="flex flex-col border-red-900 w-[80%] md:w-[60%] py-1">
-                                    
-                                    
-                <input type="text" name="phone" placeholder="Phone Number" class="border border-1 border-gray-400 bg-gray-50
-                                                        w-full p-3 rounded-md 
-                                                        focus:outline-none
-                                                        focus:border-blue-500 
-                                                        focus:ring
-                                                        focus:ring-blue-100" 
-                @if (Auth::user()->profile !=null) value="{{ Auth::user()->profile->phone }}" @endif
-                style="font-family:'Lato';font-size:16px;font-weight:500;"             
-                required/>
-                    
-
-                @error('phone')
-                    <span class="text-red-700 text-sm">
-                        {{$message}}
-                    </span>
-                @enderror
-                
-            </div>
-            <!-- end of phone //-->
-
-
-            <!-- button //-->
-            <div class="flex flex-row border-red-900 w-[80%] md:w-[60%] py-2 mb-2 space-x-2">
-                <div class="flex flex-1 w-full border border-1">
-                    <button type="submit" class="w-full border border-1 bg-gray-400 py-4 text-white 
-                                hover:bg-gray-500
-                                rounded-md text-md" style="font-family:'Lato';font-weight:500;">Update Profile</button>
-                </div>
-                
-                @if (Auth::user()->profile !=null)
-                    <div class="flex border border-1">
-                            <a href="{{ route('staff.profile.myprofile') }}" class="w-full border border-1 bg-green-400 py-4 px-4 text-white 
-                                 hover:bg-green-500 rounded-md text-md" style="font-family:'Lato';font-weight:500;">Continue</a>
-                    </div>
-                @endif
-            </div>
-
-
-
-        <!-- end of buttons //-->
-
-
-
-        </form>
-
-
+    <div class="flex items-center gap-2 mb-5">
+        <a href="{{ route('staff.profile.myprofile') }}" class="text-gray-400 hover:text-funaab-700 transition-colors">
+            <i class="ti ti-arrow-left text-lg"></i>
+        </a>
+        <div>
+            <h1 class="pg-title">Edit Profile</h1>
+            <p class="pg-sub">Update your personal and employment information</p>
+        </div>
     </div>
+
+    <form action="{{ route('staff.profile.myprofile.update') }}" method="POST"
+          x-data="{ tab: 'personal' }">
+        @csrf @method('PUT')
+
+        {{-- Tab nav --}}
+        <div class="flex border-b border-gray-200 mb-5">
+            <button type="button" @click="tab='personal'"
+                    :class="tab==='personal' ? 'border-funaab-600 text-funaab-700 font-bold' : 'border-transparent text-gray-400'"
+                    class="px-5 py-2.5 text-xs font-bold border-b-2 transition-colors">
+                <i class="ti ti-user mr-1"></i> Personal
+            </button>
+            <button type="button" @click="tab='nok'"
+                    :class="tab==='nok' ? 'border-funaab-600 text-funaab-700 font-bold' : 'border-transparent text-gray-400'"
+                    class="px-5 py-2.5 text-xs font-bold border-b-2 transition-colors">
+                <i class="ti ti-users mr-1"></i> Next of Kin
+            </button>
+            <button type="button" @click="tab='name_change'"
+                    :class="tab==='name_change' ? 'border-funaab-600 text-funaab-700 font-bold' : 'border-transparent text-gray-400'"
+                    class="px-5 py-2.5 text-xs font-bold border-b-2 transition-colors">
+                <i class="ti ti-pencil mr-1"></i> Name Change
+            </button>
+        </div>
+
+        @php
+            $inp = 'w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-funaab-500 focus:ring-2 focus:ring-funaab-50 bg-white';
+            $lbl = 'block text-[10.5px] font-bold tracking-wider text-gray-500 mb-1.5';
+        @endphp
+
+        {{-- Personal tab --}}
+        <div x-show="tab==='personal'" class="max-w-3xl">
+            <div class="wf-card mb-4">
+                <div class="wf-card-title"><i class="ti ti-user text-gray-400"></i> Personal Information</div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="{{ $lbl }}">TITLE</label>
+                        <input type="text" name="title" value="{{ old('title', $profile->title) }}" class="{{ $inp }}" />
+                    </div>
+                    <div>
+                        <label class="{{ $lbl }}">PHONE <span class="text-red-500">*</span></label>
+                        <input type="text" name="phone" value="{{ old('phone', $profile->phone) }}" class="{{ $inp }}" required />
+                        @error('phone')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
+                    </div>
+                    <div>
+                        <label class="{{ $lbl }}">DATE OF BIRTH</label>
+                        <input type="text" name="dob" value="{{ old('dob', $profile->dob) }}" class="{{ $inp }}" placeholder="dd/mm/yyyy" />
+                    </div>
+                    <div>
+                        <label class="{{ $lbl }}">GENDER</label>
+                        <input type="text" name="gender" value="{{ old('gender', $profile->gender) }}" class="{{ $inp }}" />
+                    </div>
+                    <div>
+                        <label class="{{ $lbl }}">STATE OF ORIGIN</label>
+                        <input type="text" name="state" value="{{ old('state', $profile->state) }}" class="{{ $inp }}" />
+                    </div>
+                    <div>
+                        <label class="{{ $lbl }}">LGA OF ORIGIN</label>
+                        <input type="text" name="lga" value="{{ old('lga', $profile->lga) }}" class="{{ $inp }}" />
+                    </div>
+                    <div>
+                        <label class="{{ $lbl }}">GEO-POLITICAL ZONE</label>
+                        <input type="text" name="geopolitical_zone" value="{{ old('geopolitical_zone', $profile->geopolitical_zone) }}" class="{{ $inp }}" />
+                    </div>
+                    <div>
+                        <label class="{{ $lbl }}">SENATORIAL DISTRICT</label>
+                        <input type="text" name="senatorial_district" value="{{ old('senatorial_district', $profile->senatorial_district) }}" class="{{ $inp }}" />
+                    </div>
+                    <div>
+                        <label class="{{ $lbl }}">NATIONALITY</label>
+                        <input type="text" name="nationality" value="{{ old('nationality', $profile->nationality) }}" class="{{ $inp }}" />
+                    </div>
+                    <div>
+                        <label class="{{ $lbl }}">BIRTH PLACE</label>
+                        <input type="text" name="birth_place" value="{{ old('birth_place', $profile->birth_place) }}" class="{{ $inp }}" />
+                    </div>
+                    <div class="col-span-2">
+                        <label class="{{ $lbl }}">PERMANENT HOME ADDRESS</label>
+                        <textarea name="permanent_home_address" rows="2"
+                                  class="{{ $inp }} resize-none">{{ old('permanent_home_address', $profile->permanent_home_address) }}</textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div class="wf-card mb-4">
+                <div class="wf-card-title"><i class="ti ti-briefcase text-gray-400"></i> Employment (Read-only)</div>
+                <div class="p-3 bg-funaab-50 border border-funaab-100 rounded-lg text-xs text-funaab-700 flex items-center gap-2 mb-3">
+                    <i class="ti ti-info-circle flex-shrink-0"></i>
+                    Employment details can only be updated by HR / Admin. Contact the Registry for changes.
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    @php $ro = 'w-full px-3 py-2 border border-gray-100 rounded-lg text-sm bg-gray-50 text-gray-500 cursor-not-allowed'; @endphp
+                    <div><label class="{{ $lbl }}">DESIGNATION</label><input type="text" value="{{ $profile->designation }}" class="{{ $ro }}" readonly /></div>
+                    <div><label class="{{ $lbl }}">CADRE</label><input type="text" value="{{ $profile->cadre }}" class="{{ $ro }}" readonly /></div>
+                    <div><label class="{{ $lbl }}">SALARY STRUCTURE</label><input type="text" value="{{ $profile->salary_structure }}" class="{{ $ro }}" readonly /></div>
+                    <div><label class="{{ $lbl }}">GRADE LEVEL / STEP</label><input type="text" value="GL {{ $profile->salary_level }} / Step {{ $profile->salary_level_step }}" class="{{ $ro }}" readonly /></div>
+                    <div><label class="{{ $lbl }}">STAFF STATUS</label><input type="text" value="{{ $profile->staff_status }}" class="{{ $ro }}" readonly /></div>
+                    <div><label class="{{ $lbl }}">IPPIS NO.</label><input type="text" value="{{ $profile->ippis_no }}" class="{{ $ro }}" readonly /></div>
+                </div>
+            </div>
+
+            <div class="flex justify-end gap-2">
+                <a href="{{ route('staff.profile.myprofile') }}" class="btn-wf-ghost">Cancel</a>
+                <button type="button" @click="tab='nok'" class="btn-wf-ghost">
+                    Next <i class="ti ti-arrow-right text-sm"></i>
+                </button>
+                <button type="submit" class="btn-wf-primary">
+                    <i class="ti ti-device-floppy text-sm"></i> Save Changes
+                </button>
+            </div>
+        </div>
+
+        {{-- Next of Kin tab --}}
+        <div x-show="tab==='nok'" class="max-w-3xl">
+            <div class="wf-card mb-4">
+                <div class="wf-card-title"><i class="ti ti-users text-gray-400"></i> Next of Kin</div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="col-span-2">
+                        <label class="{{ $lbl }}">FULL NAMES <span class="text-red-500">*</span></label>
+                        <input type="text" name="nok_fullnames" value="{{ old('nok_fullnames', $profile->nok_fullnames) }}" class="{{ $inp }}" />
+                    </div>
+                    <div>
+                        <label class="{{ $lbl }}">PHONE</label>
+                        <input type="text" name="nok_phone" value="{{ old('nok_phone', $profile->nok_phone) }}" class="{{ $inp }}" />
+                    </div>
+                    <div>
+                        <label class="{{ $lbl }}">EMAIL</label>
+                        <input type="email" name="nok_email" value="{{ old('nok_email', $profile->nok_email) }}" class="{{ $inp }}" />
+                    </div>
+                    <div class="col-span-2">
+                        <label class="{{ $lbl }}">ADDRESS</label>
+                        <textarea name="nok_address" rows="2" class="{{ $inp }} resize-none">{{ old('nok_address', $profile->nok_address) }}</textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="flex justify-between gap-2">
+                <button type="button" @click="tab='personal'" class="btn-wf-ghost">
+                    <i class="ti ti-arrow-left text-sm"></i> Back
+                </button>
+                <div class="flex gap-2">
+                    <button type="button" @click="tab='name_change'" class="btn-wf-ghost">
+                        Next <i class="ti ti-arrow-right text-sm"></i>
+                    </button>
+                    <button type="submit" class="btn-wf-primary">
+                        <i class="ti ti-device-floppy text-sm"></i> Save Changes
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        {{-- Name Change tab --}}
+        <div x-show="tab==='name_change'" class="max-w-3xl">
+            <div class="wf-card mb-4">
+                <div class="wf-card-title"><i class="ti ti-pencil text-gray-400"></i> Name Change Record</div>
+                <div class="p-3 bg-yellow-50 border border-yellow-200 rounded-lg text-xs text-yellow-700 flex items-center gap-2 mb-4">
+                    <i class="ti ti-alert-triangle flex-shrink-0"></i>
+                    Only complete this section if you have legally changed your name. Supporting documents will be required.
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="col-span-2">
+                        <label class="{{ $lbl }}">ORIGINAL NAMES</label>
+                        <input type="text" name="original_names" value="{{ old('original_names', $profile->original_names) }}" class="{{ $inp }}" />
+                    </div>
+                    <div class="col-span-2">
+                        <label class="{{ $lbl }}">CHANGED NAME</label>
+                        <input type="text" name="change_name" value="{{ old('change_name', $profile->change_name) }}" class="{{ $inp }}" />
+                    </div>
+                    <div>
+                        <label class="{{ $lbl }}">DATE OF NAME CHANGE</label>
+                        <input type="date" name="date_name_change" value="{{ old('date_name_change', $profile->date_name_change) }}" class="{{ $inp }}" />
+                    </div>
+                    <div>
+                        <label class="{{ $lbl }}">REASON FOR NAME CHANGE</label>
+                        <input type="text" name="reason_name_change" value="{{ old('reason_name_change', $profile->reason_name_change) }}" class="{{ $inp }}" />
+                    </div>
+                </div>
+            </div>
+            <div class="flex justify-between gap-2">
+                <button type="button" @click="tab='nok'" class="btn-wf-ghost">
+                    <i class="ti ti-arrow-left text-sm"></i> Back
+                </button>
+                <button type="submit" class="btn-wf-primary">
+                    <i class="ti ti-device-floppy text-sm"></i> Save All Changes
+                </button>
+            </div>
+        </div>
+
+    </form>
 
 </x-staff-layout>

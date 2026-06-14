@@ -1,155 +1,268 @@
-<x-admin-layout>
+<x-settings-page title="Departments" subtitle="Academic and administrative departments across all divisions"
+    back-route="admin.settings.index"
+    add-label="Add Department"
+    add-onclick="document.getElementById('modal-create').classList.remove('hidden')">
 
-    <div class="flex flex-col border-0 w-[95%]  mx-auto">
-        
+    {{-- Stats --}}
+    <div class="grid grid-cols-3 gap-3 mb-4">
+        <div class="stat-card">
+            <div class="flex items-center gap-2 text-[10.5px] font-bold tracking-widest text-gray-400 mb-2">
+                <div class="w-6 h-6 rounded bg-funaab-50 flex items-center justify-center">
+                    <i class="ti ti-building text-funaab-700 text-sm"></i>
+                </div>
+                TOTAL DEPARTMENTS
+            </div>
+            <div class="text-2xl font-bold text-gray-800">{{ $total }}</div>
+        </div>
+        <div class="stat-card">
+            <div class="flex items-center gap-2 text-[10.5px] font-bold tracking-widest text-gray-400 mb-2">
+                <div class="w-6 h-6 rounded bg-blue-50 flex items-center justify-center">
+                    <i class="ti ti-hierarchy-2 text-blue-600 text-sm"></i>
+                </div>
+                DIVISIONS
+            </div>
+            <div class="text-2xl font-bold text-gray-800">{{ $divisions->count() }}</div>
+        </div>
+        <div class="stat-card">
+            <div class="flex items-center gap-2 text-[10.5px] font-bold tracking-widest text-gray-400 mb-2">
+                <div class="w-6 h-6 rounded bg-gold-50 flex items-center justify-center">
+                    <i class="ti ti-users text-gold-600 text-sm"></i>
+                </div>
+                TOTAL STAFF
+            </div>
+            <div class="text-2xl font-bold text-gray-800">{{ $departments->sum('employments_count') }}</div>
+        </div>
+    </div>
 
-        <!-- page header //-->
-        <section class="flex flex-col w-full md:w-full py-6 px-2 md:px-4 border-0 border-red-900 mx-auto border border-1">
-        
-            <div class="flex border-b border-gray-300 py-2 justify-between">
-                    <div class='flex'>
-                    <h1 class="text-2xl font-semibold font-serif text-gray-800">Departments</h1>
-                        
+    {{-- Filters --}}
+    <form method="GET" class="flex gap-2 mb-4 flex-wrap">
+        <div class="relative flex-1 min-w-[200px]">
+            <i class="ti ti-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+            <input type="text" name="search" value="{{ request('search') }}"
+                   placeholder="Search department or short name…"
+                   class="w-full pl-8 pr-3 py-2 text-sm border border-gray-200 rounded-lg
+                          focus:outline-none focus:border-funaab-500 bg-white" />
+        </div>
+        <select name="division_id"
+                class="px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none
+                       focus:border-funaab-500 bg-white">
+            <option value="">All Divisions</option>
+            @foreach($divisions as $div)
+                <option value="{{ $div->id }}" {{ request('division_id') == $div->id ? 'selected' : '' }}>
+                    {{ $div->short_name }} — {{ $div->division_name }}
+                </option>
+            @endforeach
+        </select>
+        <button type="submit" class="btn-wf-primary">
+            <i class="ti ti-filter text-sm"></i> Filter
+        </button>
+        @if(request()->hasAny(['search','division_id']))
+            <a href="{{ route('admin.departments.index') }}" class="btn-wf-ghost">Clear</a>
+        @endif
+    </form>
+
+    {{-- Table --}}
+    <div class="wf-card">
+        <table class="wf-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>DEPARTMENT NAME</th>
+                    <th>SHORT NAME</th>
+                    <th>DIVISION</th>
+                    <th>PARENT DEPT.</th>
+                    <th>STAFF</th>
+                    <th>CREATED</th>
+                    <th class="text-right">ACTIONS</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse($departments as $dept)
+                <tr>
+                    <td class="text-gray-400">{{ $departments->firstItem() + $loop->index }}</td>
+                    <td class="col-name">{{ $dept->department_name }}</td>
+                    <td>
+                        <span class="badge badge-info font-mono text-[10px]">{{ $dept->short_name }}</span>
+                    </td>
+                    <td>
+                        <div class="text-xs">
+                            <div class="font-bold text-gray-700">{{ $dept->division?->short_name ?? '—' }}</div>
+                            <div class="text-gray-400">{{ $dept->division?->division_name ?? '' }}</div>
+                        </div>
+                    </td>
+                    <td class="text-gray-500 text-xs">{{ $dept->parent?->department_name ?? '—' }}</td>
+                    <td>
+                        <span class="badge badge-active">{{ $dept->employments_count }}</span>
+                    </td>
+                    <td class="text-gray-400 text-xs">{{ $dept->created_at->format('d M Y') }}</td>
+                    <td>
+                        <div class="flex items-center justify-end gap-1">
+                            <button onclick="openEdit(
+                                        {{ $dept->id }},
+                                        '{{ addslashes($dept->department_name) }}',
+                                        '{{ addslashes($dept->short_name) }}',
+                                        {{ $dept->division_id }},
+                                        {{ $dept->parent_department ?? 'null' }})"
+                                    class="btn-wf-ghost btn-wf-sm">
+                                <i class="ti ti-edit text-xs"></i> Edit
+                            </button>
+                            <form action="{{ route('admin.departments.delete', $dept) }}" method="POST"
+                                  onsubmit="return confirm('Delete {{ addslashes($dept->department_name) }}? This cannot be undone.')">
+                                @csrf @method('DELETE')
+                                <button class="btn-wf-danger btn-wf-sm">
+                                    <i class="ti ti-trash text-xs"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                @empty
+                <tr>
+                    <td colspan="8" class="text-center py-10 text-gray-400">
+                        <i class="ti ti-building text-3xl block mb-2"></i>
+                        No departments found.
+                    </td>
+                </tr>
+                @endforelse
+            </tbody>
+        </table>
+        @if($departments->hasPages())
+            <div class="p-3 border-t border-gray-100 flex items-center justify-between">
+                <p class="text-xs text-gray-400">
+                    Showing {{ $departments->firstItem() }}–{{ $departments->lastItem() }}
+                    of {{ $departments->total() }} departments
+                </p>
+                {{ $departments->links() }}
+            </div>
+        @endif
+    </div>
+
+    {{-- CREATE MODAL --}}
+    <div id="modal-create" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg mx-4">
+            <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+                <h2 class="font-bold text-gray-800 text-sm">Add Department</h2>
+                <button onclick="document.getElementById('modal-create').classList.add('hidden')"
+                        class="text-gray-400 hover:text-gray-600"><i class="ti ti-x"></i></button>
+            </div>
+            <form action="{{ route('admin.departments.store') }}" method="POST" class="px-5 py-4 space-y-3">
+                @csrf
+                @php $inp = 'w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-funaab-500 focus:ring-2 focus:ring-funaab-50';
+                     $lbl = 'block text-[10.5px] font-bold tracking-wider text-gray-500 mb-1.5'; @endphp
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="col-span-2">
+                        <label class="{{ $lbl }}">DEPARTMENT NAME <span class="text-red-500">*</span></label>
+                        <input type="text" name="department_name" value="{{ old('department_name') }}"
+                               placeholder="e.g. Crop Production & Protection"
+                               class="{{ $inp }}" required />
+                        @error('department_name')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
                     </div>
                     <div>
-
-                            <a href="{{ route('admin.departments.create') }}" class="border border-green-600 text-green-600 py-2 px-6 
-                                            rounded-lg text-xs md:text-sm hover:bg-green-600 hover:text-white hover:border-green-600">Create Department</a>
+                        <label class="{{ $lbl }}">SHORT NAME <span class="text-red-500">*</span></label>
+                        <input type="text" name="short_name" value="{{ old('short_name') }}"
+                               placeholder="e.g. CROP, REGISTRY"
+                               class="{{ $inp }}" required />
+                        @error('short_name')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
                     </div>
-            </div>
-        </section>
-        <!-- end of page header //-->
-
-        
-
-
-        <!-- Department Section  //-->
-        
-
-        
-        <section class="flex flex-col w-[95%] md:w-[95%] mx-auto py-2 mt-2 border-0">
-                   
-
-
-        @if ($departments->count())
-                    <div class='flex flex-col w-full md:flex-row md:items-center'>
-                        <div class='py-1 text-xl font-medium md:w-1/2'>Departments ({{ $departments->total() }})</div>
-
-                        <!-- Search //-->
-                        <div class='flex flex-col gap-2 w-full py-2 md:py-2 md:w-1/2 md:justify-end md:items-end border-0'>
-                                <form action="{{ route('admin.departments.index') }}" method="GET" class="flex flex-row items-center w-full border-0">
-                                
-                                                <div class="flex flex-col justify-end items-end border-0 w-full">
-                                                
-                                                        <input type="text" name="q" class="w-full md:w-4/5 border border-1 border-gray-400 bg-gray-50
-                                                                p-2 rounded-l-md 
-                                                                focus:outline-none
-                                                                focus:border-blue-500 
-                                                                focus:ring
-                                                                focus:ring-blue-100" placeholder="Search..."                
-                                                                
-                                                                style="font-family:'Lato';font-size:16px;font-weight:500;"                                                                  
-                                                        
-                                                        />  
-                                                </div>
-                                                <div class='border-0'>
-                                                        
-                                                        <button type='submit' class="hover:bg-blue-500 hover:border-blue-500 bg-blue-400 text-white rounded-r-md 
-                                                                px-4 py-2 text-md border-blue-400 border-0" ><i class="fa-solid fa-magnifying-glass"></i></button>
-                                                        
-                                                </div>
-                                                
-                                        
-                                </form>
-                        </div>
-                        <!-- end of Search //-->
-                    </div>
-                    <div class='py-2'>
-                        {{ $departments->links() }}
-                    </div>
-
-                    <table class="table-auto border-collapse border border-1 border-gray-200 w-[100%]">
-                        <thead>
-                            <tr class="bg-gray-200">
-                                <th width='10%' class="text-center font-semibold py-4 w-16">#</th>
-                                <th width='50%' class="font-semibold py-2 text-left">Name</th> 
-                                <th width='25%' class="font-semibold py-2 text-left">Parent</th> 
-                                <th width='15%' class="font-semibold py-2 text-left">Actions</th>                                
-                                
-                                                        
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @php
-                                $counter = ($departments->currentPage() -1 ) * $departments->perPage();
-                            @endphp
-                            @foreach($departments as $department)
-                            <tr class="border border-b border-gray-200 ">
-                                <td class='text-center py-8'>{{ ++$counter }}.</td>
-                                <td class="py-4 pr-4">
-                                    
-                                    <div class='py-1'>
-                                        
-                                            <a class="font-semibold text-blue-800 underline" href="{{ route('admin.departments.show',['department'=>$department->id]) }}">
-                                                {{ $department->department_name }} ({{ $department->short_name }})
-                                            </a>                             
-                                    </div>
-                                    <div class='flex flex-wrap md:flex-row gap-3 md:gap-4 text-sm'>
-                                            <a href="#" class='hover:underline'>Staff (0)</a>
-                                           
-                                    </div>                         
-                                </td>
-                                <td>
-                                        @if ($department->parent != null)
-                                            {{ $department->parent->department_name }}
-                                        @endif
-                                </td>
-                               
-                                <td>
-                                            <span class="text-sm">
-                                                    <a href="{{ route('admin.departments.edit',['department' => $department->id]) }}" class="hover:bg-blue-500 bg-blue-400 text-white rounded 
-                                                        px-4 py-1 text-xs" href="#">Edit</a>
-                                            </span>
-                                           
-                                                <span class="text-sm">
-                                                        <a class="hover:bg-red-500 bg-red-400 text-white rounded 
-                                                            px-4 py-1 text-xs" href="{{ route('admin.departments.confirm_delete',['department' => $department->id]) }}">Delete</a>
-                                                </span>
-                                            
-                                </td>
-                                
-                                
-                                
-                                
-                            </tr>
+                    <div>
+                        <label class="{{ $lbl }}">DIVISION <span class="text-red-500">*</span></label>
+                        <select name="division_id" class="{{ $inp }}" required>
+                            <option value="">— Select Division —</option>
+                            @foreach($divisions as $div)
+                                <option value="{{ $div->id }}" {{ old('division_id') == $div->id ? 'selected' : '' }}>
+                                    {{ $div->short_name }} — {{ $div->division_name }}
+                                </option>
                             @endforeach
-                        
+                        </select>
+                        @error('division_id')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
+                    </div>
+                    <div class="col-span-2">
+                        <label class="{{ $lbl }}">PARENT DEPARTMENT <span class="text-gray-400 font-normal">(optional)</span></label>
+                        <select name="parent_department" class="{{ $inp }}">
+                            <option value="">— None (Top-level) —</option>
+                            @foreach($departments as $parent)
+                                <option value="{{ $parent->id }}">{{ $parent->department_name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
 
-                        </tbody>
-                    </table>
-
-                   
-
-            @else
-                    <section class="flex flex-col w-[95%] md:w-[95%] mx-auto px-0 py-8 border-0">
-                        <div class="flex flex-row border-0 justify-center text-2xl font-semibold text-gray-300">
-                                There is currently no Departments
-                        </div>
-                    </section>
-            @endif
-
-
-
-        </section>
-       
-        <!-- end of LGA Section //-->
-    
-        
-    
-    
-        
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button"
+                            onclick="document.getElementById('modal-create').classList.add('hidden')"
+                            class="btn-wf-ghost">Cancel</button>
+                    <button type="submit" class="btn-wf-primary">
+                        <i class="ti ti-device-floppy text-sm"></i> Save Department
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
-    
 
+    {{-- EDIT MODAL --}}
+    <div id="modal-edit" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg mx-4">
+            <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+                <h2 class="font-bold text-gray-800 text-sm">Edit Department</h2>
+                <button onclick="document.getElementById('modal-edit').classList.add('hidden')"
+                        class="text-gray-400 hover:text-gray-600"><i class="ti ti-x"></i></button>
+            </div>
+            <form id="edit-form" method="POST" class="px-5 py-4 space-y-3">
+                @csrf @method('PUT')
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="col-span-2">
+                        <label class="{{ $lbl }}">DEPARTMENT NAME</label>
+                        <input type="text" name="department_name" id="edit-name" class="{{ $inp }}" required />
+                    </div>
+                    <div>
+                        <label class="{{ $lbl }}">SHORT NAME</label>
+                        <input type="text" name="short_name" id="edit-short" class="{{ $inp }}" required />
+                    </div>
+                    <div>
+                        <label class="{{ $lbl }}">DIVISION</label>
+                        <select name="division_id" id="edit-division" class="{{ $inp }}" required>
+                            @foreach($divisions as $div)
+                                <option value="{{ $div->id }}">
+                                    {{ $div->short_name }} — {{ $div->division_name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-span-2">
+                        <label class="{{ $lbl }}">PARENT DEPARTMENT</label>
+                        <select name="parent_department" id="edit-parent" class="{{ $inp }}">
+                            <option value="">— None (Top-level) —</option>
+                            @foreach($departments as $parent)
+                                <option value="{{ $parent->id }}">{{ $parent->department_name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button"
+                            onclick="document.getElementById('modal-edit').classList.add('hidden')"
+                            class="btn-wf-ghost">Cancel</button>
+                    <button type="submit" class="btn-wf-primary">
+                        <i class="ti ti-device-floppy text-sm"></i> Update Department
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 
-</x-admin-layout>
+    <script>
+        function openEdit(id, name, shortName, divisionId, parentId) {
+            document.getElementById('edit-name').value     = name;
+            document.getElementById('edit-short').value    = shortName;
+            document.getElementById('edit-division').value = divisionId;
+            document.getElementById('edit-parent').value   = parentId || '';
+            document.getElementById('edit-form').action    = `/admin/departments/${id}/update`;
+            document.getElementById('modal-edit').classList.remove('hidden');
+        }
+        @if($errors->any())
+            document.getElementById('modal-create').classList.remove('hidden');
+        @endif
+    </script>
+
+</x-settings-page>

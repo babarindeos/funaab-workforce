@@ -1,92 +1,86 @@
-<x-admin-layout>
+<x-settings-page title="New Deployment" subtitle="Record a new staff deployment"
+    back-route="admin.deployments.index">
 
-    <div class="flex flex-col border-0 w-[89%] md:w-[93%] mx-auto">
-        <section class="flex flex-row justify-between border-b border-gray-200 py-2 mt-6">
-                <div class="text-2xl font-semibold ">
-                    Deployment Posts         
+    <div class="max-w-2xl">
+        <div class="wf-card">
+            <form action="{{ route('admin.deployments.store') }}" method="POST" class="space-y-4">
+                @csrf
+                @php $input = 'w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-funaab-500 focus:ring-2 focus:ring-funaab-50';
+                     $label = 'block text-[10.5px] font-bold tracking-wider text-gray-500 mb-1.5'; @endphp
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="col-span-2">
+                        <label class="{{ $label }}">STAFF MEMBER <span class="text-red-500">*</span></label>
+                        <select name="staff_id" class="{{ $input }}" required>
+                            <option value="">— Select Staff —</option>
+                            @foreach($staff as $s)
+                                <option value="{{ $s->id }}" {{ old('staff_id') == $s->id ? 'selected' : '' }}>
+                                    {{ $s->staff_no }} — {{ $s->surname }}, {{ $s->firstname }}
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('staff_id')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
+                    </div>
+
+                    <div>
+                        <label class="{{ $label }}">DEPARTMENT <span class="text-red-500">*</span></label>
+                        <select name="department_id" class="{{ $input }}" required>
+                            <option value="">— Select Department —</option>
+                            @foreach($departments as $dept)
+                                <option value="{{ $dept->id }}" {{ old('department_id') == $dept->id ? 'selected' : '' }}>
+                                    {{ $dept->department_name }}
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('department_id')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
+                    </div>
+
+                    <div>
+                        <label class="{{ $label }}">DEPLOYMENT POST <span class="text-red-500">*</span></label>
+                        <select name="deployment_post_id" class="{{ $input }}" required>
+                            <option value="">— Select Post —</option>
+                            @foreach($deploymentPosts as $post)
+                                <option value="{{ $post->id }}" {{ old('deployment_post_id') == $post->id ? 'selected' : '' }}>
+                                    {{ $post->deployment_post }}
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('deployment_post_id')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
+                    </div>
+
+                    <div>
+                        <label class="{{ $label }}">START DATE <span class="text-red-500">*</span></label>
+                        <input type="date" name="start_date" value="{{ old('start_date') }}" class="{{ $input }}" required />
+                        @error('start_date')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
+                    </div>
+
+                    <div>
+                        <label class="{{ $label }}">EXPECTED END DATE</label>
+                        <input type="date" name="expected_end_date" value="{{ old('expected_end_date') }}" class="{{ $input }}" />
+                    </div>
+
+                    <div>
+                        <label class="{{ $label }}">ACTUAL END DATE</label>
+                        <input type="date" name="end_date" value="{{ old('end_date') }}" class="{{ $input }}" />
+                        <p class="text-[10.5px] text-gray-400 mt-1">Leave blank if deployment is still ongoing.</p>
+                    </div>
+
+                    <div class="col-span-2">
+                        <label class="{{ $label }}">REMARK</label>
+                        <textarea name="remark" rows="3"
+                                  class="{{ $input }} resize-none"
+                                  placeholder="Optional remarks…">{{ old('remark') }}</textarea>
+                    </div>
                 </div>
 
-                <div>
-
-                            <a href="{{ route('admin.deployment_posts.index') }}" class="border border-green-600 text-green-600 py-2 px-6 
-                                            rounded-lg text-xs md:text-sm hover:bg-green-600 hover:text-white hover:border-green-600">Deployments</a>
+                <div class="flex justify-end gap-2 pt-2 border-t border-gray-100">
+                    <a href="{{ route('admin.deployments.index') }}" class="btn-wf-ghost">Cancel</a>
+                    <button type="submit" class="btn-wf-primary">
+                        <i class="ti ti-device-floppy text-sm"></i> Save Deployment
+                    </button>
                 </div>
-                
-        </section>
-
-       
-
-
-        <!-- Create Deployment Posts Section  //-->
-        
-       
-    
-        <section class="py-8 mt-2">
-                <div>
-                    <form  action="{{ route('admin.deployment_posts.store') }} " method="POST" enctype="multipart/form-data" class="flex flex-col mx-auto w-full md:w-[95%] items-center justify-center">
-                        @csrf
-    
-                        
-    
-                        <div class="flex flex-col w-[80%] md:w-[60%] py-2 md:py-4" style="font-family:'Lato'; font-size:18px; font-weight:400;">
-                            <h2 class="font-semibold text-xl py-1" >Create Deployment Post</h2>
-                            
-                        </div>
-    
-                        <div class="flex flex-col w-[80%] md:w-[60%]" >
-                                @include('partials._session_response')
-                        </div>
-                        
-
-                        
-                        
-                        
-    
-                        <!-- Deployment Post  //-->
-                        <div class="flex flex-col border-red-900 w-[80%] md:w-[60%] py-3">
-                        
-                            
-                            <input type="text" name="deployment_post" class="border border-1 border-gray-400 bg-gray-50
-                                                                    w-full p-4 rounded-md 
-                                                                    focus:outline-none
-                                                                    focus:border-blue-500 
-                                                                    focus:ring
-                                                                    focus:ring-blue-100" placeholder="Deployment Post"
-                                                                
-                                                                    value="{{ old('deployment_post') }}"
-                                                                    
-                                                                    style="font-family:'Lato';font-size:16px;font-weight:500;"                                                                     
-                                                                    required
-                                                                    />  
-                                                                                                                                        
-    
-                                                                    @error('deployment_post')
-                                                                        <span class="text-red-700 text-sm">
-                                                                            {{$message}}
-                                                                        </span>
-                                                                    @enderror
-                            
-                        </div><!-- end of Deployment Post //-->      
-                        
-                        
-
-                        
-                        <div class="flex flex-col border-red-900 w-[80%] md:w-[60%] mt-4">
-                            <button type="submit" class="border border-1 bg-gray-400 py-4 text-white 
-                                           hover:bg-gray-500
-                                           rounded-md text-lg" style="font-family:'Lato';font-weight:500;">Create Deployment Post</button>
-                        </div>
-                        
-                    </form><!-- end of Deployment Post form //-->
-                <div>
-    
-            
-
-        </section>
-        <!-- End of Deployment Post Section //-->
-
-
-
+            </form>
+        </div>
     </div>
 
-</x-admin-layout>
+</x-settings-page>

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
 use App\Models\Lga;
+use App\Models\State;
 
 class Admin_LGAController extends Controller
 {
@@ -13,6 +14,7 @@ class Admin_LGAController extends Controller
    public function index(Request $request)
    {
         $query = $request->query('q');
+        $states = State::get();
 
         if ($query == null)
         {
@@ -31,6 +33,6 @@ class Admin_LGAController extends Controller
                         ->paginate(100);
         }         
 
-         return view('admin.lgas.index', compact('lgas'));
+         return view('admin.lgas.index', compact('lgas', 'states'));
    }
 }

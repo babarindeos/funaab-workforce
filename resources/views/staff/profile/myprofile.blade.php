@@ -1,99 +1,147 @@
-<x-staff-layout>
+<x-staff-layout title="My Profile">
 
-    <div class="flex flex-col container mx-4 md:mx-auto">
-        <section class="border-b border-gray-200 py-2 mt-2">
-                <div class="text-2xl font-semibold ">
-                    My Profile              
-                </div>                
-        </section>
-
-        <section class="flex flex-col md:flex-row rounded w-full mt-3 md:space-x-4">
-            <div class="flex flex-col w-full  md:w-[30%] justify-center items-center 
-                        border px-8 py-4 rounded-md">
-                    <div class="">
-                        @if (Auth::user()->profile->avatar != "" || Auth::user()->profile->avatar != null)
-                            <img src="{{ asset('storage/'.Auth::user()->profile->avatar) }}" class="w-36 h-36 rounded-full" />
-                        @else
-                            <img src="{{ asset('images/avatar_150.jpg') }}" />
-                        @endif
-                    </div>
-                    <div class="mt-2">
-                        <form enctype="multipart/form-data" action="{{ route('staff.profile.myprofile.update_avatar') }}"  method="POST" class="flex flex-col items-center">
-                            @csrf
-                            <input type="file" name="photo" class="text-sm border-0 border-gray-500
-                                                     items-center 
-                                                     justify-center w-3/5" />
-                            @error('photo')
-                                <span class="text-red-700 text-sm mx-[10%]">
-                                    {{$message}}
-                                </span>
-                            @enderror
-                            
-
-                            <div class="py-2">
-                                    <button type="submit" class="px-4 py-1 text-sm 
-                                                         rounded-md border border-gray-500 ring-0 
-                                                         ring-cyan-500
-                                                         hover:shadow-md hover:font-semibold bg-gray-100 ">Update Avatar</button>
-                            </div>
-                        </form>
-                    </div>
-
-            </div>
-            <div class="flex flex-col justify-center md:border rounded-md w-full md:w-[70%] py-2 px-4 border-0">
-                    <div class="flex justify-end py-4 md:px-4 md:py-0 space-x-2">
-                            <a href="{{ route('staff.profile.myprofile.edit') }}" class="border px-4 py-1 rounded-md ring-0 
-                                 border-gray-500 bg-gray-100 hover:shadow-md text-xs md:text-sm hover:font-semibold">
-                                Edit
-                            </a>
-
-                            <a href="{{ route('staff.profile.change_password') }}" class="border px-4 py-1 rounded-md ring-0 
-                                 border-gray-500 bg-gray-100 hover:shadow-md text-xs md:text-sm hover:font-semibold">
-                                Change Password
-                            </a>
-                    </div>
-                    <div class="mb-4 mt-4  mx-[10%] md:mx-0 ">
-                            <div class="text-xl font-semibold">
-                                    {{ Auth::user()->surname }} {{ Auth::user()->firstname }} {{ Auth::user()->middlename }}                                
-                            </div>
-                            <div class="text-sm">
-                                    {{ Auth::user()->profile->designation}}, {{ Auth::user()->fileno}}
-                            </div>                            
-                    </div>
-
-
-                    <div class="py-4 mx-[10%] md:mx-0">
-                                <div class="font-semibold py-1">
-                                        Contacts
-                                    </div>
-                                <div>
-                                        {{ Auth::user()->email }}
-                                </div>
-                                <div>
-                                        {{ Auth::user()->profile->phone}}
-                                </div>
-                    </div>
-
-
-
-                    
-
-
-
-                    <div class="py-4 mx-[10%] md:mx-0">
-                                    <!-- circles //--> 
-                                    <div class="font-semibold py-1">
-                                        Work Circles
-                                    </div>
-                                               
-                    </div>
-
-            </div>
-        </section>
-    
-
-
+    <div class="flex items-start justify-between mb-5">
+        <div>
+            <h1 class="pg-title">My Profile</h1>
+            <p class="pg-sub">Personal and employment information</p>
+        </div>
+        <div class="flex gap-2">
+            <a href="{{ route('staff.profile.myprofile.edit') }}" class="btn-wf-primary">
+                <i class="ti ti-edit text-sm"></i> Edit Profile
+            </a>
+            <a href="{{ route('staff.profile.change_password') }}" class="btn-wf-ghost">
+                <i class="ti ti-lock text-sm"></i> Change Password
+            </a>
+        </div>
     </div>
 
+    {{-- Hero banner --}}
+    <div class="rounded-xl bg-gradient-to-r from-funaab-800 to-funaab-600 p-5 mb-4 flex items-center gap-5">
+        @if(Auth::user()->profile?->avatar)
+            <img src="{{ asset('storage/'.Auth::user()->profile->avatar) }}"
+                 class="w-16 h-16 rounded-full object-cover border-2 border-white/25 flex-shrink-0" />
+        @else
+            <div class="w-16 h-16 rounded-full bg-gold-500 flex items-center justify-center
+                        text-funaab-900 font-bold text-2xl border-2 border-white/20 flex-shrink-0">
+                {{ strtoupper(substr(Auth::user()->surname ?? 'S', 0, 1)) }}{{ strtoupper(substr(Auth::user()->firstname ?? 'S', 0, 1)) }}
+            </div>
+        @endif
+        <div class="flex-1 text-white min-w-0">
+            <div class="text-lg font-bold truncate">
+                {{ $profile->title ?? '' }}
+                {{ Auth::user()->surname }}, {{ Auth::user()->firstname }}
+                {{ Auth::user()->middlename }}
+            </div>
+            <div class="text-white/70 text-xs mt-0.5">{{ $profile->designation ?? '—' }}</div>
+            <div class="flex flex-wrap gap-4 mt-2">
+                <span class="flex items-center gap-1.5 text-white/70 text-xs">
+                    <i class="ti ti-id-badge text-sm"></i>
+                    <span class="font-mono">{{ Auth::user()->fileno ?? '—' }}</span>
+                </span>
+                <span class="flex items-center gap-1.5 text-white/70 text-xs">
+                    <i class="ti ti-chart-bar text-sm"></i>
+                    GL {{ $profile->salary_level ?? '—' }} / Step {{ $profile->salary_level_step ?? '—' }}
+                </span>
+                <span class="flex items-center gap-1.5 text-white/70 text-xs">
+                    <i class="ti ti-receipt text-sm"></i>
+                    {{ $profile->salary_structure ?? '—' }}
+                </span>
+            </div>
+        </div>
+        <div class="flex-shrink-0">
+            <span class="badge badge-active">{{ $profile->staff_status ?? 'Active' }}</span>
+        </div>
+    </div>
+
+    @php
+        $cell = 'bg-gray-50 rounded-lg p-3';
+        $ck   = 'text-[10px] text-gray-400 font-bold tracking-wider mb-1';
+        $cv   = 'text-sm font-bold text-gray-800';
+    @endphp
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+
+        {{-- Personal Info --}}
+        <div class="wf-card">
+            <div class="wf-card-title"><i class="ti ti-user text-gray-400"></i> Personal Information</div>
+            <div class="grid grid-cols-2 gap-2">
+                <div class="{{ $cell }}"><div class="{{ $ck }}">TITLE</div><div class="{{ $cv }}">{{ $profile->title ?? '—' }}</div></div>
+                <div class="{{ $cell }}"><div class="{{ $ck }}">DATE OF BIRTH</div><div class="{{ $cv }}">{{ $profile->dob ?? '—' }}</div></div>
+                <div class="{{ $cell }}"><div class="{{ $ck }}">GENDER</div><div class="{{ $cv }}">{{ $profile->gender ?? '—' }}</div></div>
+                <div class="{{ $cell }}"><div class="{{ $ck }}">STATE OF ORIGIN</div><div class="{{ $cv }}">{{ $profile->state ?? '—' }}</div></div>
+                <div class="{{ $cell }}"><div class="{{ $ck }}">LGA OF ORIGIN</div><div class="{{ $cv }}">{{ $profile->lga ?? '—' }}</div></div>
+                <div class="{{ $cell }}"><div class="{{ $ck }}">GEO-POL ZONE</div><div class="{{ $cv }}">{{ $profile->geopolitical_zone ?? '—' }}</div></div>
+                <div class="{{ $cell }}"><div class="{{ $ck }}">NATIONALITY</div><div class="{{ $cv }}">{{ $profile->nationality ?? '—' }}</div></div>
+                <div class="{{ $cell }}"><div class="{{ $ck }}">BIRTH PLACE</div><div class="{{ $cv }}">{{ $profile->birth_place ?? '—' }}</div></div>
+                <div class="{{ $cell }} col-span-2"><div class="{{ $ck }}">PERMANENT HOME ADDRESS</div><div class="{{ $cv }}">{{ $profile->permanent_home_address ?? '—' }}</div></div>
+            </div>
+        </div>
+
+        {{-- Employment Details --}}
+        <div class="wf-card">
+            <div class="wf-card-title"><i class="ti ti-briefcase text-gray-400"></i> Employment Details</div>
+            <div class="grid grid-cols-2 gap-2">
+                <div class="{{ $cell }}"><div class="{{ $ck }}">IPPIS NO.</div><div class="{{ $cv }} font-mono text-sm">{{ $profile->ippis_no ?? '—' }}</div></div>
+                <div class="{{ $cell }}"><div class="{{ $ck }}">DESIGNATION</div><div class="{{ $cv }}">{{ $profile->designation ?? '—' }}</div></div>
+                <div class="{{ $cell }}"><div class="{{ $ck }}">CADRE</div><div class="{{ $cv }}">{{ $profile->cadre ?? '—' }}</div></div>
+                <div class="{{ $cell }}"><div class="{{ $ck }}">SALARY STRUCTURE</div><div class="{{ $cv }}">{{ $profile->salary_structure ?? '—' }}</div></div>
+                <div class="{{ $cell }}"><div class="{{ $ck }}">GRADE LEVEL</div><div class="{{ $cv }}">{{ $profile->salary_level ?? '—' }}</div></div>
+                <div class="{{ $cell }}"><div class="{{ $ck }}">STEP</div><div class="{{ $cv }}">{{ $profile->salary_level_step ?? '—' }}</div></div>
+                <div class="{{ $cell }}"><div class="{{ $ck }}">DATE FIRST APPT (SERVICE)</div><div class="{{ $cv }}">{{ $profile->date_first_appointment_service ?? '—' }}</div></div>
+                <div class="{{ $cell }}"><div class="{{ $ck }}">DATE FIRST APPT (FUNAAB)</div><div class="{{ $cv }}">{{ $profile->date_first_appointment_funaab ?? '—' }}</div></div>
+                <div class="{{ $cell }}"><div class="{{ $ck }}">DATE CONFIRMATION</div><div class="{{ $cv }}">{{ $profile->date_confirmation ?? '—' }}</div></div>
+                <div class="{{ $cell }}"><div class="{{ $ck }}">DATE PRESENT APPT.</div><div class="{{ $cv }}">{{ $profile->date_present_appointment ?? '—' }}</div></div>
+            </div>
+        </div>
+
+        {{-- Next of Kin --}}
+        <div class="wf-card">
+            <div class="wf-card-title"><i class="ti ti-users text-gray-400"></i> Next of Kin</div>
+            <div class="grid grid-cols-2 gap-2">
+                <div class="{{ $cell }} col-span-2"><div class="{{ $ck }}">FULL NAMES</div><div class="{{ $cv }}">{{ $profile->nok_fullnames ?? '—' }}</div></div>
+                <div class="{{ $cell }}"><div class="{{ $ck }}">PHONE</div><div class="{{ $cv }}">{{ $profile->nok_phone ?? '—' }}</div></div>
+                <div class="{{ $cell }}"><div class="{{ $ck }}">EMAIL</div><div class="{{ $cv }}">{{ $profile->nok_email ?? '—' }}</div></div>
+                <div class="{{ $cell }} col-span-2"><div class="{{ $ck }}">ADDRESS</div><div class="{{ $cv }}">{{ $profile->nok_address ?? '—' }}</div></div>
+            </div>
+        </div>
+
+        {{-- Avatar update --}}
+        <div class="wf-card">
+            <div class="wf-card-title"><i class="ti ti-photo text-gray-400"></i> Profile Photo</div>
+            <div class="flex items-center gap-4 mb-4">
+                @if($profile->avatar)
+                    <img src="{{ asset('storage/'.$profile->avatar) }}"
+                         class="w-20 h-20 rounded-full object-cover border-2 border-funaab-100" />
+                @else
+                    <div class="w-20 h-20 rounded-full bg-funaab-50 border-2 border-funaab-100
+                                flex items-center justify-center text-funaab-700 font-bold text-2xl">
+                        {{ strtoupper(substr(Auth::user()->surname ?? 'S', 0, 1)) }}{{ strtoupper(substr(Auth::user()->firstname ?? 'S', 0, 1)) }}
+                    </div>
+                @endif
+                <div class="text-xs text-gray-500">
+                    <p class="font-bold text-gray-700 mb-1">Upload a profile photo</p>
+                    <p>PNG, JPG or JPEG. Max 1MB.</p>
+                </div>
+            </div>
+            <form action="{{ route('staff.profile.myprofile.update_avatar') }}" method="POST"
+                  enctype="multipart/form-data">
+                @csrf
+                <div class="flex items-center gap-2">
+                    <input type="file" name="photo" accept="image/*"
+                           class="flex-1 text-xs text-gray-500 border border-gray-200 rounded-lg
+                                  px-3 py-2 bg-gray-50 file:mr-3 file:py-1 file:px-3
+                                  file:rounded-md file:border-0 file:text-xs file:font-bold
+                                  file:bg-funaab-50 file:text-funaab-700 hover:file:bg-funaab-100" />
+                    <button type="submit" class="btn-wf-primary btn-wf-sm flex-shrink-0">
+                        <i class="ti ti-upload text-xs"></i> Upload
+                    </button>
+                </div>
+                @error('photo')
+                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                @enderror
+            </form>
+        </div>
+
+    </div>
 
 </x-staff-layout>

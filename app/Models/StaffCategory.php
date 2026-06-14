@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Employment;
 
 class StaffCategory extends Model
 {
@@ -14,5 +15,10 @@ class StaffCategory extends Model
     public function parent()
     {
         return $this->belongsTo(StaffCategory::class, 'parent_staff_category', 'id');
+    }
+
+    public function employments()
+    {
+        return $this->hasMany(Employment::class, 'staff_category_id');
     }
 }

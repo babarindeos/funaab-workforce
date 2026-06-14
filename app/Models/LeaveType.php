@@ -8,4 +8,11 @@ use Illuminate\Database\Eloquent\Model;
 class LeaveType extends Model
 {
     use HasFactory;
+
+    protected $fillable = ['leave_type'];
+
+    public function leaves()
+    {
+        return $this->hasMany(Leave::class);
+    }
 }
