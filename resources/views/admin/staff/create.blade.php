@@ -1,4 +1,4 @@
-<x-admin-layout title="Add Staff">
+    <x-admin-layout title="Add Staff">
 
     <div class="flex items-center gap-2 mb-5">
         <a href="{{ route('admin.staff.index') }}" class="text-gray-400 hover:text-funaab-700 transition-colors">
@@ -103,7 +103,7 @@
                             <option value="">— Select Gender —</option>
                             @foreach($genders as $g)
                                 <option value="{{ $g->id }}" {{ old('gender_id') == $g->id ? 'selected' : '' }}>
-                                    {{ $g->gender }}
+                                    {{ $g->gender_name }}
                                 </option>
                             @endforeach
                         </select>
@@ -117,7 +117,7 @@
                             <option value="">— Select —</option>
                             @foreach($maritalStatuses as $ms)
                                 <option value="{{ $ms->id }}" {{ old('marital_status_id') == $ms->id ? 'selected' : '' }}>
-                                    {{ $ms->marital_status }}
+                                    {{ $ms->status }}
                                 </option>
                             @endforeach
                         </select>
@@ -145,7 +145,7 @@
                             <option value="">— Select Status —</option>
                             @foreach($statuses as $st)
                                 <option value="{{ $st->id }}" {{ old('staff_status_id') == $st->id ? 'selected' : '' }}>
-                                    {{ $st->staff_status }}
+                                    {{ $st->status }}
                                 </option>
                             @endforeach
                         </select>

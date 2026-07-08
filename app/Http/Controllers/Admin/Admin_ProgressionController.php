@@ -288,20 +288,36 @@ class Admin_ProgressionController extends Controller
     public function salaryLevels()
     {
         $salaryLevels = SalaryLevel::withCount('designations')->orderBy('level')->get();
-        return view('admin.progression.salary_levels', compact('salaryLevels'));
+        $salaryStructures = SalaryStructure::get();
+        return view('admin.progression.salary_levels', compact('salaryLevels', 'salaryStructures'));
     }
 
     public function storeSalaryLevel(Request $request)
     {
-        $request->validate(['level' => 'required|string|max:3|unique:salary_levels,level']);
-        SalaryLevel::create(['level' => str_pad($request->level, 2, '0', STR_PAD_LEFT)]);
+        $request->validate([
+                'salary_structure_id' => 'required',
+                'level' => 'required|string|max:3|unique:salary_levels,level'
+        ]);
+
+        SalaryLevel::create([
+                'salary_structure_id' => $request->salary_structure_id,
+                'level' => str_pad($request->level, 2, '0', STR_PAD_LEFT)
+        ]);
         return back()->with('success', 'Salary level created.');
     }
 
     public function updateSalaryLevel(Request $request, SalaryLevel $salaryLevel)
     {
-        $request->validate(['level' => 'required|string|max:3|unique:salary_levels,level,' . $salaryLevel->id]);
-        $salaryLevel->update(['level' => str_pad($request->level, 2, '0', STR_PAD_LEFT)]);
+        $request->validate([
+            'salary_structure_id' => 'required' ,
+            'level' => 'required|string|max:3|unique:salary_levels,level,' . $salaryLevel->id
+        ]);
+
+        $salaryLevel->update([
+            'salary_structure_id' => $request->salary_structure_id,
+            'level' => str_pad($request->level, 2, '0', STR_PAD_LEFT)
+        ]);
+
         return back()->with('success', 'Salary level updated.');
     }
 
@@ -315,14 +331,23 @@ class Admin_ProgressionController extends Controller
     // ── SALARY STEP ──────────────────────────────────────────────
     public function salarySteps()
     {
+        $salaryLevels = SalaryLevel::get();
         $salarySteps = SalaryStep::withCount('employments')->orderBy('step')->get();
-        return view('admin.progression.salary_steps', compact('salarySteps'));
+        return view('admin.progression.salary_steps', compact('salarySteps', 'salaryLevels'));
     }
 
     public function storeSalaryStep(Request $request)
     {
-        $request->validate(['step' => 'required|string|max:3|unique:salary_steps,step']);
-        SalaryStep::create(['step' => $request->step]);
+        $request->validate([
+                    'salary_level_id' => 'required|exists:salary_levels,id',
+                    'step' => 'required|string|max:3|unique:salary_steps,step'
+            ]);
+            
+        SalaryStep::create([
+            'salary_level_id' => $request->salary_level_id,
+            'step' => $request->step
+        ]);
+
         return back()->with('success', 'Salary step created.');
     }
 

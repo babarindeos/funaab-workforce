@@ -107,7 +107,7 @@
             <option value="">All Categories</option>
             @foreach($categories as $cat)
                 <option value="{{ $cat->id }}" {{ request('category_id') == $cat->id ? 'selected' : '' }}>
-                    {{ $cat->staff_category }}
+                    {{ $cat->category }}
                 </option>
             @endforeach
         </select>
@@ -116,7 +116,7 @@
             <option value="">All Statuses</option>
             @foreach($statuses as $status)
                 <option value="{{ $status->id }}" {{ request('status_id') == $status->id ? 'selected' : '' }}>
-                    {{ $status->staff_status }}
+                    {{ $status->status }}
                 </option>
             @endforeach
         </select>

@@ -18,7 +18,7 @@
     {{-- Hero banner --}}
     <div class="rounded-xl bg-gradient-to-r from-funaab-800 to-funaab-600 p-5 mb-4 flex items-center gap-5">
         @if(Auth::user()->profile?->avatar)
-            <img src="{{ asset('storage/'.Auth::user()->profile->avatar) }}"
+            <img src="{{ asset('storage/avatars/'.Auth::user()->profile->avatar) }}"
                  class="w-16 h-16 rounded-full object-cover border-2 border-white/25 flex-shrink-0" />
         @else
             <div class="w-16 h-16 rounded-full bg-gold-500 flex items-center justify-center
@@ -40,16 +40,16 @@
                 </span>
                 <span class="flex items-center gap-1.5 text-white/70 text-xs">
                     <i class="ti ti-chart-bar text-sm"></i>
-                    GL {{ $profile->salary_level ?? '—' }} / Step {{ $profile->salary_level_step ?? '—' }}
+                    GL {{ $profile->user->staff->employment->designation->salaryLevel->level ?? '—' }} / Step {{ $profile->user->staff->employment->salaryStep->step ?? '—' }}
                 </span>
                 <span class="flex items-center gap-1.5 text-white/70 text-xs">
                     <i class="ti ti-receipt text-sm"></i>
-                    {{ $profile->salary_structure ?? '—' }}
+                    {{ $profile->user->staff->employment->salaryStructure->salary_structure_name ?? '—' }}
                 </span>
             </div>
         </div>
         <div class="flex-shrink-0">
-            <span class="badge badge-active">{{ $profile->staff_status ?? 'Active' }}</span>
+            <span class="badge badge-active">{{ $profile->user->staff->staffStatus->status ?? 'Active' }}</span>
         </div>
     </div>
 
@@ -65,15 +65,17 @@
         <div class="wf-card">
             <div class="wf-card-title"><i class="ti ti-user text-gray-400"></i> Personal Information</div>
             <div class="grid grid-cols-2 gap-2">
-                <div class="{{ $cell }}"><div class="{{ $ck }}">TITLE</div><div class="{{ $cv }}">{{ $profile->title ?? '—' }}</div></div>
-                <div class="{{ $cell }}"><div class="{{ $ck }}">DATE OF BIRTH</div><div class="{{ $cv }}">{{ $profile->dob ?? '—' }}</div></div>
-                <div class="{{ $cell }}"><div class="{{ $ck }}">GENDER</div><div class="{{ $cv }}">{{ $profile->gender ?? '—' }}</div></div>
-                <div class="{{ $cell }}"><div class="{{ $ck }}">STATE OF ORIGIN</div><div class="{{ $cv }}">{{ $profile->state ?? '—' }}</div></div>
-                <div class="{{ $cell }}"><div class="{{ $ck }}">LGA OF ORIGIN</div><div class="{{ $cv }}">{{ $profile->lga ?? '—' }}</div></div>
-                <div class="{{ $cell }}"><div class="{{ $ck }}">GEO-POL ZONE</div><div class="{{ $cv }}">{{ $profile->geopolitical_zone ?? '—' }}</div></div>
-                <div class="{{ $cell }}"><div class="{{ $ck }}">NATIONALITY</div><div class="{{ $cv }}">{{ $profile->nationality ?? '—' }}</div></div>
-                <div class="{{ $cell }}"><div class="{{ $ck }}">BIRTH PLACE</div><div class="{{ $cv }}">{{ $profile->birth_place ?? '—' }}</div></div>
-                <div class="{{ $cell }} col-span-2"><div class="{{ $ck }}">PERMANENT HOME ADDRESS</div><div class="{{ $cv }}">{{ $profile->permanent_home_address ?? '—' }}</div></div>
+                <div class="{{ $cell }}"><div class="{{ $ck }}">TITLE</div><div class="{{ $cv }}">{{ $profile->user->staff->title->title ?? '—' }}</div></div>
+                <div class="{{ $cell }}"><div class="{{ $ck }}">DATE OF BIRTH</div><div class="{{ $cv }}">{{ $profile->user->staff->dob->format('d-M-Y') ?? '—' }}</div></div>
+                <div class="{{ $cell }}"><div class="{{ $ck }}">GENDER</div><div class="{{ $cv }}">{{ $profile->user->staff->gender->gender_name ?? '—' }}</div></div>
+                <div class="{{ $cell }}"><div class="{{ $ck }}">STATE OF ORIGIN</div><div class="{{ $cv }}">{{ $profile->user->staff->state->state_name ?? '—' }}</div></div>
+                <div class="{{ $cell }}"><div class="{{ $ck }}">LGA OF ORIGIN</div><div class="{{ $cv }}">{{ $profile->user->staff->lga->lga_name ?? '—' }}</div></div>
+                <div class="{{ $cell }}"><div class="{{ $ck }}">SENATORIAL DISTRICT</div><div class="{{ $cv }}">{{ $profile->user->staff->senatorialDistrict->senatorial_district_name ?? '—' }}</div></div>
+                <div class="{{ $cell }}"><div class="{{ $ck }}">GEO-POL ZONE</div><div class="{{ $cv }}">{{ $profile->user->staff->state->geoPolZone->zone ?? '—' }}</div></div>
+                <div class="{{ $cell }}"><div class="{{ $ck }}">NATIONALITY</div><div class="{{ $cv }}">{{ $profile->user->staff->nationality ?? '—' }}</div></div>
+                <div class="{{ $cell }}"><div class="{{ $ck }}">BIRTH PLACE</div><div class="{{ $cv }}">{{ $profile->user->staff->birth_place ?? '—' }}</div></div>
+                <div class="{{ $cell }}"><div class="{{ $ck }}">MARITAL STATUS</div><div class="{{ $cv }}">{{ $profile->user->staff->maritalStatus->status ?? '—' }}</div></div>
+                <div class="{{ $cell }} col-span-2"><div class="{{ $ck }}">PERMANENT HOME ADDRESS</div><div class="{{ $cv }}">{{ $profile->home_address ?? '—' }}</div></div>
             </div>
         </div>
 
@@ -81,16 +83,16 @@
         <div class="wf-card">
             <div class="wf-card-title"><i class="ti ti-briefcase text-gray-400"></i> Employment Details</div>
             <div class="grid grid-cols-2 gap-2">
-                <div class="{{ $cell }}"><div class="{{ $ck }}">IPPIS NO.</div><div class="{{ $cv }} font-mono text-sm">{{ $profile->ippis_no ?? '—' }}</div></div>
-                <div class="{{ $cell }}"><div class="{{ $ck }}">DESIGNATION</div><div class="{{ $cv }}">{{ $profile->designation ?? '—' }}</div></div>
-                <div class="{{ $cell }}"><div class="{{ $ck }}">CADRE</div><div class="{{ $cv }}">{{ $profile->cadre ?? '—' }}</div></div>
-                <div class="{{ $cell }}"><div class="{{ $ck }}">SALARY STRUCTURE</div><div class="{{ $cv }}">{{ $profile->salary_structure ?? '—' }}</div></div>
-                <div class="{{ $cell }}"><div class="{{ $ck }}">GRADE LEVEL</div><div class="{{ $cv }}">{{ $profile->salary_level ?? '—' }}</div></div>
-                <div class="{{ $cell }}"><div class="{{ $ck }}">STEP</div><div class="{{ $cv }}">{{ $profile->salary_level_step ?? '—' }}</div></div>
-                <div class="{{ $cell }}"><div class="{{ $ck }}">DATE FIRST APPT (SERVICE)</div><div class="{{ $cv }}">{{ $profile->date_first_appointment_service ?? '—' }}</div></div>
-                <div class="{{ $cell }}"><div class="{{ $ck }}">DATE FIRST APPT (FUNAAB)</div><div class="{{ $cv }}">{{ $profile->date_first_appointment_funaab ?? '—' }}</div></div>
-                <div class="{{ $cell }}"><div class="{{ $ck }}">DATE CONFIRMATION</div><div class="{{ $cv }}">{{ $profile->date_confirmation ?? '—' }}</div></div>
-                <div class="{{ $cell }}"><div class="{{ $ck }}">DATE PRESENT APPT.</div><div class="{{ $cv }}">{{ $profile->date_present_appointment ?? '—' }}</div></div>
+                <div class="{{ $cell }}"><div class="{{ $ck }}">IPPIS NO.</div><div class="{{ $cv }} font-mono text-sm">{{ $profile->user->staff->employment->ippis_no ?? '—' }}</div></div>
+                <div class="{{ $cell }}"><div class="{{ $ck }}">DESIGNATION</div><div class="{{ $cv }}">{{ $profile->user->staff->employment->designation->cadreRank->cadre_rank_name ?? '—' }}</div></div>
+                <div class="{{ $cell }}"><div class="{{ $ck }}">CADRE</div><div class="{{ $cv }}">{{ $profile->user->staff->employment->designation->cadreRank->cadre->cadre_name ?? '—' }}</div></div>
+                <div class="{{ $cell }}"><div class="{{ $ck }}">SALARY STRUCTURE</div><div class="{{ $cv }}">{{ $profile->user->staff->employment->salaryStructure->salary_structure_name ?? '—' }}</div></div>
+                <div class="{{ $cell }}"><div class="{{ $ck }}">GRADE LEVEL</div><div class="{{ $cv }}">{{ $profile->user->staff->employment->designation->salaryLevel->level ?? '—' }}</div></div>
+                <div class="{{ $cell }}"><div class="{{ $ck }}">STEP</div><div class="{{ $cv }}">{{ $profile->user->staff->employment->salaryStep->step ?? '—' }}</div></div>
+                <div class="{{ $cell }}"><div class="{{ $ck }}">DATE FIRST APPT (SERVICE)</div><div class="{{ $cv }}">{{ $profile->user->staff->employment->date_public_first_appointment->format('d-M-Y') ?? '—' }}</div></div>
+                <div class="{{ $cell }}"><div class="{{ $ck }}">DATE FIRST APPT (FUNAAB)</div><div class="{{ $cv }}">{{ $profile->user->staff->employment->date_funaab_first_appointment->format('d-M-Y') ?? '—' }}</div></div>
+                <div class="{{ $cell }}"><div class="{{ $ck }}">DATE CONFIRMATION</div><div class="{{ $cv }}">{{ $profile->user->staff->employment->date_confirmation->format('d-M-Y') ?? '—' }}</div></div>
+                <div class="{{ $cell }}"><div class="{{ $ck }}">DATE PRESENT APPT.</div><div class="{{ $cv }}">{{ $profile->user->staff->employment->date_present_appointment->format('d-M-Y') ?? '—' }}</div></div>
             </div>
         </div>
 
@@ -98,10 +100,10 @@
         <div class="wf-card">
             <div class="wf-card-title"><i class="ti ti-users text-gray-400"></i> Next of Kin</div>
             <div class="grid grid-cols-2 gap-2">
-                <div class="{{ $cell }} col-span-2"><div class="{{ $ck }}">FULL NAMES</div><div class="{{ $cv }}">{{ $profile->nok_fullnames ?? '—' }}</div></div>
-                <div class="{{ $cell }}"><div class="{{ $ck }}">PHONE</div><div class="{{ $cv }}">{{ $profile->nok_phone ?? '—' }}</div></div>
-                <div class="{{ $cell }}"><div class="{{ $ck }}">EMAIL</div><div class="{{ $cv }}">{{ $profile->nok_email ?? '—' }}</div></div>
-                <div class="{{ $cell }} col-span-2"><div class="{{ $ck }}">ADDRESS</div><div class="{{ $cv }}">{{ $profile->nok_address ?? '—' }}</div></div>
+                <div class="{{ $cell }} col-span-2"><div class="{{ $ck }}">FULL NAMES</div><div class="{{ $cv }}">{{ $profile->user->staff->nextOfKin?->surname.' '.$profile->user->staff->nextOfKin?->firstname.' '.$profile->user->staff->nextOfKin?->othernames ?? '—' }}</div></div>
+                <div class="{{ $cell }}"><div class="{{ $ck }}">PHONE</div><div class="{{ $cv }}">{{ $profile->user->staff->nextOfKin?->phone ?? '—' }}</div></div>
+                <div class="{{ $cell }}"><div class="{{ $ck }}">EMAIL</div><div class="{{ $cv }}">{{ $profile->user->staff->nextOfKin?->email ?? '—' }}</div></div>
+                <div class="{{ $cell }} col-span-2"><div class="{{ $ck }}">ADDRESS</div><div class="{{ $cv }}">{{ $profile->user->staff->nextOfKin?->address ?? '—' }}</div></div>
             </div>
         </div>
 
@@ -110,7 +112,7 @@
             <div class="wf-card-title"><i class="ti ti-photo text-gray-400"></i> Profile Photo</div>
             <div class="flex items-center gap-4 mb-4">
                 @if($profile->avatar)
-                    <img src="{{ asset('storage/'.$profile->avatar) }}"
+                    <img src="{{ asset('storage/avatars/'.$profile->avatar) }}"
                          class="w-20 h-20 rounded-full object-cover border-2 border-funaab-100" />
                 @else
                     <div class="w-20 h-20 rounded-full bg-funaab-50 border-2 border-funaab-100

@@ -14,7 +14,7 @@ class Profile extends Model
         'designation',
         'phone',
         'avatar',
-        'bio'
+        'home_address'
     ];
 
     public function user()
@@ -24,6 +24,13 @@ class Profile extends Model
 
     public function staff()
     {
-        return $this->belongsTo(Staff::class, 'user_id', 'user_id');
+        return $this->hasOneThrough(
+            Staff::class, // destination class
+            User::class,  // through class
+            'fileno',  // Foreign key on User class
+            'staff_no', // Foreign key on Staff class
+            'user_id', // local Key on Profile            
+            'id', // Local key on User
+            );
     }
 }

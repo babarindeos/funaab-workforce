@@ -13,6 +13,16 @@ return new class extends Migration
     {
         Schema::create('aper_form_junior_scorings', function (Blueprint $table) {
             $table->id();
+            $table->uuid()->unique();
+            $table->unsignedBigInteger('aper_form_id');
+            $table->foreign('aper_form_id')->references('id')->on('aper_forms')->onDelete('cascade');
+            $table->unsignedBigInteger('staff_id');
+            $table->foreign('staff_id')->references('id')->on('staff')->onDelete('cascade');
+            $table->unsignedBigInteger('metric_id');
+            $table->foreign('metric_id')->references('id')->on('aper_form_junior_scoring_guides')->onDelete('cascade');
+            $table->double('score');
+            $table->unsignedBigInteger('assessor');
+            $table->foreign('assessor')->references('id')->on('staff')->onDelete('cascade');
             $table->timestamps();
         });
     }

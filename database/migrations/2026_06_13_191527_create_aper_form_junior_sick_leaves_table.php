@@ -18,8 +18,11 @@ return new class extends Migration
             $table->foreign('aper_form_id')->references('id')->on('aper_forms')->onDelete('cascade');
             $table->unsignedBigInteger('staff_id');
             $table->foreign('staff_id')->references('id')->on('staff')->onDelete('cascade');
-            $table->text('with_medical_certificate');           
-            $table->timestamps('without_medical_certificate');
+            $table->text('with_medical_certificate');       
+            $table->text('without_medical_certificate');    
+            $table->unsignedBigInteger('supervisor');
+            $table->foreign('supervisor')->references('id')->on('staff')->onDelete('cascade');
+            $table->timestamps();
         });
     }
 

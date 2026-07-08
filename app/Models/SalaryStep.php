@@ -7,7 +7,7 @@ use Illuminate\Support\Str;
 class SalaryStep extends Model
 {
     use HasFactory;
-    protected $fillable = ['uuid', 'step'];
+    protected $fillable = ['uuid', 'salary_level_id', 'step'];
 
     protected static function boot()
     {
@@ -16,6 +16,7 @@ class SalaryStep extends Model
     }
 
     // salary_steps table has no salary_level_id FK — steps are standalone
+    public function salaryLevel()   { return $this->belongsTo(SalaryLevel::class); }
     public function employments()    { return $this->hasMany(Employment::class); }
     public function promotions()     { return $this->hasMany(Promotion::class); }
     public function stepIncrements() { return $this->hasMany(StepIncrement::class); }

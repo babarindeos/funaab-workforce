@@ -10,6 +10,7 @@ use App\Models\StepIncrement;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Carbon;
 use App\Models\Staff;
+use App\Models\NextOfKin;
 
 class Staff_DashboardController extends Controller
 {
@@ -25,7 +26,8 @@ class Staff_DashboardController extends Controller
         }
 
         $profile = $user->profile;
-        $staff = Staff::where('staff_no', $user->file_no)->first();
+        $staff = Staff::where('staff_no', $user->fileno)->first();
+        $nextOfKin = NextOfKin::where('staff_id', $staff->id)->first();
         
 
         // Leave stats
@@ -110,10 +112,18 @@ class Staff_DashboardController extends Controller
         }
 
         // Profile incomplete nudge
-        $missingFields = collect(['phone', 'next_of_kin', 'bank_account_no'])
-            ->filter(fn($f) => empty($profile->$f))
+        $missingFields = collect(['dob', 'gender_id', 'state_id', 'lga_id', 'senatorial_district_id', 'marital_status_id'])
+            ->filter(fn($f) => empty($staff->$f))
             ->values();
-        if ($missingFields->count() > 0) {
+
+        $nextOfKinRecord = collect(['surname', 'firstname', 'state_id', 'city', 'address', 'phone'])
+                            ->filter(fn($f) => empty($nextOfKin->$f))
+                            ->values();
+
+        
+
+        //dd($missingFields);
+        if ($missingFields->count() > 0 || $nextOfKinRecord->count() > 0) {
             $notifications->push([
                 'type'    => 'alert',
                 'message' => 'Your profile is incomplete. Please update missing information.',

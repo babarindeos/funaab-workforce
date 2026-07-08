@@ -13,6 +13,9 @@ return new class extends Migration
     {
         Schema::create('aper_form_junior_scoring_guides', function (Blueprint $table) {
             $table->id();
+            $table->uuid()->unique();
+            $table->string('metric');
+            $table->double('max_score');
             $table->timestamps();
         });
     }

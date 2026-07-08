@@ -5,7 +5,7 @@
             <i class="ti ti-arrow-left text-lg"></i>
         </a>
         <div>
-            <h1 class="pg-title">Edit Staff Record</h1>
+            <h1 class="pg-title">Edit Staff Record </h1>
             <p class="pg-sub">{{ $staff->staff_no }} — {{ $staff->surname }}, {{ $staff->firstname }}</p>
         </div>
     </div>
@@ -98,7 +98,7 @@
                             @foreach($genders as $g)
                                 <option value="{{ $g->id }}"
                                     {{ old('gender_id', $staff->gender_id) == $g->id ? 'selected' : '' }}>
-                                    {{ $g->gender }}
+                                    {{ $g->gender_name }}
                                 </option>
                             @endforeach
                         </select>
@@ -112,7 +112,7 @@
                             @foreach($maritalStatuses as $ms)
                                 <option value="{{ $ms->id }}"
                                     {{ old('marital_status_id', $staff->marital_status_id) == $ms->id ? 'selected' : '' }}>
-                                    {{ $ms->marital_status }}
+                                    {{ $ms->status }}
                                 </option>
                             @endforeach
                         </select>
@@ -140,7 +140,7 @@
                             @foreach($statuses as $st)
                                 <option value="{{ $st->id }}"
                                     {{ old('staff_status_id', $staff->staff_status_id) == $st->id ? 'selected' : '' }}>
-                                    {{ $st->staff_status }}
+                                    {{ $st->status }}
                                 </option>
                             @endforeach
                         </select>
@@ -169,7 +169,7 @@
                             @foreach($categories as $c)
                                 <option value="{{ $c->id }}"
                                     {{ old('staff_category_id', $staff->employment?->staff_category_id) == $c->id ? 'selected' : '' }}>
-                                    {{ $c->staff_category }}
+                                    {{ $c->category }}
                                 </option>
                             @endforeach
                         </select>
@@ -228,7 +228,7 @@
                             @foreach($designations as $des)
                                 <option value="{{ $des->id }}"
                                     {{ old('designation_id', $staff->employment?->designation_id) == $des->id ? 'selected' : '' }}>
-                                    {{ $des->cadreRank?->rank_name ?? 'Designation #'.$des->id }}
+                                    {{ $des->cadreRank?->cadre_rank_name  }}
                                 </option>
                             @endforeach
                         </select>
@@ -241,7 +241,7 @@
                             @foreach($salaryStructures as $ss)
                                 <option value="{{ $ss->id }}"
                                     {{ old('salary_structure_id', $staff->employment?->salary_structure_id) == $ss->id ? 'selected' : '' }}>
-                                    {{ $ss->salary_structure }}
+                                    {{ $ss->salary_structure_name }}
                                 </option>
                             @endforeach
                         </select>

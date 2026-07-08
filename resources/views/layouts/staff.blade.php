@@ -62,7 +62,7 @@
             <button @click="open = !open"
                     class="flex items-center gap-2 px-2 py-1 rounded-md hover:bg-white/10 transition-colors">
                 @if(Auth::user()->profile?->avatar)
-                    <img src="{{ asset('storage/'.Auth::user()->profile->avatar) }}"
+                    <img src="{{ asset('storage/avatars/'.Auth::user()->profile->avatar) }}"
                          class="w-7 h-7 rounded-full object-cover flex-shrink-0" />
                 @else
                     <div class="w-7 h-7 rounded-full bg-gold-500 flex items-center justify-center
@@ -139,12 +139,58 @@
             <span x-show="!sidebarCollapsed" x-transition.opacity class="truncate">Leave</span>
         </a>
 
-        <a href="#"
-           class="sb-item {{ request()->routeIs('staff.aper.*') ? 'active' : '' }}"
-           :title="sidebarCollapsed ? 'APER Form' : ''">
-            <i class="ti ti-file-certificate text-base flex-shrink-0"></i>
-            <span x-show="!sidebarCollapsed" x-transition.opacity class="truncate">APER Form</span>
-        </a>
+        {{-- APER Form group --}}
+        @php
+            $authStaff    = \App\Models\Staff::where('staff_no', Auth::user()->fileno)->first();
+            $isSupervisor = $authStaff && \App\Models\AperSupervisor::where('staff_id', $authStaff->id)->where('is_current', true)->exists();
+            $isHod        = $authStaff && \App\Models\AperHod::where('staff_id', $authStaff->id)->where('is_current', true)->exists();
+            $isChairman   = $authStaff && \App\Models\AperChairmanDapc::where('staff_id', $authStaff->id)->where('is_current', true)->exists();
+        @endphp
+
+        <div x-data="{ open: {{ request()->is('*/aper*', '*/supervisor*', '*/hod*', '*/chairman*') ? 'true' : 'false' }} }">
+            <button @click="open = !open"
+                    class="sb-item w-full"
+                    :title="sidebarCollapsed ? 'APER Form' : ''">
+                <i class="ti ti-clipboard-text text-base flex-shrink-0"></i>
+                <span x-show="!sidebarCollapsed" x-transition.opacity class="flex-1 text-left truncate">APER Form</span>
+                <i class="ti ti-chevron-right text-xs text-gray-400 flex-shrink-0 transition-transform duration-200"
+                   x-show="!sidebarCollapsed" x-transition.opacity
+                   :class="open ? 'rotate-90' : ''"></i>
+            </button>
+            <div x-show="open && !sidebarCollapsed" x-collapse>
+
+                <a href="{{ route('staff.aper.index') }}"
+                   class="sb-item sub {{ request()->routeIs('staff.aper.index') ? 'active' : '' }}">
+                    <i class="ti ti-forms text-sm flex-shrink-0"></i>
+                    <span x-show="!sidebarCollapsed" x-transition.opacity>My APER Forms</span>
+                </a>
+
+                @if($isSupervisor)
+                    <a href="{{ route('staff.supervisor.index') }}"
+                       class="sb-item sub {{ request()->routeIs('staff.supervisor.*') ? 'active' : '' }}">
+                        <i class="ti ti-user-check text-sm flex-shrink-0"></i>
+                        <span x-show="!sidebarCollapsed" x-transition.opacity>Supervisor</span>
+                    </a>
+                @endif
+
+                @if($isHod)
+                    <a href="{{ route('staff.hod.index') }}"
+                       class="sb-item sub {{ request()->routeIs('staff.hod.*') ? 'active' : '' }}">
+                        <i class="ti ti-user-star text-sm flex-shrink-0"></i>
+                        <span x-show="!sidebarCollapsed" x-transition.opacity>HOD</span>
+                    </a>
+                @endif
+
+                @if($isChairman)
+                    <a href="{{ route('staff.chairman.index') }}"
+                       class="sb-item sub {{ request()->routeIs('staff.chairman.*') ? 'active' : '' }}">
+                        <i class="ti ti-building-community text-sm flex-shrink-0"></i>
+                        <span x-show="!sidebarCollapsed" x-transition.opacity>Chairman DAPC</span>
+                    </a>
+                @endif
+
+            </div>
+        </div>
 
         <a href="#"
            class="sb-item {{ request()->routeIs('staff.promotion.*') ? 'active' : '' }}"
@@ -162,7 +208,7 @@
 
         <p class="sb-section-label mt-1" x-show="!sidebarCollapsed" x-transition.opacity>COMMUNICATION</p>
 
-        <a href="{{ route('staff.circles.index') }}"
+        <a href="#"
            class="sb-item {{ request()->routeIs('staff.circles.*') ? 'active' : '' }}"
            :title="sidebarCollapsed ? 'Circles' : ''">
             <i class="ti ti-circle-dot text-base flex-shrink-0"></i>
@@ -202,7 +248,37 @@
         <a href="{{ route('staff.profile.myprofile') }}" class="sb-item {{ request()->routeIs('staff.profile.*') ? 'active' : '' }}"><i class="ti ti-user text-base flex-shrink-0"></i><span class="truncate">My Profile</span></a>
         <p class="sb-section-label mt-1">HR SERVICES</p>
         <a href="#" class="sb-item"><i class="ti ti-calendar-off text-base flex-shrink-0"></i><span class="truncate">Leave</span></a>
-        <a href="#" class="sb-item"><i class="ti ti-file-certificate text-base flex-shrink-0"></i><span class="truncate">APER Form</span></a>
+
+        {{-- Mobile APER dropdown --}}
+        <div x-data="{ open: {{ request()->is('*/aper*', '*/supervisor*', '*/hod*', '*/chairman*') ? 'true' : 'false' }} }">
+            <button @click="open = !open" class="sb-item w-full">
+                <i class="ti ti-clipboard-text text-base flex-shrink-0"></i>
+                <span class="flex-1 text-left truncate">APER Form</span>
+                <i class="ti ti-chevron-right text-xs text-gray-400 flex-shrink-0 transition-transform duration-200"
+                   :class="open ? 'rotate-90' : ''"></i>
+            </button>
+            <div x-show="open" x-collapse>
+                <a href="{{ route('staff.aper.index') }}" class="sb-item sub {{ request()->routeIs('staff.aper.index') ? 'active' : '' }}">
+                    <i class="ti ti-forms text-sm flex-shrink-0"></i><span>My APER Forms</span>
+                </a>
+                @if($isSupervisor)
+                    <a href="{{ route('staff.supervisor.index') }}" class="sb-item sub {{ request()->routeIs('staff.supervisor.*') ? 'active' : '' }}">
+                        <i class="ti ti-user-check text-sm flex-shrink-0"></i><span>Supervisor</span>
+                    </a>
+                @endif
+                @if($isHod)
+                    <a href="{{ route('staff.hod.index') }}" class="sb-item sub {{ request()->routeIs('staff.hod.*') ? 'active' : '' }}">
+                        <i class="ti ti-user-star text-sm flex-shrink-0"></i><span>HOD</span>
+                    </a>
+                @endif
+                @if($isChairman)
+                    <a href="{{ route('staff.chairman.index') }}" class="sb-item sub {{ request()->routeIs('staff.chairman.*') ? 'active' : '' }}">
+                        <i class="ti ti-building-community text-sm flex-shrink-0"></i><span>Chairman DAPC</span>
+                    </a>
+                @endif
+            </div>
+        </div>
+
         <a href="#" class="sb-item"><i class="ti ti-award text-base flex-shrink-0"></i><span class="truncate">Promotion</span></a>
         <a href="#" class="sb-item"><i class="ti ti-file-description text-base flex-shrink-0"></i><span class="truncate">Documents</span></a>
         <p class="sb-section-label mt-1">COMMUNICATION</p>

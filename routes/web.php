@@ -40,6 +40,8 @@ use App\Http\Controllers\Admin\Admin_ClassOfDegreeController;
 use App\Http\Controllers\Admin\Admin_DeploymentPostController;
 use App\Http\Controllers\Admin\Admin_DeploymentController;
 
+use App\Http\Controllers\Admin\Admin_AperFormController;
+
 
 use App\Http\Controllers\Staff\Staff_AuthController;
 use App\Http\Controllers\Staff\Staff_DashboardController;
@@ -61,6 +63,16 @@ use App\Http\Controllers\StaffUpdateController;
 use App\Http\Controllers\Staff\Staff_CategoryController;
 
 use App\Http\Controllers\MailTestController;
+use App\Http\Controllers\Staff\Staff_AperController;
+
+use App\Http\Controllers\Admin\Admin_AperAssessorController;
+use App\Http\Controllers\Staff\Staff_AperSeniorController;
+
+use App\Http\Controllers\Staff\Staff_SupervisorController;
+
+use App\Http\Controllers\Staff\Staff_HodController;
+use App\Http\Controllers\Staff\Staff_ChairmanController;
+
 
 
 /*
@@ -201,7 +213,98 @@ Route::prefix('staff')->middleware(['auth', 'staff'])->group(function(){
     Route::post('/categories/store', [Staff_CategoryController::class, 'store'])->name('staff.categories.store');
 
 
+
+     // -------------  APER Form listing  ----------------------------------------------------
+    Route::get('aper', [Staff_AperController::class, 'index'])->name('staff.aper.index');
+
+    // Open an APER form — determines category and loads correct form
+    Route::get('aper/{aperForm}',[Staff_AperController::class, 'open'])->name('staff.aper.open');
+
+    // Junior Non-Teaching — Part A store/update
+    Route::post('aper/{aperForm}/junior/part-a',[Staff_AperController::class, 'storeJuniorPartA'])->name('staff.aper.junior.part_a.store');
+   
+    // Junior Non-Teaching — Part A store (new) & update (existing)
+    Route::put ('aper/{aperForm}/junior/part-a',[Staff_AperController::class, 'storeJuniorPartA'])->name('staff.aper.junior.part_a.update');
+
+    // Junior Non-Teaching — Part B
+    Route::get ('aper/{aperForm}/junior/part-b', [Staff_AperController::class, 'showJuniorPartB'])->name('staff.aper.junior.part_b');
+    Route::post('aper/{aperForm}/junior/part-b', [Staff_AperController::class, 'storeJuniorPartB'])->name('staff.aper.junior.part_b.store');
+    Route::put ('aper/{aperForm}/junior/part-b', [Staff_AperController::class, 'storeJuniorPartB'])->name('staff.aper.junior.part_b.update');
+
     
+    // ── Supervisor Portal ─────────────────────────────────
+    
+    // ── Supervisor Portal ──────────────────────────────────
+    Route::get ('/supervisor',                              [Staff_SupervisorController::class, 'index']          )->name('staff.supervisor.index');
+    Route::get ('/supervisor/{aperForm}/staff',             [Staff_SupervisorController::class, 'staffList']       )->name('staff.supervisor.staff_list');
+    Route::get ('/supervisor/{aperForm}/assess/{staff}',    [Staff_SupervisorController::class, 'assess']          )->name('staff.supervisor.assess');
+    Route::post('/supervisor/{aperForm}/assess/{staff}',    [Staff_SupervisorController::class, 'storeAssessment'] )->name('staff.supervisor.store_assessment');
+    Route::put ('/supervisor/{aperForm}/assess/{staff}',    [Staff_SupervisorController::class, 'storeAssessment'] )->name('staff.supervisor.update_assessment');
+
+    Route::get('/supervisor/{aperForm}/submission/{staff}/aper_junior_part_a', [Staff_SupervisorController::class, 'submission_part_a'])->name('staff.supervisor.submission.part_a');
+    Route::get('/supervisor/{aperForm}/submission/{staff}/aper_junior_part_b', [Staff_SupervisorController::class, 'submission_part_b'])->name('staff.supervisor.submission.part_b');
+
+
+    // ── Junior APER — Supervisor Evaluation Tab (Staff view) ──
+    Route::get ('staff/aper/{aperForm}/junior/supervisor-evaluation',       [Staff_AperController::class, 'showSupervisorEvaluation'])->name('staff.aper.junior.supervisor_evaluation');
+
+    // ── Junior APER — Part C ──────────────────────────────
+    Route::get ('staff/aper/{aperForm}/junior/part-c',                      [Staff_AperController::class, 'showJuniorPartC']        )->name('staff.aper.junior.part_c');
+    Route::post('staff/aper/{aperForm}/junior/part-c/comment',              [Staff_AperController::class, 'storeJuniorPartCComment'])->name('staff.aper.junior.part_c.comment');
+
+
+    // ── HOD Portal ────────────────────────────────────────
+    Route::get ('/hod',                                    [Staff_HodController::class, 'index']          )->name('staff.hod.index');
+    Route::get ('/hod/{aperForm}/staff',                   [Staff_HodController::class, 'staffList']       )->name('staff.hod.staff_list');
+    Route::get ('/hod/{aperForm}/assess/{staff}',          [Staff_HodController::class, 'assess']          )->name('staff.hod.assess');
+    Route::post('/hod/{aperForm}/assess/{staff}',          [Staff_HodController::class, 'storeAssessment'] )->name('staff.hod.store_assessment');
+    Route::put ('/hod/{aperForm}/assess/{staff}',          [Staff_HodController::class, 'storeAssessment'] )->name('staff.hod.update_assessment');
+
+    Route::get('/hod/{aperForm}/submission/senior/{staff}',     [Staff_HodController::class, 'viewSeniorSubmission'])->name('staff.hod.view_senior_submission');
+    Route::get('/supervisor/{aperForm}/submission/{staff}',    [Staff_SupervisorController::class, 'viewSubmission'])->name('staff.supervisor.view_submission');
+    Route::get('/hod/{aperForm}/submission/junior/{staff}',     [Staff_HodController::class, 'viewJuniorSubmission'])->name('staff.hod.view_junior_submission');
+
+    // ── Chairman DAPC Portal ──────────────────────────────
+    Route::get ('/chairman',                                  [Staff_ChairmanController::class, 'index']          )->name('staff.chairman.index');
+    Route::get ('/chairman/{aperForm}/staff',                 [Staff_ChairmanController::class, 'staffList']       )->name('staff.chairman.staff_list');
+    Route::get ('/chairman/{aperForm}/assess/{staff}',        [Staff_ChairmanController::class, 'assess']          )->name('staff.chairman.assess');
+    Route::post('/chairman/{aperForm}/assess/{staff}',        [Staff_ChairmanController::class, 'storeAssessment'] )->name('staff.chairman.store_assessment');
+    Route::put ('/chairman/{aperForm}/assess/{staff}',        [Staff_ChairmanController::class, 'storeAssessment'] )->name('staff.chairman.update_assessment');
+
+
+
+
+
+
+    // Senior Non-Teaching — Part A Step 1: Personal
+    Route::get ('staff/aper/{aperForm}/senior/part-a1',        [Staff_AperSeniorController::class, 'showPartA1']  )->name('staff.aper.senior.part_a1');
+    Route::post('staff/aper/{aperForm}/senior/part-a1',        [Staff_AperSeniorController::class, 'storePartA1'] )->name('staff.aper.senior.part_a1.store');
+    Route::put ('staff/aper/{aperForm}/senior/part-a1',        [Staff_AperSeniorController::class, 'storePartA1'] )->name('staff.aper.senior.part_a1.update');
+
+    // Senior Non-Teaching — Part A Step 2: Education
+    Route::get ('staff/aper/{aperForm}/senior/part-a2',        [Staff_AperSeniorController::class, 'showPartA2']  )->name('staff.aper.senior.part_a2');
+    Route::post('staff/aper/{aperForm}/senior/part-a2',        [Staff_AperSeniorController::class, 'storePartA2'] )->name('staff.aper.senior.part_a2.store');
+    Route::put ('staff/aper/{aperForm}/senior/part-a2',        [Staff_AperSeniorController::class, 'storePartA2'] )->name('staff.aper.senior.part_a2.update');
+
+    // Senior Non-Teaching — Part A Step 3: University Experience
+    Route::get ('staff/aper/{aperForm}/senior/part-a3',        [Staff_AperSeniorController::class, 'showPartA3']  )->name('staff.aper.senior.part_a3');
+    Route::post('staff/aper/{aperForm}/senior/part-a3',        [Staff_AperSeniorController::class, 'storePartA3'] )->name('staff.aper.senior.part_a3.store');
+    Route::put ('staff/aper/{aperForm}/senior/part-a3',        [Staff_AperSeniorController::class, 'storePartA3'] )->name('staff.aper.senior.part_a3.update');
+
+    // ── Senior Non-Teaching — Part C ─────────────────────────────────────
+    Route::get ('/aper/{aperForm}/senior/part-c',         [Staff_AperSeniorController::class, 'showPartC']        )->name('staff.aper.senior.part_c');
+    Route::post('/aper/{aperForm}/senior/part-c/comment', [Staff_AperSeniorController::class, 'storePartCComment'])->name('staff.aper.senior.part_c.comment');
+
+    // ── HOD — Senior Non-Teaching Assessment ─────────────────────────────
+    Route::get ('/hod/{aperForm}/assess/senior/{staff}',  [Staff_HodController::class, 'assessSenior']           )->name('staff.hod.senior.assess');
+    Route::post('/hod/{aperForm}/assess/senior/{staff}',  [Staff_HodController::class, 'storeAssessmentSenior']  )->name('staff.hod.senior.store_assessment');
+    Route::put ('/hod/{aperForm}/assess/senior/{staff}',  [Staff_HodController::class, 'storeAssessmentSenior']  )->name('staff.hod.senior.update_assessment');
+
+    // ── Chairman DAPC — Senior Non-Teaching ──────────────────────────────
+    Route::get ('/chairman/{aperForm}/senior/staff',               [Staff_ChairmanController::class, 'seniorStaffList']        )->name('staff.chairman.senior.staff_list');
+    Route::get ('/chairman/{aperForm}/senior/assess/{staff}',      [Staff_ChairmanController::class, 'assessSenior']           )->name('staff.chairman.senior.assess');
+    Route::post('/chairman/{aperForm}/senior/assess/{staff}',      [Staff_ChairmanController::class, 'storeAssessmentSenior']  )->name('staff.chairman.senior.store_assessment');
+    Route::put ('/chairman/{aperForm}/senior/assess/{staff}',      [Staff_ChairmanController::class, 'storeAssessmentSenior']  )->name('staff.chairman.senior.update_assessment');
     
 });
 
@@ -555,6 +658,30 @@ Route::prefix('admin')->middleware(['auth','admin'])->group(function(){
     Route::patch('leave-applications/{leave}/reject',       [Admin_LeaveApplicationController::class, 'reject'])->name('admin.leave_applications.reject');
 
 
+     // ── APER Forms ───────────────────────────────────
+    Route::get   ('aper',          [Admin_AperFormController::class, 'index'  ])->name('admin.aper.index');
+    Route::post  ('aper',          [Admin_AperFormController::class, 'store'  ])->name('admin.aper.store');
+    Route::put   ('aper/{aper}',   [Admin_AperFormController::class, 'update' ])->name('admin.aper.update');
+    Route::delete('aper/{aper}',   [Admin_AperFormController::class, 'destroy'])->name('admin.aper.destroy');
+
+
+    // ── APER Supervisors ─────────────────────────────────
+    Route::get   ('aper/supervisors',             [Admin_AperAssessorController::class, 'supervisors']      )->name('admin.aper.supervisors.index');
+    Route::post  ('aper/supervisors',             [Admin_AperAssessorController::class, 'storeSupervisor']  )->name('admin.aper.supervisors.store');
+    Route::put   ('aper/supervisors/{supervisor}',[Admin_AperAssessorController::class, 'updateSupervisor'] )->name('admin.aper.supervisors.update');
+    Route::delete('aper/supervisors/{supervisor}',[Admin_AperAssessorController::class, 'destroySupervisor'])->name('admin.aper.supervisors.destroy');
+
+    // ── APER HODs ─────────────────────────────────────────
+    Route::get   ('aper/hods',      [Admin_AperAssessorController::class, 'hods']        )->name('admin.aper.hods.index');
+    Route::post  ('aper/hods',      [Admin_AperAssessorController::class, 'storeHod']    )->name('admin.aper.hods.store');
+    Route::put   ('aper/hods/{hod}',[Admin_AperAssessorController::class, 'updateHod']   )->name('admin.aper.hods.update');
+    Route::delete('aper/hods/{hod}',[Admin_AperAssessorController::class, 'destroyHod']  )->name('admin.aper.hods.destroy');
+
+    // ── APER Chairman DAPC ────────────────────────────────
+    Route::get   ('aper/chairman-dapc',                  [Admin_AperAssessorController::class, 'chairmanDapc']       )->name('admin.aper.chairman_dapc.index');
+    Route::post  ('aper/chairman-dapc',                  [Admin_AperAssessorController::class, 'storeChairmanDapc']  )->name('admin.aper.chairman_dapc.store');
+    Route::put   ('aper/chairman-dapc/{chairmanDapc}',   [Admin_AperAssessorController::class, 'updateChairmanDapc'] )->name('admin.aper.chairman_dapc.update');
+    Route::delete('aper/chairman-dapc/{chairmanDapc}',   [Admin_AperAssessorController::class, 'destroyChairmanDapc'])->name('admin.aper.chairman_dapc.destroy');
 
 
 });

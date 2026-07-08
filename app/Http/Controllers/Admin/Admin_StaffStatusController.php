@@ -33,32 +33,24 @@ class Admin_StaffStatusController extends Controller
         {
             $create = StaffStatus::create($formFields);
 
-            if ($create)
-            {
-                $data = [
-                    'error' => true,
-                    'status' => 'success',
-                    'message' => "The Staff Status has been successfully created"
-                ];
-            }
-            else
-            {
-                $data = [
-                    'error' => true,
-                    'status' => 'fail',
-                    'message' => "An error occurred creating the Staff Status"
-                ];
-            }
+            $state = "success";
+            $message = "Staff status created successfully.";
+
         }
         catch(\Exception $e)
         {
-                $data = [
-                    'error' => true,
-                    'status' => 'fail',
-                    'message' => $e->getMessage()
-                ];
+               $state = "error";
+               $message = $e->getMessage();
         }
 
-        return redirect()->back()->with($data);
+        return redirect()->back()->with($state, $message);
+    }
+
+    public function update(Request $request, StaffStatus $staff_status)
+    {
+       
+        $staff_status->update(['status' => $request->status]);
+
+        return redirect()->back()->with('success', 'Staff status updated successfully.');
     }
 }

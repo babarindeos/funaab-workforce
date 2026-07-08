@@ -67,12 +67,27 @@
             </div>
             <form action="{{ route('admin.salary_steps.store') }}" method="POST" class="px-5 py-4">
                 @csrf
-                <div class="mb-4">
-                    <label class="{{ $lbl }}">STEP NUMBER <span class="text-red-500">*</span></label>
-                    <input type="text" name="step" value="{{ old('step') }}"
-                           placeholder="e.g. 1, 2, 3… or 01, 02, 03"
-                           class="{{ $inp }}" required />
-                    @error('step')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
+                <div class="grid grid-cols-1 gap-3">
+                        <div class="col-span-2">
+                                        <label class="{{ $lbl }}">GRADE LEVEL <span class="text-red-500">*</span></label>
+                                        <select name="salary_level_id" class="{{ $inp }}" required>
+                                            <option value="">— Select Salary Level  —</option>
+                                            @foreach($salaryLevels as $salaryLevel)
+                                            <option value="{{ $salaryLevel->id }}" {{ old('salary_level_id') == $salaryLevel->id ? 'selected' : '' }}>
+                                               {{ $salaryLevel->salaryStructure->salary_structure_name }} - {{ $salaryLevel->level }}
+                                            </option>
+                                            @endforeach                                        
+                                        </select>
+                                        @error('salary_level_id')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="{{ $lbl }}">STEP NUMBER <span class="text-red-500">*</span></label>
+                            <input type="text" name="step" value="{{ old('step') }}"
+                                placeholder="e.g. 1, 2, 3… or 01, 02, 03"
+                                class="{{ $inp }}" required />
+                            @error('step')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
+                        </div>
                 </div>
                 <div class="flex justify-end gap-2">
                     <button type="button" onclick="document.getElementById('modal-add').classList.add('hidden')" class="btn-wf-ghost">Cancel</button>

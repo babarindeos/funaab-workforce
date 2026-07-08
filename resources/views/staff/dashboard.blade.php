@@ -41,8 +41,8 @@
                 </div>
                 GRADE LEVEL
             </div>
-            <div class="text-2xl font-bold text-gray-800">{{ $profile->salary_level ?? '—' }}</div>
-            <div class="text-[10.5px] text-gray-400 mt-1">Step {{ $profile->salary_level_step ?? '—' }}</div>
+            <div class="text-2xl font-bold text-gray-800">{{ Auth::user()->staff->employment->designation->salaryLevel->level ?? '—' }}</div>
+            <div class="text-[10.5px] text-gray-400 mt-1">Step {{ Auth::user()->staff->employment->salaryStep->step ?? '—' }}</div>
         </div>
 
         <div class="stat-card">
@@ -65,8 +65,8 @@
                 </div>
                 SALARY STRUCTURE
             </div>
-            <div class="text-lg font-bold text-gray-800">{{ $profile->salary_structure ?? '—' }}</div>
-            <div class="text-[10.5px] text-gray-400 mt-1">{{ $profile->staff_status ?? '—' }}</div>
+            <div class="text-lg font-bold text-gray-800">{{ Auth::user()->staff->employment->salaryStructure->salary_structure_name ?? '—' }}</div>
+            <div class="text-[10.5px] text-gray-400 mt-1">{{ Auth::user()->staff->staffStatus->status ?? '—' }}</div>
         </div>
     </div>
 
@@ -125,11 +125,11 @@
                 @php
                 $actions = [
                     ['label' => 'Apply for Leave',  'icon' => 'ti-calendar-plus',   'color' => 'bg-funaab-50 text-funaab-700',  'href' => '#'],
-                    ['label' => 'APER Form',         'icon' => 'ti-file-certificate','color' => 'bg-gold-50 text-gold-700',      'href' => '#'],
+                    ['label' => 'APER Form',         'icon' => 'ti-file-certificate','color' => 'bg-gold-50 text-gold-700',      'href' => route('staff.aper.index')],
                     ['label' => 'My Promotion',      'icon' => 'ti-award',           'color' => 'bg-blue-50 text-blue-700',      'href' => '#'],
-                    ['label' => 'My Documents',      'icon' => 'ti-file-description','color' => 'bg-purple-50 text-purple-700',  'href' => route('staff.document.index')],
+                    ['label' => 'My Documents',      'icon' => 'ti-file-description','color' => 'bg-purple-50 text-purple-700',  'href' => '#'],
                     ['label' => 'Update Profile',    'icon' => 'ti-user-edit',       'color' => 'bg-green-50 text-green-700',    'href' => route('staff.profile.myprofile.edit')],
-                    ['label' => 'Circles',           'icon' => 'ti-circle-dot',      'color' => 'bg-pink-50 text-pink-700',      'href' => route('staff.circles.index')],
+                    ['label' => 'Circles',           'icon' => 'ti-circle-dot',      'color' => 'bg-pink-50 text-pink-700',      'href' => '#'],
                 ];
                 @endphp
                 @foreach($actions as $action)
@@ -152,7 +152,7 @@
             {{-- Avatar --}}
             <div class="flex items-center gap-3 mb-4 pb-4 border-b border-gray-100">
                 @if($profile->avatar)
-                    <img src="{{ asset('storage/'.$profile->avatar) }}"
+                    <img src="{{ asset('storage/avatars/'.$profile->avatar) }}"
                          class="w-12 h-12 rounded-full object-cover border-2 border-funaab-100" />
                 @else
                     <div class="w-12 h-12 rounded-full bg-funaab-50 border-2 border-funaab-100
@@ -170,9 +170,9 @@
 
             @php $cell = 'mb-2.5'; $ck = 'text-[9.5px] font-bold tracking-wider text-gray-400 uppercase'; $cv = 'text-xs font-bold text-gray-700 mt-0.5'; @endphp
             <div class="{{ $cell }}"><div class="{{ $ck }}">Designation</div><div class="{{ $cv }}">{{ $profile->designation ?? '—' }}</div></div>
-            <div class="{{ $cell }}"><div class="{{ $ck }}">Salary Structure</div><div class="{{ $cv }}">{{ $profile->salary_structure ?? '—' }}</div></div>
-            <div class="{{ $cell }}"><div class="{{ $ck }}">Grade Level / Step</div><div class="{{ $cv }}">GL {{ $profile->salary_level ?? '—' }} / Step {{ $profile->salary_level_step ?? '—' }}</div></div>
-            <div class="{{ $cell }}"><div class="{{ $ck }}">Staff Status</div><div class="{{ $cv }}">{{ $profile->staff_status ?? '—' }}</div></div>
+            <div class="{{ $cell }}"><div class="{{ $ck }}">Salary Structure</div><div class="{{ $cv }}">{{ Auth::user()->staff->employment->salaryStructure->salary_structure_name ?? '—' }}</div></div>
+            <div class="{{ $cell }}"><div class="{{ $ck }}">Grade Level / Step</div><div class="{{ $cv }}"> {{ Auth::user()->staff->employment->salaryStructure->salary_structure_name.' '.Auth::user()->staff->employment->designation->salaryLevel->level ?? '—' }} / Step {{ Auth::user()->staff->employment->salaryStep->step ?? '—' }}</div></div>
+            <div class="{{ $cell }}"><div class="{{ $ck }}">Staff Status</div><div class="{{ $cv }}">{{ Auth::user()->staff->staffStatus->status ?? '—' }}</div></div>
             <div class="{{ $cell }}"><div class="{{ $ck }}">Phone</div><div class="{{ $cv }}">{{ $profile->phone ?? '—' }}</div></div>
 
             <div class="mt-3 pt-3 border-t border-gray-100">

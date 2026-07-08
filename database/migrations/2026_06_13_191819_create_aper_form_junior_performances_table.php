@@ -25,6 +25,8 @@ return new class extends Migration
             $table->integer('organisational_ability');
             $table->integer('work_quality');
             $table->text('general_remarks');
+            $table->unsignedBigInteger('assessor');
+            $table->foreign('assessor')->references('id')->on('staff')->onDelete('cascade');
             $table->timestamps();
         });
     }

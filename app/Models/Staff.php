@@ -32,6 +32,8 @@ class Staff extends Model
     public function deployments()    { return $this->hasMany(Deployment::class); }
     public function offEmployments() { return $this->hasMany(OffEmployment::class); }
     public function profile()        { return $this->hasOne(Profile::class, 'user_id', 'user_id'); }
+    public function state()          { return $this->belongsTo(State::class, 'state_id', 'id'); }
+    public function senatorialDistrict() { return $this->belongsTo(SenatorialDistrict::class, 'senatorial_district_id', 'id'); }
 
     public function getFullNameAttribute()
     {

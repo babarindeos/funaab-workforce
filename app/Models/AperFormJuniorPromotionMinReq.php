@@ -8,4 +8,16 @@ use Illuminate\Database\Eloquent\Model;
 class AperFormJuniorPromotionMinReq extends Model
 {
     use HasFactory;
+
+    
+    protected $table = 'aper_form_junior_promotion_min_reqs';
+
+    protected $fillable = ['uuid', 'salary_level_id', 'percentage'];
+
+    protected static function booted(): void
+    {
+        static::creating(fn($m) => $m->uuid ??= (string) Str::uuid());
+    }
+
+    public function salaryLevel() { return $this->belongsTo(SalaryLevel::class); }
 }

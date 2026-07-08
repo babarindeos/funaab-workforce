@@ -33,10 +33,11 @@ class Staff_ProfileController extends Controller
     // ── Store profile (first-time) ────────────────────────────
     public function store(Request $request)
     {
+       
         $request->validate([
             'avatar'      => 'required|image|mimes:png,jpeg,jpg|max:1024',
-            'designation' => 'required|string',
             'phone'       => 'required|string|max:20',
+            'home_address' => 'required|string|max:200'
         ]);
 
         $userId  = Auth::id();
@@ -50,7 +51,9 @@ class Staff_ProfileController extends Controller
             ['user_id' => $userId],
             array_merge($request->except(['_token', 'avatar']), [
                 'user_id' => $userId,
+                'designation' => Auth::user()->staff->employment->designation->cadreRank->cadre_rank_name,
                 'avatar'  => $avatar,
+                'home_address'=> $request->input('home_address')
             ])
         );
 

@@ -7,7 +7,7 @@ use Illuminate\Support\Str;
 class SalaryLevel extends Model
 {
     use HasFactory;
-    protected $fillable = ['uuid', 'level'];
+    protected $fillable = ['uuid', 'salary_structure_id', 'level'];
 
     protected static function boot()
     {
@@ -17,4 +17,5 @@ class SalaryLevel extends Model
 
     public function salarySteps()  { return $this->hasMany(SalaryStep::class); }
     public function designations() { return $this->hasMany(Designation::class); }
+    public function salaryStructure() { return $this->belongsTo(SalaryStructure::class); }
 }

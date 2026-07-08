@@ -20,6 +20,8 @@ return new class extends Migration
             $table->foreign('staff_id')->references('id')->on('staff')->onDelete('cascade');
             $table->text('need_training')->nullable();
             $table->text('other_needs')->nullable();
+            $table->unsignedBigInteger('assessor');
+            $table->foreign('assessor')->references('id')->on('staff')->onDelete('cascade');
             $table->timestamps();
         });
     }

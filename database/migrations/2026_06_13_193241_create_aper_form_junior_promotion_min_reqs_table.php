@@ -13,6 +13,9 @@ return new class extends Migration
     {
         Schema::create('aper_form_junior_promotion_min_reqs', function (Blueprint $table) {
             $table->id();
+            $table->uuid()->unique();
+            $table->string('grade_level');
+            $table->string('percentage');
             $table->timestamps();
         });
     }

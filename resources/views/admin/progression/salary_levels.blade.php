@@ -15,7 +15,7 @@
         <div class="bg-funaab-50 border border-funaab-100 rounded-lg p-3 text-center cursor-pointer
                     hover:bg-funaab-100 hover:border-funaab-300 transition-colors group"
              onclick="openEdit({{ $sl->id }}, '{{ $sl->level }}')">
-            <div class="text-[9px] font-bold tracking-widest text-funaab-600 mb-1">GL</div>
+            <div class="text-[9px] font-bold tracking-widest text-funaab-600 mb-1">{{ $sl->salaryStructure?->salary_structure_name }}</div>
             <div class="text-xl font-bold text-funaab-800">{{ $sl->level }}</div>
             <div class="text-[9px] text-funaab-500 mt-1">{{ $sl->designations_count }} desig.</div>
         </div>
@@ -31,7 +31,7 @@
             @forelse($salaryLevels as $sl)
             <tr>
                 <td class="text-gray-400">{{ $loop->iteration }}</td>
-                <td class="col-name">GL {{ $sl->level }}</td>
+                <td class="col-name">{{ $sl->salaryStructure?->salary_structure_name }} {{ $sl->level }}</td>
                 <td class="col-mono text-[10px] text-gray-400">{{ Str::limit($sl->uuid, 20, '…') }}</td>
                 <td><span class="badge badge-info">{{ $sl->designations_count }}</span></td>
                 <td class="text-gray-400 text-xs">{{ $sl->created_at->format('d M Y') }}</td>
@@ -67,13 +67,29 @@
             </div>
             <form action="{{ route('admin.salary_levels.store') }}" method="POST" class="px-5 py-4">
                 @csrf
-                <div class="mb-4">
-                    <label class="{{ $lbl }}">GRADE LEVEL NUMBER <span class="text-red-500">*</span></label>
-                    <input type="number" name="level" value="{{ old('level') }}" min="1" max="25"
-                           placeholder="e.g. 07, 12, 14"
-                           class="{{ $inp }}" required />
-                    <p class="text-[10.5px] text-gray-400 mt-1">Will be zero-padded to 2 digits (e.g. 7 → 07).</p>
-                    @error('level')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
+                <div class="grid grid-cols-1 gap-3">
+                        <div class="col-span-2">
+                                <label class="{{ $lbl }}">SALARY STRUCTURE <span class="text-red-500">*</span></label>
+                                <select name="salary_structure_id" class="{{ $inp }}" required>
+                                    <option value="">— Select Salary Structure —</option>
+                                    @foreach($salaryStructures as $salaryStructure)
+                                        <option value="{{ $salaryStructure->id }}" {{ old('salary_structure_id') == $salaryStructure->id ? 'selected' : '' }}>
+                                            {{ $salaryStructure->salary_structure_name }} 
+                                        </option>
+                                    @endforeach
+
+                                
+                                </select>
+                                @error('salary_structure_id')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
+                        </div>
+                        <div class="mb-4">
+                            <label class="{{ $lbl }}">GRADE LEVEL NUMBER <span class="text-red-500">*</span></label>
+                            <input type="number" name="level" value="{{ old('level') }}" min="1" max="25"
+                                placeholder="e.g. 07, 12, 14"
+                                class="{{ $inp }}" required />
+                            <p class="text-[10.5px] text-gray-400 mt-1">Will be zero-padded to 2 digits (e.g. 7 → 07).</p>
+                            @error('level')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
+                        </div>
                 </div>
                 <div class="flex justify-end gap-2">
                     <button type="button" onclick="document.getElementById('modal-add').classList.add('hidden')" class="btn-wf-ghost">Cancel</button>
@@ -92,9 +108,26 @@
             </div>
             <form id="edit-form" method="POST" class="px-5 py-4">
                 @csrf @method('PUT')
-                <div class="mb-4">
-                    <label class="{{ $lbl }}">GRADE LEVEL NUMBER</label>
-                    <input type="number" name="level" id="e-level" min="1" max="25" class="{{ $inp }}" required />
+                <div class="grid grid-cols-1 gap-3">
+                        <div class="col-span-2">
+                                        <label class="{{ $lbl }}">SALARY STRUCTURE <span class="text-red-500">*</span></label>
+                                        <select name="salary_structure_id" class="{{ $inp }}" required>
+                                            <option value="">— Select Salary Structure —</option>
+                                            @foreach($salaryStructures as $salaryStructure)
+                                                <option value="{{ $salaryStructure->id }}" {{ old('salary_structure_id') == $salaryStructure->id ? 'selected' : '' }}>
+                                                    {{ $salaryStructure->salary_structure_name }} 
+                                                </option>
+                                            @endforeach
+
+                                        
+                                        </select>
+                                        @error('salary_structure_id')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="{{ $lbl }}">GRADE LEVEL NUMBER</label>
+                            <input type="number" name="level" id="e-level" min="1" max="25" class="{{ $inp }}" required />
+                        </div>
                 </div>
                 <div class="flex justify-end gap-2">
                     <button type="button" onclick="document.getElementById('modal-edit').classList.add('hidden')" class="btn-wf-ghost">Cancel</button>

@@ -42,32 +42,7 @@
                 
             </div>
            <!-- end of file upload //-->
-
-
-            <!-- designation  //-->
-            <div class="flex flex-col border-red-900 w-[80%] md:w-[60%] py-1">
-                                    
-                                    
-                <input type="text" name="designation" placeholder="Designation" class="border border-1 border-gray-400 bg-gray-50
-                                                        w-full p-3 rounded-md 
-                                                        focus:outline-none
-                                                        focus:border-blue-500 
-                                                        focus:ring
-                                                        focus:ring-blue-100" 
-                @if ($profile!=null)  value="{{$profile->designation}} " @endif
-                style="font-family:'Lato';font-size:16px;font-weight:500;"   
-                required          
-                 />
-                    
-
-                @error('designation')
-                    <span class="text-red-700 text-sm">
-                        {{$message}}
-                    </span>
-                @enderror
-                
-            </div>
-            <!-- end of designation //-->
+          
 
 
             <!-- phone  //-->
@@ -93,6 +68,31 @@
                 
             </div>
             <!-- end of phone //-->
+
+
+            <!-- Permanent Home Address  //-->
+            <div class="flex flex-col border-red-900 w-[80%] md:w-[60%] py-1">
+                                    
+                                    
+                <textarea name="home_address" placeholder="Permanent Home Address" class="border border-1 border-gray-400 bg-gray-50
+                                                        w-full p-3 rounded-md 
+                                                        focus:outline-none
+                                                        focus:border-blue-500 
+                                                        focus:ring
+                                                        focus:ring-blue-100" 
+                
+                style="font-family:'Lato';font-size:16px;font-weight:500;"             
+                required/>@if ($profile!=null) {{ $profile->home_address }} @endif</textarea>
+                    
+
+                @error('home_address')
+                    <span class="text-red-700 text-sm">
+                        {{$message}}
+                    </span>
+                @enderror
+                
+            </div>
+            <!-- end of permanent home address //-->
 
 
             <!-- button //-->

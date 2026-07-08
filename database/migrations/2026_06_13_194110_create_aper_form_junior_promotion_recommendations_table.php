@@ -13,6 +13,15 @@ return new class extends Migration
     {
         Schema::create('aper_form_junior_promotion_recommendations', function (Blueprint $table) {
             $table->id();
+            $table->uuid()->unique();
+            $table->unsignedBigInteger('aper_form_id');
+            $table->foreign('aper_form_id')->references('id')->on('aper_forms')->onDelete('cascade');
+            $table->unsignedBigInteger('staff_id');
+            $table->foreign('staff_id')->references('id')->on('staff')->onDelete('cascade');
+            $table->text('endorse')->nullable();
+            $table->text('reject')->nullable();
+            $table->unsignedBigInteger('chairman');
+            $table->foreign('chairman')->references('id')->on('staff')->onDelete('cascade');
             $table->timestamps();
         });
     }

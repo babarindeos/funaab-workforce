@@ -213,12 +213,34 @@
             </div>
         </div>
 
-        <a href="{{ sbRoute('admin.aper.index') }}"
-           class="sb-item {{ sbActive('admin.aper.index') ? 'active' : '' }}"
-           :title="collapsed ? 'APER Evaluation' : ''">
-            <i class="ti ti-file-certificate text-base flex-shrink-0"></i>
-            <span x-show="!collapsed" x-transition.opacity class="truncate">APER Evaluation</span>
-        </a>
+        {{--  
+            <a href="{{ sbRoute('admin.aper.index') }}"
+            class="sb-item {{ sbActive('admin.aper.index') ? 'active' : '' }}"
+            :title="collapsed ? 'APER Evaluation' : ''">
+                <i class="ti ti-file-certificate text-base flex-shrink-0"></i>
+                <span x-show="!collapsed" x-transition.opacity class="truncate">APER Evaluation</span>
+            </a>
+        --}}
+
+        {{-- APER Evaluation group --}}
+        <div x-data="{ open: {{ request()->is('*/aper*') ? 'true' : 'false' }} }">
+            <button @click="open = !open"
+                    class="sb-item w-full"
+                    :title="collapsed ? 'APER Evaluation' : ''">
+                <i class="ti ti-clipboard-text text-base flex-shrink-0"></i>
+                <span x-show="!collapsed" x-transition.opacity class="flex-1 text-left truncate">APER Evaluation</span>
+                <i class="ti ti-chevron-right text-xs text-gray-400 flex-shrink-0 transition-transform duration-200"
+                x-show="!collapsed" x-transition.opacity
+                :class="open ? 'rotate-90' : ''"></i>
+            </button>
+            <div x-show="open && !collapsed" x-collapse>
+                <a href="{{ sbRoute('admin.aper.index') }}"              class="sb-item sub {{ sbActive('admin.aper.index') ? 'active' : '' }}"><i class="ti ti-forms text-sm flex-shrink-0"></i><span x-show="!collapsed" x-transition.opacity>APER Forms</span></a>
+                <a href="{{ sbRoute('admin.aper.supervisors.index') }}"  class="sb-item sub {{ sbActive('admin.aper.supervisors.*') ? 'active' : '' }}"><i class="ti ti-user-check text-sm flex-shrink-0"></i><span x-show="!collapsed" x-transition.opacity>Supervisors</span></a>
+                <a href="{{ sbRoute('admin.aper.hods.index') }}"         class="sb-item sub {{ sbActive('admin.aper.hods.*') ? 'active' : '' }}"><i class="ti ti-user-star text-sm flex-shrink-0"></i><span x-show="!collapsed" x-transition.opacity>HOD</span></a>
+                <a href="{{ sbRoute('admin.aper.chairman_dapc.index') }}" class="sb-item sub {{ sbActive('admin.aper.chairman_dapc.*') ? 'active' : '' }}"><i class="ti ti-building-community text-sm flex-shrink-0"></i><span x-show="!collapsed" x-transition.opacity>Chairman DAPC</span></a>
+            </div>
+        </div>
+
 
         {{-- CONFIGURATION --}}
         <p class="sb-section-label mt-1" x-show="!collapsed" x-transition.opacity>CONFIGURATION</p>

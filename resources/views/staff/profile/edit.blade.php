@@ -28,7 +28,7 @@
             </button>
             <button type="button" @click="tab='name_change'"
                     :class="tab==='name_change' ? 'border-funaab-600 text-funaab-700 font-bold' : 'border-transparent text-gray-400'"
-                    class="px-5 py-2.5 text-xs font-bold border-b-2 transition-colors">
+                    class="px-5 py-2.5 text-xs font-bold border-b-2 transition-colors hidden">
                 <i class="ti ti-pencil mr-1"></i> Name Change
             </button>
         </div>
@@ -41,53 +41,58 @@
         {{-- Personal tab --}}
         <div x-show="tab==='personal'" class="max-w-3xl">
             <div class="wf-card mb-4">
-                <div class="wf-card-title"><i class="ti ti-user text-gray-400"></i> Personal Information</div>
+                <div class="wf-card-title"><i class="ti ti-user text-gray-400"></i> Personal Information (Read-only)</div>
+                <div class="p-3 bg-funaab-50 border border-funaab-100 rounded-lg text-xs text-funaab-700 flex items-center gap-2 mb-3">
+                    <i class="ti ti-info-circle flex-shrink-0"></i>
+                    Personal Imformation can only be updated by HR / Admin. Contact the Registry for changes.
+                </div>
                 <div class="grid grid-cols-2 gap-4">
+                    @php $ro = 'w-full px-3 py-2 border border-gray-100 rounded-lg text-sm bg-gray-50 text-gray-500 cursor-not-allowed'; @endphp
                     <div>
                         <label class="{{ $lbl }}">TITLE</label>
-                        <input type="text" name="title" value="{{ old('title', $profile->title) }}" class="{{ $inp }}" />
+                        <input type="text" name="title" value="{{ old('title', $profile->user->staff->title->title) }}"  class="{{ $ro }}" readonly />
                     </div>
                     <div>
                         <label class="{{ $lbl }}">PHONE <span class="text-red-500">*</span></label>
-                        <input type="text" name="phone" value="{{ old('phone', $profile->phone) }}" class="{{ $inp }}" required />
+                        <input type="text" name="phone" value="{{ old('phone', $profile->phone) }}" class="{{ $ro }}" required readonly/>
                         @error('phone')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
                     </div>
                     <div>
                         <label class="{{ $lbl }}">DATE OF BIRTH</label>
-                        <input type="text" name="dob" value="{{ old('dob', $profile->dob) }}" class="{{ $inp }}" placeholder="dd/mm/yyyy" />
+                        <input type="text" name="dob" value="{{ old('dob', $profile->user->staff->dob->format('d-M-Y')) }}" class="{{ $ro }}" readonly placeholder="dd/mm/yyyy" />
                     </div>
                     <div>
                         <label class="{{ $lbl }}">GENDER</label>
-                        <input type="text" name="gender" value="{{ old('gender', $profile->gender) }}" class="{{ $inp }}" />
+                        <input type="text" name="gender" value="{{ old('gender', $profile->user->staff->gender->gender_name) }}" class="{{ $ro }}" readonly />
                     </div>
                     <div>
                         <label class="{{ $lbl }}">STATE OF ORIGIN</label>
-                        <input type="text" name="state" value="{{ old('state', $profile->state) }}" class="{{ $inp }}" />
+                        <input type="text" name="state" value="{{ old('state', $profile->user->staff->state->state_name) }}" class="{{ $ro }}" readonly />
                     </div>
                     <div>
                         <label class="{{ $lbl }}">LGA OF ORIGIN</label>
-                        <input type="text" name="lga" value="{{ old('lga', $profile->lga) }}" class="{{ $inp }}" />
+                        <input type="text" name="lga" value="{{ old('lga', $profile->user->staff->lga->lga_name ) }}" class="{{ $ro }}" readonly/>
                     </div>
                     <div>
                         <label class="{{ $lbl }}">GEO-POLITICAL ZONE</label>
-                        <input type="text" name="geopolitical_zone" value="{{ old('geopolitical_zone', $profile->geopolitical_zone) }}" class="{{ $inp }}" />
+                        <input type="text" name="geopolitical_zone" value="{{ old('geopolitical_zone', $profile->user->staff->state->geoPolZone->zone) }}" class="{{ $ro }}" readonly />
                     </div>
                     <div>
                         <label class="{{ $lbl }}">SENATORIAL DISTRICT</label>
-                        <input type="text" name="senatorial_district" value="{{ old('senatorial_district', $profile->senatorial_district) }}" class="{{ $inp }}" />
+                        <input type="text" name="senatorial_district" value="{{ old('senatorial_district', $profile->user->staff->senatorialDistrict->senatorial_district_name) }}" class="{{ $ro }}" readonly />
                     </div>
                     <div>
                         <label class="{{ $lbl }}">NATIONALITY</label>
-                        <input type="text" name="nationality" value="{{ old('nationality', $profile->nationality) }}" class="{{ $inp }}" />
+                        <input type="text" name="nationality" value="{{ old('nationality', $profile->user->staff->nationality) }}" class="{{ $ro }}" readonly />
                     </div>
                     <div>
                         <label class="{{ $lbl }}">BIRTH PLACE</label>
-                        <input type="text" name="birth_place" value="{{ old('birth_place', $profile->birth_place) }}" class="{{ $inp }}" />
+                        <input type="text" name="birth_place" value="{{ old('birth_place', $profile->user->staff->birth_place) }}" class="{{ $ro }}" readonly />
                     </div>
                     <div class="col-span-2">
                         <label class="{{ $lbl }}">PERMANENT HOME ADDRESS</label>
                         <textarea name="permanent_home_address" rows="2"
-                                  class="{{ $inp }} resize-none">{{ old('permanent_home_address', $profile->permanent_home_address) }}</textarea>
+                                  class="{{ $ro }} resize-none" readonly>{{ old('permanent_home_address', $profile->home_address) }}</textarea>
                     </div>
                 </div>
             </div>
@@ -99,13 +104,13 @@
                     Employment details can only be updated by HR / Admin. Contact the Registry for changes.
                 </div>
                 <div class="grid grid-cols-2 gap-3">
-                    @php $ro = 'w-full px-3 py-2 border border-gray-100 rounded-lg text-sm bg-gray-50 text-gray-500 cursor-not-allowed'; @endphp
+                    
                     <div><label class="{{ $lbl }}">DESIGNATION</label><input type="text" value="{{ $profile->designation }}" class="{{ $ro }}" readonly /></div>
-                    <div><label class="{{ $lbl }}">CADRE</label><input type="text" value="{{ $profile->cadre }}" class="{{ $ro }}" readonly /></div>
-                    <div><label class="{{ $lbl }}">SALARY STRUCTURE</label><input type="text" value="{{ $profile->salary_structure }}" class="{{ $ro }}" readonly /></div>
-                    <div><label class="{{ $lbl }}">GRADE LEVEL / STEP</label><input type="text" value="GL {{ $profile->salary_level }} / Step {{ $profile->salary_level_step }}" class="{{ $ro }}" readonly /></div>
-                    <div><label class="{{ $lbl }}">STAFF STATUS</label><input type="text" value="{{ $profile->staff_status }}" class="{{ $ro }}" readonly /></div>
-                    <div><label class="{{ $lbl }}">IPPIS NO.</label><input type="text" value="{{ $profile->ippis_no }}" class="{{ $ro }}" readonly /></div>
+                    <div><label class="{{ $lbl }}">CADRE</label><input type="text" value="{{ $profile->user->staff->employment->designation->cadreRank->cadre->cadre_name }}" class="{{ $ro }}" readonly /></div>
+                    <div><label class="{{ $lbl }}">SALARY STRUCTURE</label><input type="text" value="{{ $profile->user->staff->employment->salaryStructure->salary_structure_name }}" class="{{ $ro }}" readonly /></div>
+                    <div><label class="{{ $lbl }}">GRADE LEVEL / STEP</label><input type="text" value="GL {{ $profile->user->staff->employment->designation->salaryLevel->level }} / Step {{ $profile->user->staff->employment->salaryStep->step }}" class="{{ $ro }}" readonly /></div>
+                    <div><label class="{{ $lbl }}">STAFF STATUS</label><input type="text" value="{{ $profile->user->staff->staffStatus->status }}" class="{{ $ro }}" readonly /></div>
+                    <div><label class="{{ $lbl }}">IPPIS NO.</label><input type="text" value="{{ $profile->user->staff->employment->ippis_no }}" class="{{ $ro }}" readonly /></div>
                 </div>
             </div>
 
@@ -114,7 +119,7 @@
                 <button type="button" @click="tab='nok'" class="btn-wf-ghost">
                     Next <i class="ti ti-arrow-right text-sm"></i>
                 </button>
-                <button type="submit" class="btn-wf-primary">
+                <button type="submit" class="btn-wf-primary hidden">
                     <i class="ti ti-device-floppy text-sm"></i> Save Changes
                 </button>
             </div>
@@ -124,22 +129,26 @@
         <div x-show="tab==='nok'" class="max-w-3xl">
             <div class="wf-card mb-4">
                 <div class="wf-card-title"><i class="ti ti-users text-gray-400"></i> Next of Kin</div>
+                <div class="p-3 bg-funaab-50 border border-funaab-100 rounded-lg text-xs text-funaab-700 flex items-center gap-2 mb-3">
+                    <i class="ti ti-info-circle flex-shrink-0"></i>
+                    Next of Kin can only be updated by HR / Admin. Contact the Registry for changes.
+                </div>
                 <div class="grid grid-cols-2 gap-4">
                     <div class="col-span-2">
                         <label class="{{ $lbl }}">FULL NAMES <span class="text-red-500">*</span></label>
-                        <input type="text" name="nok_fullnames" value="{{ old('nok_fullnames', $profile->nok_fullnames) }}" class="{{ $inp }}" />
+                        <input type="text" name="nok_fullnames" value="{{ old('nok_fullnames', $profile->user->staff->nextOfKin?->surname ) }}" class="{{ $ro }}" readonly />
                     </div>
                     <div>
                         <label class="{{ $lbl }}">PHONE</label>
-                        <input type="text" name="nok_phone" value="{{ old('nok_phone', $profile->nok_phone) }}" class="{{ $inp }}" />
+                        <input type="text" name="nok_phone" value="{{ old('nok_phone', $profile->user->staff->nextOfKin?->phone) }}" class="{{ $ro }}" readonly />
                     </div>
                     <div>
                         <label class="{{ $lbl }}">EMAIL</label>
-                        <input type="email" name="nok_email" value="{{ old('nok_email', $profile->nok_email) }}" class="{{ $inp }}" />
+                        <input type="email" name="nok_email" value="{{ old('nok_email', $profile->user->staff->nextOfKin?->email) }}" class="{{ $ro }}" readonly />
                     </div>
                     <div class="col-span-2">
                         <label class="{{ $lbl }}">ADDRESS</label>
-                        <textarea name="nok_address" rows="2" class="{{ $inp }} resize-none">{{ old('nok_address', $profile->nok_address) }}</textarea>
+                        <textarea name="nok_address" rows="2" class="{{ $ro }} resize-none" readonly>{{ old('nok_address', $profile->user->staff->nextOfKin?->address) }}</textarea>
                     </div>
                 </div>
             </div>
@@ -151,7 +160,7 @@
                     <button type="button" @click="tab='name_change'" class="btn-wf-ghost">
                         Next <i class="ti ti-arrow-right text-sm"></i>
                     </button>
-                    <button type="submit" class="btn-wf-primary">
+                    <button type="submit" class="btn-wf-primary hidden">
                         <i class="ti ti-device-floppy text-sm"></i> Save Changes
                     </button>
                 </div>
@@ -159,7 +168,7 @@
         </div>
 
         {{-- Name Change tab --}}
-        <div x-show="tab==='name_change'" class="max-w-3xl">
+        <div x-show="tab==='name_change'" class="max-w-3xl hidden">
             <div class="wf-card mb-4">
                 <div class="wf-card-title"><i class="ti ti-pencil text-gray-400"></i> Name Change Record</div>
                 <div class="p-3 bg-yellow-50 border border-yellow-200 rounded-lg text-xs text-yellow-700 flex items-center gap-2 mb-4">
