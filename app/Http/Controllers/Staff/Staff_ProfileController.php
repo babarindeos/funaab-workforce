@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Staff;
 
 use App\Http\Controllers\Controller;
 use App\Models\Profile;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -166,5 +167,11 @@ class Staff_ProfileController extends Controller
         }
 
         return $filename;
+    }
+
+    public function email_user_profile(string $email)
+    {
+        $userprofile = User::where('email', $email)->first();
+        return view('staff.profile.email_user_profile', compact('userprofile'));
     }
 }

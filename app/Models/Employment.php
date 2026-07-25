@@ -12,7 +12,7 @@ class Employment extends Model
     protected $fillable = [
         'staff_id', 'staff_category_id', 'employment_type_id', 'ippis_no', 'division_id',
         'department_id', 'highest_degree', 'date_public_first_appointment',
-        'date_funaab_first_appointment', 'date_confirmation', 'designation_id',
+        'date_funaab_first_appointment', 'first_appointment_post',  'date_confirmation', 'designation_id',
         'date_present_appointment', 'salary_structure_id', 'salary_step_id',
     ];
 

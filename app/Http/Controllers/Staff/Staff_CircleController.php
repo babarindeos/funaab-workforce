@@ -3,21 +3,34 @@
 namespace App\Http\Controllers\Staff;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use App\Models\Staff;
 use Illuminate\Support\Facades\Auth;
-use App\Models\CellUser;
-use App\Models\Cell;
-use App\Models\CircleGeneralRoom;
+use Illuminate\View\View;
 
 class Staff_CircleController extends Controller
 {
-    //
-    public function index()
+    public function index(): View
     {
-        $circles = CellUser::where('user_id', Auth::user()->id)->get();
-        
-        return view('staff.circles.index', compact('circles'));
-    }
+        // Get logged-in staff's department via fileno → staff_no → employment
+        $authStaff = Staff::where('staff_no', Auth::user()->fileno)
+                         ->with('employment')
+                         ->first();
 
-    
+        $departmentId = $authStaff?->employment?->department_id;
+        $department   = $authStaff?->employment?->department;
+
+        // Get all other staff in the same department
+        $staffMembers = Staff::where('id', '!=', $authStaff?->id)
+                            ->whereHas('employment', fn($q) =>
+                                $q->where('department_id', $departmentId)
+                            )
+                            ->with([
+                                'user.profile',
+                                'employment.designation.cadreRank',
+                            ])
+                            ->orderBy('surname')
+                            ->get();
+
+        return view('staff.circles.index', compact('staffMembers', 'department'));
+    }
 }

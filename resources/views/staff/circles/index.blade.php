@@ -1,59 +1,60 @@
-<x-staff-layout>
+<x-staff-layout title="Circles">
 
-    <div class="flex flex-col container mx-4 border border-0 md:mx-auto">
-        <section class="border-b border-gray-200 py-2 mt-2">
-                <div class="text-2xl font-semibold ">
-                    Circles               
-                </div>
-                
-        </section>
-
-        <!-- section //-->
-        <section class="py-4 border-0">
-            <div class="flex flex-col space-y-4 md:space-y-0 md:flex-row md:flex-wrap w-[100%]">
-                @php
-                     $colors = ['bg-red-500', 'bg-green-500', 'bg-blue-500', 'bg-yellow-500', 'bg-purple-500', 'bg-pink-500', 'bg-orange-500', 'bg-teal-500'];
-
-                @endphp
-                @foreach ($circles as $circle)
-                    <div class="flex w-full md:w-[50%] border-0">
-                        <div class="flex flex-row items-center p-2">
-                            <div>
-                                @php
-                                    $initial = strtoupper(substr($circle->cell->name, 0, 1));
-                                    $randomColor = $colors[array_rand($colors)];
-                                @endphp
-                                <div class="flex items-center justify-center w-16 h-16 
-                                            rounded-full border-0 text-2xl {{$randomColor}} 
-                                            font-semibold text-white">
-                                    {{ $initial}}
-                                </div>
-                                
-                            </div>
-                            <div class="px-4 text-lg font-medium">
-                                <a href="{{ route('staff.circles.general_room', ['circle'=>$circle->id])}}" class="hover:underline">
-                                    {{ $circle->cell->name }} ({{ $circle->cell->code }})
-                                </a>
-                                <div class="text-sm">
-                                    {{$circle->cell->cell_type->name}}
-                                </div>
-
-                            </div>
-                        </div>
-                    </div>
-                   
-                @endforeach
-            </div>
-
-        </section>
-        <!-- section //-->
-    
-        
-    
-    
-        
+    <div class="flex items-start justify-between mb-5">
+        <div>
+            <h1 class="pg-title">Circles</h1>
+            <p class="pg-sub">Staff members in your department — {{ $department?->department_name ?? 'Your Department' }}</p>
+        </div>
     </div>
-    
 
+    @if($staffMembers->isEmpty())
+        <div class="wf-card flex flex-col items-center justify-center py-16 text-center">
+            <div class="w-14 h-14 rounded-full bg-gray-100 flex items-center justify-center mb-4">
+                <i class="ti ti-users text-2xl text-gray-400"></i>
+            </div>
+            <p class="text-sm font-bold text-gray-600 mb-1">No staff found</p>
+            <p class="text-xs text-gray-400">No other staff members are currently in your department.</p>
+        </div>
+    @else
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            @foreach($staffMembers as $member)
+            
+                @php
+                    $initials = strtoupper(substr($member->surname ?? 'S', 0, 1)).strtoupper(substr($member->firstname ?? 'S', 0, 1));
+                    $avatar   = $member->user?->profile?->avatar;
+                    $designation = $member->employment?->designation?->cadreRank?->name
+                                ?? $member->user?->profile?->designation
+                                ?? '—';
+                @endphp
+                <a href="{{ route('staff.profile.email_user_profile', $member->user?->email) }}"
+                   class="wf-card flex flex-col items-center text-center p-5 hover:shadow-md
+                          transition-shadow cursor-pointer group">
+
+                    {{-- Avatar --}}
+                    @if($avatar)
+                        <img src="{{ asset('storage/avatars/'.$avatar) }}"
+                             alt="{{ $member->surname }}"
+                             class="w-20 h-20 rounded-full object-cover mb-3 ring-2 ring-gray-100
+                                    group-hover:ring-funaab-200 transition-all" />
+                    @else
+                        <div class="w-20 h-20 rounded-full bg-funaab-600 flex items-center justify-center
+                                    mb-3 ring-2 ring-gray-100 group-hover:ring-funaab-200 transition-all">
+                            <span class="text-xl font-bold text-white">{{ $initials }}</span>
+                        </div>
+                    @endif
+
+                    {{-- Name --}}
+                    <p class="text-sm font-bold text-gray-800 group-hover:text-funaab-700 transition-colors leading-tight mb-1">
+                        {{ $member->surname }}, {{ $member->firstname }}
+                        @if($member->othernames) {{ $member->othernames }} @endif
+                    </p>
+
+                    {{-- Designation --}}
+                    <p class="text-[11px] text-gray-400 font-semibold">{{ $designation }}</p>
+
+                </a>
+            @endforeach
+        </div>
+    @endif
 
 </x-staff-layout>

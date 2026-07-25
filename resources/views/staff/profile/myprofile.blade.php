@@ -89,7 +89,7 @@
                 <div class="{{ $cell }}"><div class="{{ $ck }}">SALARY STRUCTURE</div><div class="{{ $cv }}">{{ $profile->user->staff->employment->salaryStructure->salary_structure_name ?? '—' }}</div></div>
                 <div class="{{ $cell }}"><div class="{{ $ck }}">GRADE LEVEL</div><div class="{{ $cv }}">{{ $profile->user->staff->employment->designation->salaryLevel->level ?? '—' }}</div></div>
                 <div class="{{ $cell }}"><div class="{{ $ck }}">STEP</div><div class="{{ $cv }}">{{ $profile->user->staff->employment->salaryStep->step ?? '—' }}</div></div>
-                <div class="{{ $cell }}"><div class="{{ $ck }}">DATE FIRST APPT (SERVICE)</div><div class="{{ $cv }}">{{ $profile->user->staff->employment->date_public_first_appointment->format('d-M-Y') ?? '—' }}</div></div>
+                <div class="{{ $cell }}"><div class="{{ $ck }}">DATE FIRST APPT (SERVICE)</div><div class="{{ $cv }}">{{ $profile->user->staff->employment->date_public_first_appointment?->format('d-M-Y') ?? '—' }}</div></div>
                 <div class="{{ $cell }}"><div class="{{ $ck }}">DATE FIRST APPT (FUNAAB)</div><div class="{{ $cv }}">{{ $profile->user->staff->employment->date_funaab_first_appointment->format('d-M-Y') ?? '—' }}</div></div>
                 <div class="{{ $cell }}"><div class="{{ $ck }}">DATE CONFIRMATION</div><div class="{{ $cv }}">{{ $profile->user->staff->employment->date_confirmation->format('d-M-Y') ?? '—' }}</div></div>
                 <div class="{{ $cell }}"><div class="{{ $ck }}">DATE PRESENT APPT.</div><div class="{{ $cv }}">{{ $profile->user->staff->employment->date_present_appointment->format('d-M-Y') ?? '—' }}</div></div>

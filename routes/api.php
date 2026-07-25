@@ -14,6 +14,16 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+// =====================================================================
+// Add to routes/api.php
+// =====================================================================
+
+use App\Http\Controllers\Api\LocationController;
+
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+// -- APi Location
+Route::get('/lgas/{stateId}',                   [LocationController::class, 'lgasByState']);
+Route::get('/senatorial-districts/{lgaId}',     [LocationController::class, 'senatorialDistrictsByLga']);

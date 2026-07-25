@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class Staff extends Model
 {
@@ -13,9 +14,15 @@ class Staff extends Model
 
     protected $fillable = [
         'staff_no', 'staff_title_id', 'surname', 'firstname', 'othernames',
-        'dob', 'gender_id', 'lga_id', 'senatorial_district_id',
-        'marital_status_id', 'staff_status_id',
+        'dob', 'gender_id','state_id', 'lga_id', 'senatorial_district_id', 'geo_zone_id',
+        'marital_status_id', 'nationality', 'staff_status_id',
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+        static::creating(fn($m) => $m->uuid = $m->uuid ?? Str::uuid());
+    }
 
     protected $casts = ['dob' => 'date'];
 
@@ -47,5 +54,10 @@ class Staff extends Model
               ->orWhere('firstname', 'like', "%$term%")
               ->orWhere('staff_no',  'like', "%$term%");
         });
+    }
+
+    public function user()
+    {
+        return $this->hasOne(User::class, 'fileno', 'staff_no');
     }
 }

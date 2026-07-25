@@ -75,6 +75,8 @@ use App\Http\Controllers\Staff\Staff_ChairmanController;
 
 
 
+
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -130,7 +132,7 @@ Route::middleware('guest')->group(function(){
 
 
 
-Route::prefix('staff')->middleware(['auth', 'staff'])->group(function(){
+Route::prefix('staff')->middleware(['auth', 'staff', 'profile.complete'])->group(function(){
     Route::get('/dashboard', [Staff_DashboardController::class, 'index'])->name('staff.dashboard.index');
     Route::post('/logout', [Staff_AuthController::class, 'logout'])->name('staff.auth.logout');
 
@@ -198,13 +200,16 @@ Route::prefix('staff')->middleware(['auth', 'staff'])->group(function(){
     Route::get('/profile/myprofile/edit', [Staff_ProfileController::class, 'edit'])->name('staff.profile.myprofile.edit');
     Route::post('/profile/myprofile/update', [Staff_ProfileController::class, 'update'])->name('staff.profile.myprofile.update');
 
-    Route::post('/profile/myprofile/update_avatar', [Staff_ProfileController::class, 'update_avatar'])->name('staff.profile.myprofile.update_avatar');
+    //Route::post('/profile/myprofile/update_avatar', [Staff_ProfileController::class, 'update_avatar'])->name('staff.profile.myprofile.update_avatar');
+    Route::post('/profile/myprofile/update_avatar', [Staff_ProfileController::class, 'updateAvatar'])->name('staff.profile.myprofile.update_avatar');
     
+
     Route::get('/profile/user/{fileno}', [Staff_ProfileController::class, 'user_profile'])->name('staff.profile.user_profile');
     Route::get('/profile/user/{email}/user_profile', [Staff_ProfileController::class, 'email_user_profile'])->name('staff.profile.email_user_profile');
 
-    Route::get('/profile/change_password', [Staff_ProfileController::class, 'change_password'])->name('staff.profile.change_password');
-    Route::post('/profile/update_password', [Staff_ProfileController::class, 'update_password'])->name('staff.profile.update_password');
+    //Route::get('/profile/change_password', [Staff_ProfileController::class, 'change_password'])->name('staff.profile.change_password');
+    Route::get('/profile/change_password', [Staff_ProfileController::class, 'changePasswordForm'])->name('staff.profile.change_password');
+    Route::put('/profile/update_password', [Staff_ProfileController::class, 'changePassword'])->name('staff.profile.change_password.update');
 
 
 
@@ -683,6 +688,7 @@ Route::prefix('admin')->middleware(['auth','admin'])->group(function(){
     Route::put   ('aper/chairman-dapc/{chairmanDapc}',   [Admin_AperAssessorController::class, 'updateChairmanDapc'] )->name('admin.aper.chairman_dapc.update');
     Route::delete('aper/chairman-dapc/{chairmanDapc}',   [Admin_AperAssessorController::class, 'destroyChairmanDapc'])->name('admin.aper.chairman_dapc.destroy');
 
+    
 
 });
 

@@ -13,6 +13,7 @@ use App\Models\Gender;
 use App\Models\MaritalStatus;
 use App\Models\Lga;
 use App\Models\State;
+use App\Models\GeoPolZone;
 use App\Models\Department;
 use App\Models\Division;
 use App\Models\Designation;
@@ -27,6 +28,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
+
+use App\Models\SenatorialDistrict;
+
 class Admin_StaffController extends Controller
 {
     public function index(Request $request)
@@ -40,7 +44,10 @@ class Admin_StaffController extends Controller
         if ($request->filled('category_id'))   $query->whereHas('employment', fn($q) => $q->where('staff_category_id', $request->category_id));
         if ($request->filled('status_id'))     $query->where('staff_status_id', $request->status_id);
 
-        $staffs          = $query->paginate(25)->withQueryString();
+        $staffs = $query->paginate(25)->withQueryString();
+        $states = State::orderBy('state_name')->get();
+        $senatorial_districts = SenatorialDistrict::orderBy('lga_id')->get();
+        $geo_zones = GeoPolZone::orderBy('zone')->get();
         $departments     = Department::orderBy('department_name')->get();
         $categories      = StaffCategory::all();
         $statuses        = StaffStatus::all();
@@ -52,8 +59,10 @@ class Admin_StaffController extends Controller
         $totalOnLeave    = \App\Models\Leave::where('approval_status', 'approved')
                             ->where('start_date', '<=', now())->where('resumption_date', '>=', now())->count();
 
+       
+
         return view('admin.staff.index', compact(
-            'staffs', 'departments', 'categories', 'statuses',
+            'staffs', 'departments', 'categories', 'statuses', 'states', 'senatorial_districts', 'geo_zones',
             'employmentTypes', 'total', 'totalOnLeave'
         ));
     }
@@ -73,13 +82,17 @@ class Admin_StaffController extends Controller
             'othernames'                    => 'nullable|string|max:100',
             'dob'                           => 'required|date',
             'gender_id'                     => 'required|exists:genders,id',
+            'state_id'                      => 'required|exists:states,id',
             'lga_id'                        => 'required|exists:lgas,id',
+            'geo_zone_id'                   => 'required|exists:geo_pol_zones,id',
             'marital_status_id'             => 'required|exists:marital_statuses,id',
             'staff_status_id'               => 'required|exists:staff_statuses,id',
             'email'                         => 'required|email|unique:users,email',
             'staff_category_id'             => 'nullable|exists:staff_categories,id',
             'employment_type_id'            => 'nullable|exists:employment_types,id',
+            'highest_degree'                => 'required',
             'department_id'                 => 'nullable|exists:departments,id',
+            'highest_degree'                => 'nullable|exists:degrees,id',
             'division_id'                   => 'nullable|exists:divisions,id',
             'designation_id'                => 'nullable|exists:designations,id',
             'salary_structure_id'           => 'nullable|exists:salary_structures,id',
@@ -87,16 +100,23 @@ class Admin_StaffController extends Controller
             'ippis_no'                      => 'nullable|string|max:50',
             'date_public_first_appointment' => 'nullable|date',
             'date_funaab_first_appointment' => 'nullable|date',
+            'first_appointment_post'        => 'required',
             'date_confirmation'             => 'nullable|date',
             'date_present_appointment'      => 'nullable|date',
+            'nationality'                   => 'nullable',
         ]);
 
         DB::beginTransaction();
         try {
+            $staff_password = Str::random(8);
             $user = User::create([
-                'name'     => $request->surname . ' ' . $request->firstname,
+                'fileno'   => $request->staff_no,
+                'surname'  => $request->surname,
+                'firstname' => $request->firstname,
+                'middlename' => $request->othernames,
                 'email'    => strtolower($request->email),
-                'password' => bcrypt(Str::random(8)),
+                'password' => bcrypt($staff_password),
+                'role' => 'staff'
             ]);
 
             $staff = Staff::create([
@@ -107,9 +127,12 @@ class Admin_StaffController extends Controller
                 'othernames'             => $request->othernames ? ucwords($request->othernames) : null,
                 'dob'                    => $request->dob,
                 'gender_id'              => $request->gender_id,
+                'state_id'               => $request->state_id,
                 'lga_id'                 => $request->lga_id,
                 'senatorial_district_id' => $request->senatorial_district_id,
+                'geo_zone_id'            => $request->geo_zone_id,
                 'marital_status_id'      => $request->marital_status_id,
+                'nationality'            => $request->nationality,
                 'staff_status_id'        => $request->staff_status_id,
             ]);
 
@@ -120,11 +143,13 @@ class Admin_StaffController extends Controller
                 'ippis_no'                      => $request->ippis_no,
                 'division_id'                   => $request->division_id,
                 'department_id'                 => $request->department_id,
+                'highest_degree'                => $request->highest_degree,
                 'designation_id'                => $request->designation_id,
                 'salary_structure_id'           => $request->salary_structure_id,
                 'salary_step_id'                => $request->salary_step_id,
                 'date_public_first_appointment' => $request->date_public_first_appointment,
                 'date_funaab_first_appointment' => $request->date_funaab_first_appointment,
+                'first_appointment_post'        => $request->first_appointment_post,
                 'date_confirmation'             => $request->date_confirmation,
                 'date_present_appointment'      => $request->date_present_appointment,
             ]);
@@ -231,6 +256,7 @@ class Admin_StaffController extends Controller
             'employmentTypes' => EmploymentType::orderBy('employment_type')->get(),
             'lgas'            => Lga::with('state')->orderBy('lga_name')->get(),
             'states'          => State::orderBy('state_name')->get(),
+            'geoZones'        => GeoPolZone::orderBy('zone')->get(),
             'departments'     => Department::orderBy('department_name')->get(),
             'divisions'       => Division::orderBy('division_name')->get(),
             'categories'      => StaffCategory::all(),

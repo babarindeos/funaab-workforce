@@ -208,7 +208,7 @@
 
         <p class="sb-section-label mt-1" x-show="!sidebarCollapsed" x-transition.opacity>COMMUNICATION</p>
 
-        <a href="#"
+        <a href="{{ route('staff.circles.index') }}"
            class="sb-item {{ request()->routeIs('staff.circles.*') ? 'active' : '' }}"
            :title="sidebarCollapsed ? 'Circles' : ''">
             <i class="ti ti-circle-dot text-base flex-shrink-0"></i>

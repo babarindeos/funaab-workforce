@@ -66,6 +66,7 @@ class Kernel extends HttpKernel
         'admin' => \App\Http\Middleware\AdminAuth::class,
         'staff' => \App\Http\Middleware\StaffAuth::class,
         'identity' => \App\Http\Middleware\IdentityAuth::class,
-        'registry' => \App\Http\Middleware\RegistryAuth::class
+        'registry' => \App\Http\Middleware\RegistryAuth::class,
+        'profile.complete' => \App\Http\Middleware\EnsureProfileIsComplete::class,
     ];
 }
