@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::table('staff', function (Blueprint $table) {
             //
             $table->unsignedBigInteger('geo_zone_id')->after('senatorial_district_id')->nullable();
+            $table->foreign('geo_zone_id')->references('id')->on('geo_pol_zones')->onDelete('cascade');
         });
     }
 

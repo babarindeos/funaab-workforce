@@ -28,6 +28,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
+use Illuminate\Support\Facades\Auth;
+
 
 use App\Models\SenatorialDistrict;
 
@@ -134,6 +136,7 @@ class Admin_StaffController extends Controller
                 'marital_status_id'      => $request->marital_status_id,
                 'nationality'            => $request->nationality,
                 'staff_status_id'        => $request->staff_status_id,
+                'created_by'             => Auth::id(),
             ]);
 
             Employment::create([
@@ -152,6 +155,7 @@ class Admin_StaffController extends Controller
                 'first_appointment_post'        => $request->first_appointment_post,
                 'date_confirmation'             => $request->date_confirmation,
                 'date_present_appointment'      => $request->date_present_appointment,
+                'created_by'                    => Auth::id(),
             ]);
 
             DB::commit();
@@ -214,6 +218,7 @@ class Admin_StaffController extends Controller
                 'senatorial_district_id' => $request->senatorial_district_id,
                 'marital_status_id'      => $request->marital_status_id,
                 'staff_status_id'        => $request->staff_status_id,
+                'updated_by'             => Auth::id(),
             ]);
 
             $staff->employment()->updateOrCreate(['staff_id' => $staff->id], [
@@ -229,6 +234,7 @@ class Admin_StaffController extends Controller
                 'date_funaab_first_appointment' => $request->date_funaab_first_appointment,
                 'date_confirmation'             => $request->date_confirmation,
                 'date_present_appointment'      => $request->date_present_appointment,
+                'updated_by'                    => Auth::id(),
             ]);
 
             DB::commit();

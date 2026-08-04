@@ -33,7 +33,7 @@
             $avatar      = $userprofile->profile->avatar;
             $initials    = strtoupper(substr($userprofile->surname ?? 'S', 0, 1))
                          . strtoupper(substr($userprofile->firstname ?? 'S', 0, 1));
-            $designation = $userprofile->profile->designation ?? '—';
+            $designation = $userprofile->staff->employment?->designation?->cadreRank?->cadre_rank_name ?? '—';
             $phone       = $userprofile->profile->phone ?? '—';
             $email       = $userprofile->email ?? '—';
             $fullname    = trim(($userprofile->staff->surname ?? '')

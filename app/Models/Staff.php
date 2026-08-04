@@ -15,7 +15,7 @@ class Staff extends Model
     protected $fillable = [
         'staff_no', 'staff_title_id', 'surname', 'firstname', 'othernames',
         'dob', 'gender_id','state_id', 'lga_id', 'senatorial_district_id', 'geo_zone_id',
-        'marital_status_id', 'nationality', 'staff_status_id',
+        'marital_status_id', 'nationality', 'staff_status_id', 'created_by', 'updated_by' 
     ];
 
     protected static function boot()

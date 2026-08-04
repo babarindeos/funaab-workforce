@@ -116,7 +116,7 @@ class Staff_ProfileController extends Controller
     {
         $request->validate([
             'current_password' => 'required',
-            'password'         => 'required|min:8|confirmed',
+            'password'         => 'required|min:6|confirmed',
         ]);
 
         if (!Hash::check($request->current_password, Auth::user()->password)) {

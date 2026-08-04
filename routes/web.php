@@ -73,6 +73,8 @@ use App\Http\Controllers\Staff\Staff_SupervisorController;
 use App\Http\Controllers\Staff\Staff_HodController;
 use App\Http\Controllers\Staff\Staff_ChairmanController;
 
+use App\Http\Controllers\Admin\Admin_SenatorialDistrictController;
+
 
 
 
@@ -689,6 +691,17 @@ Route::prefix('admin')->middleware(['auth','admin'])->group(function(){
     Route::delete('aper/chairman-dapc/{chairmanDapc}',   [Admin_AperAssessorController::class, 'destroyChairmanDapc'])->name('admin.aper.chairman_dapc.destroy');
 
     
+
+
+    // =====================================================================
+    // Senatorial Districts
+    // =====================================================================
+
+    Route::get   ('senatorial-districts',                        [Admin_SenatorialDistrictController::class, 'index'  ])->name('admin.senatorial_districts.index');
+    Route::post  ('senatorial-districts',                        [Admin_SenatorialDistrictController::class, 'store'  ])->name('admin.senatorial_districts.store');
+    Route::put   ('senatorial-districts/{senatorialDistrict}',   [Admin_SenatorialDistrictController::class, 'update' ])->name('admin.senatorial_districts.update');
+    Route::delete('senatorial-districts/{senatorialDistrict}',   [Admin_SenatorialDistrictController::class, 'destroy'])->name('admin.senatorial_districts.destroy');
+
 
 });
 

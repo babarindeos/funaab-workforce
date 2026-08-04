@@ -31,7 +31,7 @@
             @forelse($salarySteps as $step)
             <tr>
                 <td class="text-gray-400">{{ $loop->iteration }}</td>
-                <td class="col-name">Step {{ $step->step }}</td>
+                <td class="col-name">{{ $step->salaryLevel->salaryStructure->salary_structure_name}} {{  $step->salaryLevel->level  }} Step {{ $step->step }}</td>
                 <td class="col-mono text-[10px] text-gray-400">{{ Str::limit($step->uuid, 20, '…') }}</td>
                 <td><span class="badge badge-active">{{ $step->employments_count }}</span></td>
                 <td class="text-gray-400 text-xs">{{ $step->created_at->format('d M Y') }}</td>

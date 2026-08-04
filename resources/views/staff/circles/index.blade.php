@@ -22,7 +22,7 @@
                 @php
                     $initials = strtoupper(substr($member->surname ?? 'S', 0, 1)).strtoupper(substr($member->firstname ?? 'S', 0, 1));
                     $avatar   = $member->user?->profile?->avatar;
-                    $designation = $member->employment?->designation?->cadreRank?->name
+                    $designation = $member->employment?->designation?->cadreRank?->cadre_rank_name
                                 ?? $member->user?->profile?->designation
                                 ?? '—';
                 @endphp
