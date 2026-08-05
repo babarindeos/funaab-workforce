@@ -119,18 +119,59 @@
                         @error('marital_status_id')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
                     </div>
 
+
+                    {{-- State --}}
                     <div>
-                        <label class="{{ $label }}">LGA OF ORIGIN <span class="text-red-500">*</span></label>
-                        <select name="lga_id" class="{{ $input }}" required>
-                            <option value="">— Select LGA —</option>
-                            @foreach($lgas as $lga)
-                                <option value="{{ $lga->id }}"
-                                    {{ old('lga_id', $staff->lga_id) == $lga->id ? 'selected' : '' }}>
-                                    {{ $lga->lga_name }} ({{ $lga->state?->state_name }})
+                        <label class="{{ $label }}">STATE <span class="text-red-500">*</span></label>
+                        <select name="state_id" id="state_id" class="{{ $input }}" required>
+                            <option value="">— Select —</option>
+                            @foreach($states as $state)
+                                <option value="{{ $state->id }}" {{ old('state_id', $staff->state_id) == $state->id ? 'selected' : '' }}>
+                                    {{ $state->state_name }}
                                 </option>
                             @endforeach
                         </select>
+                        @error('state_id')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
+                    </div>
+
+                    <div>
+                        <label class="{{ $label }}">LGA OF ORIGIN <span class="text-red-500">*</span></label>
+                        <select name="lga_id" id="lga_id" class="{{ $input }}" required>
+                            <option value="">— Select State first —</option>
+                        </select>
                         @error('lga_id')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
+                    </div>
+
+                    {{-- SENATORIAL DISTRICT --}}
+                    <div>
+                        <label class="{{ $label }}">SENATORIAL DISTRICT <span class="text-red-500">*</span></label>
+                        <select name="senatorial_district_id" id="senatorial_district_id" class="{{ $input }}" required>
+                            <option value="">— Select LGA first —</option>
+                        </select>
+                        @error('senatorial_district_id')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
+                    </div>
+
+                    {{-- GEO ZONE --}}
+                    <div>
+                        <label class="{{ $label }}">GEO ZONE <span class="text-red-500">*</span></label>
+                        <select name="geo_zone_id" id="geo_zone_id" class="{{ $input }}" required>
+                            <option value="">— Select Geo Zone —</option>
+                            @foreach($geoZones as $zone)
+                                <option value="{{ $zone->id }}"
+                                    {{ old('geo_zone_id', $staff->geo_zone_id) == $zone->id ? 'selected' : '' }}>
+                                    {{ $zone->zone }}
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('geo_zone_id')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
+                    </div>
+
+                    {{-- Nationality --}}
+                    <div>
+                        <label class="{{ $label }}">NATIONALITY</label>
+                        <input type="text" name="nationality"
+                               value="{{ old('nationality', $staff->nationality) }}"
+                               class="{{ $input }}" />
                     </div>
 
                     <div>
@@ -222,6 +263,19 @@
                     </div>
 
                     <div>
+                        <label class="{{ $label }}">HIGHEST DEGREE</label>
+                        <select name="highest_degree" class="{{ $input }}">
+                            <option value="">— Select Degree —</option>
+                            @foreach($degrees as $degree)
+                                <option value="{{ $degree->id }}"
+                                    {{ old('highest_degree', $staff->employment?->highest_degree) == $degree->id ? 'selected' : '' }}>
+                                    {{ $degree->degree_name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div>
                         <label class="{{ $label }}">DESIGNATION</label>
                         <select name="designation_id" class="{{ $input }}">
                             <option value="">— Select Designation —</option>
@@ -275,6 +329,13 @@
                     </div>
 
                     <div>
+                        <label class="{{ $label }}">POST OF FIRST FUNAAB APPOINTMENT</label>
+                        <input type="text" name="first_appointment_post"
+                               value="{{ old('first_appointment_post', $staff->employment?->first_appointment_post) }}"
+                               class="{{ $input }}" />
+                    </div>
+
+                    <div>
                         <label class="{{ $label }}">DATE OF CONFIRMATION</label>
                         <input type="date" name="date_confirmation"
                                value="{{ old('date_confirmation', $staff->employment?->date_confirmation?->format('Y-m-d')) }}"
@@ -305,5 +366,104 @@
         </div>
 
     </form>
+
+
+     <script>
+    function staffForm() {
+        return {
+            tab: '{{ $errors->any() ? "personal" : "personal" }}',
+        }
+    }
+    </script>
+
+    <script>
+        // ── Cascading dropdowns: State → LGA → Senatorial District ──
+        const stateSelect      = document.getElementById('state_id');
+        const lgaSelect        = document.getElementById('lga_id');
+        const senatorialSelect = document.getElementById('senatorial_district_id');
+
+        // State → fetch LGAs
+        stateSelect.addEventListener('change', function () {
+            const stateId = this.value;
+
+            // Reset downstream selects
+            lgaSelect.innerHTML        = '<option value="">— Loading… —</option>';
+            senatorialSelect.innerHTML = '<option value="">— Select LGA first —</option>';
+
+            if (!stateId) {
+                lgaSelect.innerHTML = '<option value="">— Select State first —</option>';
+                return;
+            }
+
+            fetch(`/api/lgas/${stateId}`)
+                .then(res => res.json())
+                .then(data => {
+                    lgaSelect.innerHTML = '<option value="">— Select LGA —</option>';
+                    data.forEach(lga => {
+                        const option = document.createElement('option');
+                        option.value       = lga.id;
+                        option.textContent = lga.lga_name;
+                        lgaSelect.appendChild(option);
+                    });
+                })
+                .catch(() => {
+                    lgaSelect.innerHTML = '<option value="">— Failed to load LGAs —</option>';
+                });
+        });
+
+        // LGA → fetch Senatorial Districts
+        lgaSelect.addEventListener('change', function () {
+            const lgaId = this.value;
+
+            
+
+            senatorialSelect.innerHTML = '<option value="">— Loading… —</option>';
+
+            if (!lgaId) {
+                senatorialSelect.innerHTML = '<option value="">— Select LGA first —</option>';
+                return;
+            }
+
+            fetch(`/api/senatorial-districts/${lgaId}`)
+                .then(res => res.json())
+                .then(data => {
+                    senatorialSelect.innerHTML = '<option value="">— Select Senatorial District —</option>';
+                    data.forEach(district => {
+                        const option = document.createElement('option');
+                        option.value       = district.id;
+                        option.textContent = district.senatorial_district_name;
+                        senatorialSelect.appendChild(option);
+                    });
+                })
+                .catch(() => {
+                    senatorialSelect.innerHTML = '<option value="">— Failed to load districts —</option>';
+                });
+        });
+
+        // Pre-populate on page load with the staff's existing state/lga/senatorial district
+        // (falls back to old() input values if a validation error just occurred)
+        const initialStateId      = '{{ old('state_id', $staff->state_id) }}';
+        const initialLgaId        = '{{ old('lga_id', $staff->lga_id) }}';
+        const initialSenatorialId = '{{ old('senatorial_district_id', $staff->senatorial_district_id) }}';
+
+        if (initialStateId) {
+            stateSelect.value = initialStateId;
+            stateSelect.dispatchEvent(new Event('change'));
+
+            // After LGAs load, set the current lga_id and trigger senatorial fetch
+            stateSelect.addEventListener('change', function () {
+                setTimeout(() => {
+                    lgaSelect.value = initialLgaId;
+                    if (lgaSelect.value) {
+                        lgaSelect.dispatchEvent(new Event('change'));
+                        setTimeout(() => {
+                            senatorialSelect.value = initialSenatorialId;
+                        }, 500);
+                    }
+                }, 500);
+            }, { once: true });
+        }
+    </script>
+
 
 </x-admin-layout>

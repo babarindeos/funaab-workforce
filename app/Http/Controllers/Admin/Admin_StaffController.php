@@ -188,7 +188,87 @@ class Admin_StaffController extends Controller
         return view('admin.staff.edit', array_merge(['staff' => $staff], $this->formData()));
     }
 
+
     public function update(Request $request, Staff $staff)
+    {
+        $request->validate([
+            'staff_no'                      => 'required|string|unique:staff,staff_no,' . $staff->id,
+            'staff_title_id'                => 'required|exists:staff_titles,id',
+            'surname'                       => 'required|string|max:100',
+            'firstname'                     => 'required|string|max:100',
+            'othernames'                    => 'nullable|string|max:100',
+            'dob'                           => 'required|date',
+            'gender_id'                     => 'required|exists:genders,id',
+            'state_id'                      => 'required|exists:states,id',
+            'lga_id'                        => 'required|exists:lgas,id',
+            'geo_zone_id'                   => 'required|exists:geo_pol_zones,id',
+            'marital_status_id'             => 'required|exists:marital_statuses,id',
+            'staff_status_id'               => 'required|exists:staff_statuses,id',
+            'staff_category_id'             => 'nullable|exists:staff_categories,id',
+            'employment_type_id'            => 'nullable|exists:employment_types,id',
+            'department_id'                 => 'nullable|exists:departments,id',
+            'highest_degree'                => 'nullable|exists:degrees,id',
+            'division_id'                   => 'nullable|exists:divisions,id',
+            'designation_id'                => 'nullable|exists:designations,id',
+            'salary_structure_id'           => 'nullable|exists:salary_structures,id',
+            'salary_step_id'                => 'nullable|exists:salary_steps,id',
+            'ippis_no'                      => 'nullable|string|max:50',
+            'date_public_first_appointment' => 'nullable|date',
+            'date_funaab_first_appointment' => 'nullable|date',
+            'first_appointment_post'        => 'nullable',
+            'date_confirmation'             => 'nullable|date',
+            'date_present_appointment'      => 'nullable|date',
+            'nationality'                   => 'nullable',
+        ]);
+ 
+        DB::beginTransaction();
+        try {
+            $staff->update([
+                'staff_no'               => strtoupper($request->staff_no),
+                'staff_title_id'         => $request->staff_title_id,
+                'surname'                => strtoupper($request->surname),
+                'firstname'              => ucfirst($request->firstname),
+                'othernames'             => $request->othernames ? ucwords($request->othernames) : null,
+                'dob'                    => $request->dob,
+                'gender_id'              => $request->gender_id,
+                'state_id'               => $request->state_id,
+                'lga_id'                 => $request->lga_id,
+                'senatorial_district_id' => $request->senatorial_district_id,
+                'geo_zone_id'            => $request->geo_zone_id,
+                'marital_status_id'      => $request->marital_status_id,
+                'nationality'            => $request->nationality,
+                'staff_status_id'        => $request->staff_status_id,
+                'updated_by'             => Auth::id(),
+            ]);
+ 
+            $staff->employment()->updateOrCreate(['staff_id' => $staff->id], [
+                'staff_category_id'             => $request->staff_category_id,
+                'employment_type_id'            => $request->employment_type_id,
+                'ippis_no'                      => $request->ippis_no,
+                'division_id'                   => $request->division_id,
+                'department_id'                 => $request->department_id,
+                'highest_degree'                => $request->highest_degree,
+                'designation_id'                => $request->designation_id,
+                'salary_structure_id'           => $request->salary_structure_id,
+                'salary_step_id'                => $request->salary_step_id,
+                'date_public_first_appointment' => $request->date_public_first_appointment,
+                'date_funaab_first_appointment' => $request->date_funaab_first_appointment,
+                'first_appointment_post'        => $request->first_appointment_post,
+                'date_confirmation'             => $request->date_confirmation,
+                'date_present_appointment'      => $request->date_present_appointment,
+                'updated_by'                    => Auth::id(),
+            ]);
+ 
+            DB::commit();
+            return redirect()->route('admin.staff.show', $staff)
+                             ->with('success', 'Staff record updated successfully.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->withInput()->with('error', 'Error: ' . $e->getMessage());
+        }
+    }
+
+    public function update_old(Request $request, Staff $staff)
     {
         $request->validate([
             'staff_no'                      => 'required|string|unique:staff,staff_no,' . $staff->id,
