@@ -36,7 +36,7 @@ The Workforce Portal centralizes core HR operations for FUNAAB staff across **tw
 <summary><b>🔐 Staff Login</b> — click to expand</summary>
 <br>
 
-![Staff Login](Workforce/Screenshot 2026-08-20 120108.jpg)
+![Staff Login](Workforce/Screenshot%202026-08-20%20120108.jpg)
 
 </details>
 
