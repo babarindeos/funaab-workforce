@@ -52,7 +52,7 @@ The Workforce Portal centralizes core HR operations for FUNAAB staff across **tw
 <summary><b>👥 Staff Management (Admin)</b> — click to expand</summary>
 <br>
 
-![Staff Management](docs/screenshots/staff-management.jpg)
+![Staff Management](Workforce/Screenshot%202026-08-20%20120806.jpg)
 
 </details>
 
