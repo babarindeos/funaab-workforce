@@ -30,7 +30,16 @@ The Workforce Portal centralizes core HR operations for FUNAAB staff across **tw
 - Class-based Blade components for consistent, reusable UI
 - Clean `Admin_` / `Staff_` controller separation for maintainability
 
+
 ## 🖼️ Screenshots
+
+<details>
+<summary><b>🔐 Staff Login</b> — click to expand</summary>
+<br>
+
+![Staff Login](Workforce/Screenshot%202026-08-20%20120108.jpg)
+
+</details>
 
 <details>
 <summary><b>📊 Admin Dashboard</b> — click to expand</summary>
@@ -63,17 +72,7 @@ The Workforce Portal centralizes core HR operations for FUNAAB staff across **tw
 ![Circles](Workforce/Screenshot%202026-08-20%20120427.jpg)
 
 </details>
-<br>
 
-
-
-
-<summary><b>👤 Circles (Department Directory)</b> — click to expand</summary>
-<br>
-
-![Circles](docs/screenshots/staff-circles.jpg)
-
-</details>
 
 > Screenshots live in `docs/screenshots/`. Add new ones there and reference them the same way as above.
 
