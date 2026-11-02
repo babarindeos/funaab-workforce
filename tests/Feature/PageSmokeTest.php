@@ -50,4 +50,21 @@ class PageSmokeTest extends TestCase
         $staff = User::forceCreate(['fileno' => 'SP9', 'surname' => 'S', 'firstname' => 'S', 'email' => 's@funaab.test', 'password' => bcrypt('x'), 'role' => 'staff']);
         $this->actingAs($staff)->get('/admin/dashboard')->assertForbidden();
     }
+
+    public function test_real_logins_work_for_staff_admin_and_identity(): void
+    {
+        $this->withoutVite();
+        $pw = bcrypt('Secret#123');
+        $staff = User::forceCreate(['fileno' => 'SP77', 'surname' => 'S', 'firstname' => 'S', 'email' => 'staff@funaab.test', 'password' => $pw, 'role' => 'staff']);
+        $admin = User::forceCreate(['fileno' => 'AD77', 'surname' => 'A', 'firstname' => 'A', 'email' => 'admin@funaab.test', 'password' => $pw, 'role' => 'admin']);
+        $ident = User::forceCreate(['fileno' => 'ID77', 'surname' => 'I', 'firstname' => 'I', 'email' => 'ident@funaab.test', 'password' => $pw, 'role' => 'identity']);
+
+        foreach (['/' => $staff, '/admin' => $admin, '/identity' => $ident] as $url => $user) {
+            $res = $this->post($url, ['email' => $user->email, 'password' => 'Secret#123']);
+            $this->assertLessThan(500, $res->getStatusCode(), "login at {$url}");
+            $this->assertAuthenticatedAs($user);
+            auth()->logout();
+            $this->flushSession();
+        }
+    }
 }
