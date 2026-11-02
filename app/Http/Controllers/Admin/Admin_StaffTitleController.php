@@ -9,6 +9,8 @@ use App\Models\StaffTitle;
 
 class Admin_StaffTitleController extends Controller
 {
+    use \App\Http\Controllers\Concerns\SafeDeletes;
+
     //
     public function index(Request $request)
     {
@@ -116,5 +118,10 @@ class Admin_StaffTitleController extends Controller
         }
 
         return redirect()->back()->with($data);
+    }
+
+    public function destroy(StaffTitle $staff_title)
+    {
+        return $this->safeDelete($staff_title, 'staff title');
     }
 }

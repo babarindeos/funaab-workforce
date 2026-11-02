@@ -4,292 +4,266 @@ namespace App\Http\Controllers\Staff;
 
 use App\Http\Controllers\Controller;
 use App\Models\AperForm;
-use App\Models\AperFormJuniorPersonal;
+use App\Models\AperFormJuniorDifficulty;
 use App\Models\AperFormJuniorDuty;
-use App\Models\AperFormJuniorPerformance;
-use App\Models\AperFormJuniorTrainingNeed;
+use App\Models\AperFormJuniorHealthCenterFrequency;
 use App\Models\AperFormJuniorHodRecommend;
-use App\Models\AperHod;
+use App\Models\AperFormJuniorPeculiarDuty;
+use App\Models\AperFormJuniorPerformance;
+use App\Models\AperFormJuniorPersonal;
+use App\Models\AperFormJuniorQualification;
+use App\Models\AperFormJuniorSanction;
+use App\Models\AperFormJuniorSickLeave;
+use App\Models\AperFormJuniorTrainingNeed;
+use App\Models\AperFormSeniorChallenge;
+use App\Models\AperFormSeniorCommunityService;
+use App\Models\AperFormSeniorConference;
+use App\Models\AperFormSeniorHodRecommend;
+use App\Models\AperFormSeniorOtherActivity;
+use App\Models\AperFormSeniorPerformance;
+use App\Models\AperFormSeniorPersonal;
+use App\Models\AperFormSeniorPositionHeld;
+use App\Models\AperFormSeniorPractical;
+use App\Models\AperFormSeniorPresentJob;
+use App\Models\AperFormSeniorProfessional;
+use App\Models\AperFormSeniorProfessionalAssociation;
+use App\Models\AperFormSeniorPublication;
+use App\Models\AperFormSeniorQualification;
+use App\Models\AperFormSeniorTrainingNeed;
+use App\Models\AperSubmission;
 use App\Models\SalaryLevel;
 use App\Models\SalaryStep;
 use App\Models\Staff;
-use App\Models\StaffCategory;
-use Illuminate\Http\Request;
+use App\Services\AperWorkflow;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Str;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
-use Carbon\Carbon;
 
-use App\Models\AperFormSeniorPositionHeld;
-use App\Models\AperFormSeniorPresentJob;
-use App\Models\AperFormSeniorPersonal;
-use App\Models\AperFormSeniorPerformance;
-use App\Models\AperFormSeniorTrainingNeed;
-use App\Models\AperFormSeniorHodRecommend;
-
+/**
+ * Head of Department assessment.
+ *   Junior: Part C items 17–19 and recommendation 21 (after the Supervisor).
+ *   Senior: Part B items 17–19 and recommendation 21 (after the staff submits).
+ */
 class Staff_HodController extends Controller
 {
-    private function getStaff(): Staff
+    private const GRADES = [5 => '5 — Excellent', 4 => '4 — Very Good', 3 => '3 — Good', 2 => '2 — Fair', 1 => '1 — Poor'];
+
+    public function __construct(private AperWorkflow $wf) {}
+
+    private function records(Staff $me)
     {
-        return Staff::where('staff_no', Auth::user()->fileno)->firstOrFail();
+        $records = $this->wf->hodRecords($me);
+        if ($records->isEmpty()) abort(403, 'You are not assigned as an HOD.');
+        return $records;
     }
 
-    private function getHodRecord(): ?AperHod
+    private function resolve(string $aperForm, string $staff): array
     {
-        $staff = $this->getStaff();
-        return AperHod::where('staff_id', $staff->id)
-                      ->where('is_current', true)
-                      ->first();
+        $form   = AperForm::where('uuid', $aperForm)->firstOrFail();
+        $target = Staff::where('uuid', $staff)
+            ->with(['employment.department', 'employment.staffCategory', 'employment.salaryStep.salaryLevel.salaryStructure'])
+            ->firstOrFail();
+        $this->wf->authorize('hod', $this->wf->currentStaff(), $target);
+        return [$form, $target, $this->wf->submissionFor($form, $target, false)];
     }
 
-    private function juniorCategoryId(): int
+    /** Statuses at which the HOD can act, per form type. */
+    private function hodCanAct(?AperSubmission $sub): bool
     {
-        return StaffCategory::where('category', 'like', '%Junior%')->value('id');
+        if (!$sub) return false;
+        $allowed = $sub->isJunior()
+            ? [AperSubmission::SUPERVISOR_DONE, AperSubmission::HOD_DONE]
+            : [AperSubmission::SUBMITTED, AperSubmission::HOD_DONE];
+        return in_array($sub->status, $allowed, true);
     }
 
-    /**
-     * HOD dashboard — list APER forms.
-     */
+    /** Levels above the staff member's current one, in the same salary structure. */
+    private function promotionLevels(Staff $staff)
+    {
+        $level = $staff->employment?->salaryStep?->salaryLevel;
+        if (!$level) return SalaryLevel::with('salaryStructure')->orderBy('salary_structure_id')->orderBy('level')->get();
+
+        return SalaryLevel::with('salaryStructure')
+            ->where('salary_structure_id', $level->salary_structure_id)
+            ->get()
+            ->filter(fn ($l) => (int) $l->level > (int) $level->level)
+            ->sortBy(fn ($l) => (int) $l->level)->values();
+    }
+
+    // ─────────────────────────────────────────────────────
+    // Lists
+    // ─────────────────────────────────────────────────────
+
     public function index(): View
     {
-        $hod = $this->getHodRecord();
-        if (!$hod) abort(403, 'You are not assigned as an HOD.');
-
+        $me      = $this->wf->currentStaff();
+        $records = $this->records($me);
+        $hod     = $records->first();
         $aperForms = AperForm::orderBy('start_date', 'desc')->get();
 
-        return view('staff.hod.index', compact('aperForms', 'hod'));
+        return view('staff.hod.index', compact('aperForms', 'hod', 'records'));
     }
 
-    /**
-     * List Junior Non-Teaching staff in HOD's department
-     * who have completed Part B.
-     */
     public function staffList(AperForm $aperForm): View
     {
-        $hod           = $this->getHodRecord();
-        $juniorCatId   = $this->juniorCategoryId();
-        $seniorCatId   = StaffCategory::where('category', 'like', '%Senior%')->value('id');
+        $me      = $this->wf->currentStaff();
+        $records = $this->records($me);
+        $hod     = $records->first();
 
-        if (!$hod) abort(403, 'You are not assigned as an HOD.');
+        $staffList = $this->wf->staffInScope($records, $aperForm, ['junior', 'senior'], [
+            AperSubmission::SUBMITTED, AperSubmission::SUPERVISOR_DONE, AperSubmission::HOD_DONE,
+            AperSubmission::STAFF_COMMENTED, AperSubmission::COMPLETED,
+        ], $me)
+            // A junior form reaches the HOD only after the Supervisor.
+            ->reject(fn ($s) => $s->aperSubmission?->isJunior() && $s->aperSubmission->status === AperSubmission::SUBMITTED)
+            ->values();
 
-        // Get both Junior and Senior Non-Teaching staff in department with Part B/A3 submissions
-        $staffList = Staff::whereHas('employment', function ($q) use ($hod, $juniorCatId, $seniorCatId) {
-                        $q->where('department_id', $hod->department_id)
-                          ->whereIn('staff_category_id', [$juniorCatId, $seniorCatId]);
-                    })
-                    ->with(['employment.department', 'employment.staffCategory'])
-                    ->get()
-                    ->filter(function ($s) use ($aperForm, $juniorCatId) {
-                        $catId = $s->employment?->staff_category_id;
-                        if ($catId == $juniorCatId) {
-                            return AperFormJuniorDuty::where('aper_form_id', $aperForm->id)
-                                       ->where('staff_id', $s->id)->exists();
-                        }
-                        // Senior — check Part A3 submission exists
-                        return AperFormSeniorPositionHeld::where('aper_form_id', $aperForm->id)
-                                   ->where('staff_id', $s->id)->exists()
-                            || AperFormSeniorPresentJob::where('aper_form_id', $aperForm->id)
-                                   ->where('staff_id', $s->id)->exists();
-                    });
+        $assessedJuniorIds = $staffList->filter(fn ($s) => $s->aperSubmission?->isJunior() && $s->aperSubmission->reached(AperSubmission::HOD_DONE))->pluck('id')->all();
+        $assessedSeniorIds = $staffList->filter(fn ($s) => $s->aperSubmission?->isSenior() && $s->aperSubmission->reached(AperSubmission::HOD_DONE))->pluck('id')->all();
 
-        $assessedJuniorIds = AperFormJuniorPerformance::where('aper_form_id', $aperForm->id)
-                                 ->pluck('staff_id')->toArray();
-        $assessedSeniorIds = AperFormSeniorPerformance::where('aper_form_id', $aperForm->id)
-                                 ->pluck('staff_id')->toArray();
-
-        return view('staff.hod.staff_list', compact(
-            'aperForm', 'hod', 'staffList',
-            'assessedJuniorIds', 'assessedSeniorIds', 'juniorCatId'
-        ));
+        return view('staff.hod.staff_list', compact('aperForm', 'hod', 'records', 'staffList', 'assessedJuniorIds', 'assessedSeniorIds'));
     }
 
-    /**
-     * Show the HOD assessment form for a specific staff member.
-     */
+    // ─────────────────────────────────────────────────────
+    // Junior
+    // ─────────────────────────────────────────────────────
+
     public function assess(string $aperForm, string $staff): View
     {
-        //dd($aperForm);
-        $aperForm = AperForm::where('uuid', $aperForm)->firstOrFail();
-        $staff    = Staff::where('uuid', $staff)->firstOrFail();
+        [$aperForm, $staff, $sub] = $this->resolve($aperForm, $staff);
+        if (!$sub || !$sub->isJunior() || !$sub->reached(AperSubmission::SUPERVISOR_DONE)) {
+            abort(403, 'This form is not yet ready for the HOD (the Supervisor must complete items 15–16 first).');
+        }
 
+        $key            = ['aper_form_id' => $aperForm->id, 'staff_id' => $staff->id];
+        $performance    = AperFormJuniorPerformance::where($key)->first();
+        $trainingNeed   = AperFormJuniorTrainingNeed::where($key)->first();
+        $recommendation = AperFormJuniorHodRecommend::where($key)->first();
+        $personalInfo   = AperFormJuniorPersonal::where($key)->first();
+        $sickLeave      = AperFormJuniorSickLeave::where($key)->first();
+        $frequency      = AperFormJuniorHealthCenterFrequency::where($key)->first();
+        $sanctions      = AperFormJuniorSanction::where($key)->get();
 
-        $hod     = $this->getHodRecord();
-        $hodStaff = $this->getStaff();
-
-        if (!$hod) abort(403, 'You are not assigned as an HOD.');
-
-        $performance  = AperFormJuniorPerformance::where('aper_form_id', $aperForm->id)
-                            ->where('staff_id', $staff->id)
-                            ->first();
-
-        $trainingNeed = AperFormJuniorTrainingNeed::where('aper_form_id', $aperForm->id)
-                            ->where('staff_id', $staff->id)
-                            ->first();
-
-        $recommendation = AperFormJuniorHodRecommend::where('aper_form_id', $aperForm->id)
-                              ->where('staff_id', $staff->id)
-                              ->first();
-
-        $isOpen      = Carbon::today()->between($aperForm->start_date, $aperForm->end_date);
-        $hasExisting = $performance !== null;
-        $salaryLevels = SalaryLevel::orderBy('id')->get();
-        $salarySteps  = SalaryStep::orderBy('id')->get();
-
-        $grades = [5 => '5 — Excellent', 4 => '4 — Very Good', 3 => '3 — Good', 2 => '2 — Fair', 1 => '1 — Poor'];
-
-        // Staff's Part A personal info for display
-        $personalInfo = AperFormJuniorPersonal::where('aper_form_id', $aperForm->id)
-                            ->where('staff_id', $staff->id)
-                            ->first();
+        $hod          = $this->wf->hodRecords($this->wf->currentStaff())->first();
+        $isOpen       = $this->wf->isWindowOpen($aperForm) && $this->hodCanAct($sub);
+        $hasExisting  = $performance !== null;
+        $salaryLevels = $this->promotionLevels($staff);
+        $salarySteps  = SalaryStep::where('salary_level_id', $staff->employment?->salaryStep?->salary_level_id)->orderBy('step')->get();
+        $grades       = self::GRADES;
+        $punctualityMin = config('aper.punctuality_min_percent', 70);
 
         return view('staff.hod.assess', compact(
-            'aperForm', 'staff', 'hod',
-            'performance', 'trainingNeed', 'recommendation',
-            'isOpen', 'hasExisting', 'grades',
-            'salaryLevels', 'salarySteps', 'personalInfo'
+            'aperForm', 'staff', 'hod', 'performance', 'trainingNeed', 'recommendation',
+            'isOpen', 'hasExisting', 'grades', 'salaryLevels', 'salarySteps', 'personalInfo',
+            'sickLeave', 'frequency', 'sanctions', 'sub', 'punctualityMin'
         ));
     }
 
-    /**
-     * Store the HOD's assessment.
-     */
     public function storeAssessment(Request $request, string $aperForm, string $staff): RedirectResponse
     {
+        [$aperForm, $staff, $sub] = $this->resolve($aperForm, $staff);
+        $me = $this->wf->currentStaff();
 
-        $aperForm = AperForm::where('uuid', $aperForm)->firstOrFail();
-        $staff    = Staff::where('uuid', $staff)->firstOrFail();
-
-        if (!Carbon::today()->between($aperForm->start_date, $aperForm->end_date)) {
-            return back()->with('error', 'This APER form is closed.');
+        if (!$this->wf->isWindowOpen($aperForm)) return back()->with('error', 'This APER form is closed.');
+        if (!$sub || !$sub->isJunior() || !$this->hodCanAct($sub)) {
+            return back()->with('error', 'This form is not awaiting the HOD (or the staff member has already commented).');
         }
 
-        $hodStaff = $this->getStaff();
-        $hod      = $this->getHodRecord();
-
-        if (!$hod) abort(403, 'You are not assigned as an HOD.');
-
-        $request->validate([
-            // Item 17 — Performance
-            'punctuality'           => ['required', 'integer', 'between:1,5'],
-            'initiative'            => ['required', 'integer', 'between:1,5'],
-            'interpersonal'         => ['required', 'integer', 'between:1,5'],
-            'responsibility'        => ['required', 'integer', 'between:1,5'],
-            'organisational_ability'=> ['required', 'integer', 'between:1,5'],
-            'work_quality'          => ['required', 'integer', 'between:1,5'],
-            'general_remarks'       => ['required', 'string', 'max:2000'],
-
-            // Item 19 — Training Needs
-            'need_training'         => ['nullable', 'string', 'max:2000'],
-            'other_needs'           => ['nullable', 'string', 'max:2000'],
-
-            // Item 21 — Recommendation (HOD only)
+        $data = $request->validate([
+            'punctuality'               => ['required', 'integer', 'between:1,5'],
+            'initiative'                => ['required', 'integer', 'between:1,5'],
+            'interpersonal'             => ['required', 'integer', 'between:1,5'],
+            'responsibility'            => ['required', 'integer', 'between:1,5'],
+            'organisational_ability'    => ['required', 'integer', 'between:1,5'],
+            'work_quality'              => ['required', 'integer', 'between:1,5'],
+            'general_remarks'           => ['required', 'string', 'max:2000'],
+            'need_training'             => ['nullable', 'string', 'max:2000'],
+            'other_needs'               => ['nullable', 'string', 'max:2000'],
             'promotion_salary_level_id' => ['nullable', 'exists:salary_levels,id'],
+            'increment_steps'           => ['nullable', 'integer', 'between:1,5'],
             'salary_increment_id'       => ['nullable', 'exists:salary_steps,id'],
             'no_salary_increment'       => ['nullable', 'string', 'max:2000'],
         ]);
 
-        // Upsert performance (item 17 + 18)
-        AperFormJuniorPerformance::updateOrCreate(
-            ['aper_form_id' => $aperForm->id, 'staff_id' => $staff->id],
-            [
-                'uuid'                  => Str::uuid(),
-                'punctuality'           => $request->punctuality,
-                'initiative'            => $request->initiative,
-                'interpersonal'         => $request->interpersonal,
-                'responsibility'        => $request->responsibility,
-                'organisational_ability'=> $request->organisational_ability,
-                'work_quality'          => $request->work_quality,
-                'general_remarks'       => $request->general_remarks,
-                'assessor'              => $hodStaff->id,
-            ]
-        );
+        $this->checkRecommendation($data, 'promotion_salary_level_id');
+        $key = ['aper_form_id' => $aperForm->id, 'staff_id' => $staff->id];
 
-        // Upsert training needs (item 19)
-        AperFormJuniorTrainingNeed::updateOrCreate(
-            ['aper_form_id' => $aperForm->id, 'staff_id' => $staff->id],
-            [
-                'uuid'         => Str::uuid(),
-                'need_training'=> $request->need_training,
-                'other_needs'  => $request->other_needs,
-                'assessor'     => $hodStaff->id,
-            ]
-        );
+        DB::transaction(function () use ($data, $key, $me, $sub) {
+            AperFormJuniorPerformance::updateOrCreate($key, [
+                'punctuality'            => $data['punctuality'],
+                'initiative'             => $data['initiative'],
+                'interpersonal'          => $data['interpersonal'],
+                'responsibility'         => $data['responsibility'],
+                'organisational_ability' => $data['organisational_ability'],
+                'work_quality'           => $data['work_quality'],
+                'general_remarks'        => $data['general_remarks'],
+                'assessor'               => $me->id,
+            ]);
+            AperFormJuniorTrainingNeed::updateOrCreate($key, [
+                'need_training' => $data['need_training'] ?? null,
+                'other_needs'   => $data['other_needs'] ?? null,
+                'assessor'      => $me->id,
+            ]);
+            AperFormJuniorHodRecommend::updateOrCreate($key, [
+                'promotion_salary_level_id' => $data['promotion_salary_level_id'] ?? null,
+                'increment_steps'           => $data['increment_steps'] ?? null,
+                'salary_increment_id'       => $data['salary_increment_id'] ?? null,
+                'no_salary_increment'       => $data['no_salary_increment'] ?? null,
+                'hod'                       => $me->id,
+            ]);
+            $this->markHodDone($sub, $me, !empty($data['promotion_salary_level_id']), (int) $data['punctuality']);
+        });
 
-        // Upsert HOD recommendation (item 21 — NOT shown to staff)
-        AperFormJuniorHodRecommend::updateOrCreate(
-            ['aper_form_id' => $aperForm->id, 'staff_id' => $staff->id],
-            [
-                'uuid'                      => Str::uuid(),
-                'promotion_salary_level_id' => $request->promotion_salary_level_id,
-                'salary_increment_id'       => $request->salary_increment_id,
-                'no_salary_increment'       => $request->no_salary_increment,
-                'hod'                       => $hodStaff->id,
-            ]
-        );
-
-        return redirect()
-            ->route('staff.hod.staff_list', $aperForm->uuid)
-            ->with('success', "Assessment for {$staff->surname}, {$staff->firstname} submitted successfully.");
+        return redirect()->route('staff.hod.staff_list', $aperForm->uuid)
+            ->with('success', "Assessment for {$staff->surname}, {$staff->firstname} submitted and signed.");
     }
 
+    // ─────────────────────────────────────────────────────
+    // Senior
+    // ─────────────────────────────────────────────────────
 
-     /**
-     * Show HOD assessment form for Senior Non-Teaching staff.
-     */
     public function assessSenior(string $aperForm, string $staff): View
     {
-        $aperForm = AperForm::where('uuid', $aperForm)->firstOrFail();
-        $staff    = Staff::where('uuid', $staff)->firstOrFail();
+        [$aperForm, $staff, $sub] = $this->resolve($aperForm, $staff);
+        if (!$sub || !$sub->isSenior() || !$sub->reached(AperSubmission::SUBMITTED)) {
+            abort(403, 'This staff member has not submitted the APER form yet.');
+        }
 
+        $key            = ['aper_form_id' => $aperForm->id, 'staff_id' => $staff->id];
+        $performance    = AperFormSeniorPerformance::where($key)->first();
+        $trainingNeed   = AperFormSeniorTrainingNeed::where($key)->first();
+        $recommendation = AperFormSeniorHodRecommend::where($key)->first();
+        $personalInfo   = AperFormSeniorPersonal::where($key)->first();
 
-        $hod     = $this->getHodRecord();
-        $hodStaff = $this->getStaff();
-        if (!$hod) abort(403, 'You are not assigned as an HOD.');
-
-        $performance  = AperFormSeniorPerformance::where('aper_form_id', $aperForm->id)
-                            ->where('staff_id', $staff->id)->first();
-        $trainingNeed = AperFormSeniorTrainingNeed::where('aper_form_id', $aperForm->id)
-                            ->where('staff_id', $staff->id)->first();
-        $recommendation = AperFormSeniorHodRecommend::where('aper_form_id', $aperForm->id)
-                              ->where('staff_id', $staff->id)->first();
-
-        $personalInfo = AperFormSeniorPersonal::where('aper_form_id', $aperForm->id)
-                            ->where('staff_id', $staff->id)->first();
-
-        $isOpen      = Carbon::today()->between($aperForm->start_date, $aperForm->end_date);
-        $hasExisting = $performance !== null;
-        $salaryLevels = SalaryLevel::orderBy('id')->get();
-        $salarySteps  = SalaryStep::orderBy('id')->get();
-        $grades       = [5=>'5 — Excellent', 4=>'4 — Very Good', 3=>'3 — Good', 2=>'2 — Fair', 1=>'1 — Poor'];
+        $hod          = $this->wf->hodRecords($this->wf->currentStaff())->first();
+        $isOpen       = $this->wf->isWindowOpen($aperForm) && $this->hodCanAct($sub);
+        $hasExisting  = $performance !== null;
+        $salaryLevels = $this->promotionLevels($staff);
+        $salarySteps  = SalaryStep::where('salary_level_id', $staff->employment?->salaryStep?->salary_level_id)->orderBy('step')->get();
+        $grades       = self::GRADES;
+        $punctualityMin = config('aper.punctuality_min_percent', 70);
 
         return view('staff.hod.senior_assess', compact(
-            'aperForm', 'staff', 'hod',
-            'performance', 'trainingNeed', 'recommendation',
-            'personalInfo', 'isOpen', 'hasExisting',
-            'grades', 'salaryLevels', 'salarySteps'
+            'aperForm', 'staff', 'hod', 'performance', 'trainingNeed', 'recommendation',
+            'personalInfo', 'isOpen', 'hasExisting', 'grades', 'salaryLevels', 'salarySteps', 'sub', 'punctualityMin'
         ));
     }
 
-    /**
-     * Store HOD assessment for Senior Non-Teaching staff.
-     */
     public function storeAssessmentSenior(Request $request, string $aperForm, string $staff): RedirectResponse
     {
-        $aperForm = AperForm::where('uuid', $aperForm)->firstOrFail();
-        $staff    = Staff::where('uuid', $staff)->firstOrFail();
+        [$aperForm, $staff, $sub] = $this->resolve($aperForm, $staff);
+        $me = $this->wf->currentStaff();
 
-        if (!Carbon::today()->between($aperForm->start_date, $aperForm->end_date)) {
-            return back()->with('error', 'This APER form is closed.');
+        if (!$this->wf->isWindowOpen($aperForm)) return back()->with('error', 'This APER form is closed.');
+        if (!$sub || !$sub->isSenior() || !$this->hodCanAct($sub)) {
+            return back()->with('error', 'This form is not awaiting the HOD (or the staff member has already commented).');
         }
 
-        $hodStaff = $this->getStaff();
-        $hod      = $this->getHodRecord();
-        if (!$hod) abort(403, 'You are not assigned as an HOD.');
-
-        $request->validate([
+        $data = $request->validate([
             'report_agreement'         => ['required', 'boolean'],
-            'report_agreement_comment' => ['nullable', 'string', 'max:2000'],
+            'report_agreement_comment' => ['nullable', 'string', 'max:2000', 'required_if:report_agreement,0'],
             'punctuality'              => ['required', 'integer', 'between:1,5'],
             'initiative'               => ['required', 'integer', 'between:1,5'],
             'expression'               => ['required', 'integer', 'between:1,5'],
@@ -303,120 +277,123 @@ class Staff_HodController extends Controller
             'need_training'            => ['nullable', 'string', 'max:2000'],
             'other_needs'              => ['nullable', 'string', 'max:2000'],
             'promotion_level_id'       => ['nullable', 'exists:salary_levels,id'],
+            'increment_steps'          => ['nullable', 'integer', 'between:1,5'],
             'salary_increment_id'      => ['nullable', 'exists:salary_steps,id'],
             'no_salary_increment'      => ['nullable', 'string', 'max:2000'],
-        ]);
+        ], ['report_agreement_comment.required_if' => 'Record the unresolved differences on the job description (item 17).']);
 
-        // Upsert performance (items 17 + 18)
-        AperFormSeniorPerformance::updateOrCreate(
-            ['aper_form_id' => $aperForm->id, 'staff_id' => $staff->id],
-            [
-                'uuid'                     => Str::uuid(),
-                'report_agreement'         => $request->report_agreement,
-                'report_agreement_comment' => $request->report_agreement_comment,
-                'punctuality'              => $request->punctuality,
-                'initiative'               => $request->initiative,
-                'expression'               => $request->expression,
-                'interpersonal'            => $request->interpersonal,
-                'responsibility'           => $request->responsibility,
-                'competence'               => $request->competence,
-                'organisational_ability'   => $request->organisational_ability,
-                'work_quality'             => $request->work_quality,
-                'special_responsibility'   => $request->special_responsibility,
-                'general_remarks'          => $request->general_remarks,
-                'assessor'                 => $hodStaff->id,
-            ]
-        );
+        $this->checkRecommendation($data, 'promotion_level_id');
+        $key = ['aper_form_id' => $aperForm->id, 'staff_id' => $staff->id];
 
-        // Upsert training needs (item 19)
-        AperFormSeniorTrainingNeed::updateOrCreate(
-            ['aper_form_id' => $aperForm->id, 'staff_id' => $staff->id],
-            [
-                'uuid'         => Str::uuid(),
-                'need_training'=> $request->need_training,
-                'other_needs'  => $request->other_needs,
-                'assessor'     => $hodStaff->id,
-            ]
-        );
+        DB::transaction(function () use ($data, $key, $me, $sub) {
+            AperFormSeniorPerformance::updateOrCreate($key, collect($data)->only([
+                'report_agreement', 'report_agreement_comment', 'punctuality', 'initiative', 'expression',
+                'interpersonal', 'responsibility', 'competence', 'organisational_ability', 'work_quality',
+                'special_responsibility', 'general_remarks',
+            ])->all() + ['assessor' => $me->id]);
 
-        // Upsert HOD recommendation (item 21 — NOT shown to staff)
-        AperFormSeniorHodRecommend::updateOrCreate(
-            ['aper_form_id' => $aperForm->id, 'staff_id' => $staff->id],
-            [
-                'uuid'               => Str::uuid(),
-                'promotion_level_id' => $request->promotion_level_id,
-                'salary_increment_id'=> $request->salary_increment_id,
-                'no_salary_increment'=> $request->no_salary_increment,
-                'hod'                => $hodStaff->id,
-            ]
-        );
+            AperFormSeniorTrainingNeed::updateOrCreate($key, [
+                'need_training' => $data['need_training'] ?? null,
+                'other_needs'   => $data['other_needs'] ?? null,
+                'assessor'      => $me->id,
+            ]);
+            AperFormSeniorHodRecommend::updateOrCreate($key, [
+                'promotion_level_id'  => $data['promotion_level_id'] ?? null,
+                'increment_steps'     => $data['increment_steps'] ?? null,
+                'salary_increment_id' => $data['salary_increment_id'] ?? null,
+                'no_salary_increment' => $data['no_salary_increment'] ?? null,
+                'hod'                 => $me->id,
+            ]);
+            $this->markHodDone($sub, $me, !empty($data['promotion_level_id']), (int) $data['punctuality']);
+        });
 
-        return redirect()
-            ->route('staff.hod.staff_list', $aperForm->uuid)
-            ->with('success', "Assessment for {$staff->surname}, {$staff->firstname} submitted successfully.");
+        return redirect()->route('staff.hod.staff_list', $aperForm->uuid)
+            ->with('success', "Assessment for {$staff->surname}, {$staff->firstname} submitted and signed.");
     }
 
+    // ─────────────────────────────────────────────────────
+    // Shared rules
+    // ─────────────────────────────────────────────────────
 
-    public function viewSeniorSubmission(string $aperForm, string $staff): \Illuminate\View\View
+    /**
+     * Item 21 must contain a recommendation, and the 70% punctuality rule
+     * removes promotion/increment eligibility.
+     */
+    private function checkRecommendation(array $data, string $promotionField): void
     {
-        
-        $aperForm = AperForm::where('uuid', $aperForm)->firstOrFail();
-        $staff    = Staff::where('uuid', $staff)->firstOrFail();
+        $promotion = !empty($data[$promotionField]);
+        $increment = !empty($data['increment_steps']) || !empty($data['salary_increment_id']);
+        $none      = filled($data['no_salary_increment'] ?? null);
 
-        
-        $hod = $this->getHodRecord();
-        if (!$hod) abort(403, 'You are not assigned as an HOD.');
+        if (!$promotion && !$increment && !$none) {
+            throw ValidationException::withMessages([
+                'no_salary_increment' => 'Item 21: recommend promotion, a salary increment, or give detailed reasons for no salary increment.',
+            ]);
+        }
 
-        $personal          = \App\Models\AperFormSeniorPersonal::where('aper_form_id', $aperForm->id)->where('staff_id', $staff->id)->with(['maritalStatus','division','department'])->first();
-        $conferences       = \App\Models\AperFormSeniorConference::where('aper_form_id', $aperForm->id)->where('staff_id', $staff->id)->get();
-        $qualifications    = \App\Models\AperFormSeniorQualification::where('aper_form_id', $aperForm->id)->where('staff_id', $staff->id)->get();
-        $professionals     = \App\Models\AperFormSeniorProfessional::where('aper_form_id', $aperForm->id)->where('staff_id', $staff->id)->get();
-        $associations      = \App\Models\AperFormSeniorProfessionalAssociation::where('aper_form_id', $aperForm->id)->where('staff_id', $staff->id)->get();
-        $positions         = \App\Models\AperFormSeniorPositionHeld::where('aper_form_id', $aperForm->id)->where('staff_id', $staff->id)->get();
-        $presentJobs       = \App\Models\AperFormSeniorPresentJob::where('aper_form_id', $aperForm->id)->where('staff_id', $staff->id)->get();
-        $practicals        = \App\Models\AperFormSeniorPractical::where('aper_form_id', $aperForm->id)->where('staff_id', $staff->id)->get();
-        $publications      = \App\Models\AperFormSeniorPublication::where('aper_form_id', $aperForm->id)->where('staff_id', $staff->id)->get();
-        $activities        = \App\Models\AperFormSeniorOtherActivity::where('aper_form_id', $aperForm->id)->where('staff_id', $staff->id)->get();
-        $communityServices = \App\Models\AperFormSeniorCommunityService::where('aper_form_id', $aperForm->id)->where('staff_id', $staff->id)->get();
-        $challenges        = \App\Models\AperFormSeniorChallenge::where('aper_form_id', $aperForm->id)->where('staff_id', $staff->id)->get();
+        if ($this->wf->punctualityOk((int) $data['punctuality']) === false && ($promotion || $increment)) {
+            $min = config('aper.punctuality_min_percent', 70);
+            throw ValidationException::withMessages([
+                $promotionField => "A staff member who did not obtain at least {$min}% in punctuality is not eligible for promotion or an annual salary increment. Choose \"No salary increment\" and give reasons.",
+            ]);
+        }
+    }
+
+    private function markHodDone(AperSubmission $sub, Staff $me, bool $recommendedForPromotion, int $punctuality): void
+    {
+        $sub->update([
+            'status'                    => AperSubmission::HOD_DONE,
+            'hod_staff_id'              => $me->id,
+            'hod_signed_at'             => now(),
+            'recommended_for_promotion' => $recommendedForPromotion,
+            'punctuality_ok'            => $this->wf->punctualityOk($punctuality),
+        ]);
+    }
+
+    // ─────────────────────────────────────────────────────
+    // Read-only views of the staff member's own parts
+    // ─────────────────────────────────────────────────────
+
+    public function viewSeniorSubmission(string $aperForm, string $staff): View
+    {
+        [$aperForm, $staff] = $this->resolve($aperForm, $staff);
+        $key = ['aper_form_id' => $aperForm->id, 'staff_id' => $staff->id];
+
+        $personal          = AperFormSeniorPersonal::where($key)->with(['maritalStatus', 'division', 'department'])->first();
+        $conferences       = AperFormSeniorConference::where($key)->get();
+        $qualifications    = AperFormSeniorQualification::where($key)->get();
+        $professionals     = AperFormSeniorProfessional::where($key)->get();
+        $associations      = AperFormSeniorProfessionalAssociation::where($key)->get();
+        $positions         = AperFormSeniorPositionHeld::where($key)->get();
+        $presentJobs       = AperFormSeniorPresentJob::where($key)->get();
+        $practicals        = AperFormSeniorPractical::where($key)->get();
+        $publications      = AperFormSeniorPublication::where($key)->get();
+        $activities        = AperFormSeniorOtherActivity::where($key)->get();
+        $communityServices = AperFormSeniorCommunityService::where($key)->get();
+        $challenges        = AperFormSeniorChallenge::where($key)->get();
         $backRoute         = route('staff.hod.staff_list', $aperForm->uuid);
 
         return view('staff.hod.senior_submission', compact(
-            'aperForm', 'staff', 'personal', 'conferences',
-            'qualifications', 'professionals', 'associations',
-            'positions', 'presentJobs', 'practicals', 'publications',
-            'activities', 'communityServices', 'challenges', 'backRoute'
+            'aperForm', 'staff', 'personal', 'conferences', 'qualifications', 'professionals', 'associations',
+            'positions', 'presentJobs', 'practicals', 'publications', 'activities', 'communityServices',
+            'challenges', 'backRoute'
         ));
     }
 
-
-    public function viewJuniorSubmission(string $aperForm, string $staff): \Illuminate\View\View
+    public function viewJuniorSubmission(string $aperForm, string $staff): View
     {
-        
-        $aperForm = AperForm::where('uuid', $aperForm)->firstOrFail();
-        $staff    = Staff::where('uuid', $staff)->firstOrFail();
-        
-        $hod = $this->getHodRecord();
-        if (!$hod) abort(403, 'You are not assigned as an HOD.');
+        [$aperForm, $staff] = $this->resolve($aperForm, $staff);
+        $key = ['aper_form_id' => $aperForm->id, 'staff_id' => $staff->id];
 
-        $personal       = \App\Models\AperFormJuniorPersonal::where('aper_form_id', $aperForm->id)
-                            ->where('staff_id', $staff->id)
-                            ->with(['maritalStatus','division','department'])
-                            ->first();
-        $qualifications = \App\Models\AperFormJuniorQualification::where('aper_form_id', $aperForm->id)
-                            ->where('staff_id', $staff->id)->get();
-        $duties         = \App\Models\AperFormJuniorDuty::where('aper_form_id', $aperForm->id)
-                            ->where('staff_id', $staff->id)->get();
-        $difficulties   = \App\Models\AperFormJuniorDifficulty::where('aper_form_id', $aperForm->id)
-                            ->where('staff_id', $staff->id)->get();
-        $peculiarDuties = \App\Models\AperFormJuniorPeculiarDuty::where('aper_form_id', $aperForm->id)
-                            ->where('staff_id', $staff->id)->get();
+        $personal       = AperFormJuniorPersonal::where($key)->with(['maritalStatus', 'division', 'department'])->first();
+        $qualifications = AperFormJuniorQualification::where($key)->get();
+        $duties         = AperFormJuniorDuty::where($key)->get();
+        $difficulties   = AperFormJuniorDifficulty::where($key)->get();
+        $peculiarDuties = AperFormJuniorPeculiarDuty::where($key)->get();
         $backRoute      = route('staff.hod.staff_list', $aperForm->uuid);
 
         return view('staff.hod.junior_submission', compact(
-            'aperForm','staff','personal','qualifications',
-            'duties','difficulties','peculiarDuties','backRoute'
+            'aperForm', 'staff', 'personal', 'qualifications', 'duties', 'difficulties', 'peculiarDuties', 'backRoute'
         ));
     }
-
 }

@@ -7,6 +7,7 @@ use Illuminate\Support\Str;
 
 class AperSupervisor extends Model
 {
+    use \App\Models\Concerns\HasUuid;
     protected $table = 'aper_supervisors';
 
     protected $fillable = ['uuid', 'department_id', 'staff_id', 'is_current'];

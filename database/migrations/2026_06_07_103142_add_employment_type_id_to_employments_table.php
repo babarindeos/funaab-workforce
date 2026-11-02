@@ -11,6 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // Guard: column may already exist (created in the base migration or added manually on live).
+        if (Schema::hasColumn('employments', 'employment_type_id')) {
+            return;
+        }
+
         Schema::table('employments', function (Blueprint $table) {
             //
             $table->unsignedBigInteger('employment_type_id')->nullable()->after('staff_category_id');
@@ -23,10 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('employments', function (Blueprint $table) {
-            //
-            $table->dropForeign(['employment_type_id']);
-            $table->dropColumn('employment_type_id');
-        });
+        // No-op: the column belongs to the base create_* migration.
     }
 };

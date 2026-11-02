@@ -9,6 +9,8 @@ use App\Models\ContactType;
 
 class Admin_ContactTypeController extends Controller
 {
+    use \App\Http\Controllers\Concerns\SafeDeletes;
+
     //
     public function index(Request $request)
     {
@@ -132,4 +134,8 @@ class Admin_ContactTypeController extends Controller
 
     }
 
+    public function destroy(ContactType $contact_type)
+    {
+        return $this->safeDelete($contact_type, 'contact type');
+    }
 }

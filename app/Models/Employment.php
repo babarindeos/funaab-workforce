@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Employment extends Model
 {
+    use \App\Models\Concerns\HasUuid;
     use HasFactory;
 
     protected $fillable = [

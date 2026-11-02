@@ -30,26 +30,45 @@ use Carbon\Carbon;
 use App\Models\AperFormSeniorPerformance;
 use App\Models\AperFormSeniorTrainingNeed;
 use App\Models\AperFormSeniorStaffComment;
-use App\Models\AperHod;
+use App\Models\AperSubmission;
+use App\Services\AperWorkflow;
+use Illuminate\Support\Facades\DB;
 
 class Staff_AperSeniorController extends Controller
 {
+    public function __construct(private AperWorkflow $wf) {}
+
     private function getStaff(): Staff
     {
-        return Staff::where('staff_no', Auth::user()->fileno)
-                    ->with(['employment.staffCategory', 'employment.division', 'employment.department'])
-                    ->firstOrFail();
+        return $this->wf->currentStaff();
     }
 
-    private function isOpen(AperForm $f): bool
+    private function submission(AperForm $f, Staff $staff, bool $create = false): ?AperSubmission
     {
-        return Carbon::today()->between($f->start_date, $f->end_date);
+        return $this->wf->submissionFor($f, $staff, $create);
     }
 
-    private function guardOpen(AperForm $f): ?RedirectResponse
+    /** Staff may edit Part A only while the window is open and the form is still a draft. */
+    private function canEdit(AperForm $f, Staff $staff): bool
     {
-        if (!$this->isOpen($f)) {
-            return redirect()->back()->with('error', 'This APER form is closed and can no longer be submitted.');
+        return $this->wf->staffCanEdit($f, $this->submission($f, $staff));
+    }
+
+    /** The Senior pages are only for staff whose form type is "senior". */
+    private function ensureSenior(AperForm $f, Staff $staff): void
+    {
+        $type = $this->submission($f, $staff)?->form_type ?? $this->wf->formTypeFor($staff);
+        if ($type !== 'senior') {
+            abort(redirect()->route('staff.aper.open', $f->uuid));
+        }
+    }
+
+    private function guardEditable(AperForm $f, Staff $staff): ?RedirectResponse
+    {
+        $this->ensureSenior($f, $staff);
+        $this->submission($f, $staff, true);
+        if (!$this->canEdit($f, $staff)) {
+            return redirect()->back()->with('error', 'This APER form is closed or already submitted, so it can no longer be changed.');
         }
         return null;
     }
@@ -58,21 +77,11 @@ class Staff_AperSeniorController extends Controller
     // PART A — STEP 1: PERSONAL
     // ═══════════════════════════════════════════════════════
 
-    private function calculateRetirementDate(string $dob): string
-    {       
-
-        $category = strtolower(trim(
-            $this->getStaff()->employment?->staffCategory?->category ?? ''
-        ));
-
-        $years = str_contains($category, 'academic') ? 70 : 65;
-
-        return \Carbon\Carbon::parse($dob)->addYears($years)->format('Y-m-d');
-    }
 
     public function showPartA1(AperForm $aperForm): View|RedirectResponse
     {
         $staff    = $this->getStaff();
+        $this->ensureSenior($aperForm, $staff);
         $today    = Carbon::today();
         $isOpen   = $today->between($aperForm->start_date, $aperForm->end_date);
         $isClosed = $today->gt($aperForm->end_date);
@@ -84,7 +93,10 @@ class Staff_AperSeniorController extends Controller
             return view('staff.aper.no_submission', compact('aperForm'));
         }
 
-        $readonly        = !$isOpen;
+        $readonly        = !$this->canEdit($aperForm, $staff);
+        $submission      = $this->submission($aperForm, $staff);
+        $lastPromotion   = $this->wf->lastPromotion($staff);
+        $gradeText       = $this->wf->gradeLevelText($staff);
         $profile         = Auth::user()->profile;
         $employment      = $staff->employment;
         $maritalStatuses = MaritalStatus::orderBy('status')->get();
@@ -94,13 +106,12 @@ class Staff_AperSeniorController extends Controller
             ? AperFormSeniorConference::where('aper_form_id', $aperForm->id)->where('staff_id', $staff->id)->get()
             : collect();
 
-        $retirementDate = $this->calculateRetirementDate($staff->dob->format('Y-m-d'));
-        
+        $retirementDate = $this->wf->retirementDate($staff);
 
-        
         return view('staff.aper.senior.part_a1_personal', compact(
             'aperForm','staff','profile','employment','existing',
-            'readonly','maritalStatuses','divisions','departments','conferences', 'retirementDate'
+            'readonly','maritalStatuses','divisions','departments','conferences', 'retirementDate',
+            'submission','lastPromotion','gradeText'
         ));
     }
 
@@ -108,10 +119,8 @@ class Staff_AperSeniorController extends Controller
 
     public function storePartA1(Request $request, AperForm $aperForm): RedirectResponse
     {
-        if ($redirect = $this->guardOpen($aperForm)) return $redirect;
-
-            
             $staff = $this->getStaff();
+            if ($redirect = $this->guardEditable($aperForm, $staff)) return $redirect;
 
             $validated = $request->validate([
                 'children'                   => ['required', 'string', 'max:255'],
@@ -123,44 +132,38 @@ class Staff_AperSeniorController extends Controller
                 'conferences.*'              => ['nullable', 'string', 'max:500'],
             ]);
 
-            // Pull from Staff model
-            $validated['surname']          = $staff->surname;
-            $validated['firstname']        = $staff->firstname;
-            $validated['middlename']       = $staff->othernames;
-            $validated['dob']              = $staff->dob->format('Y-m-d');
-            $validated['retirement_date']  = $this->calculateRetirementDate($staff->dob->format('Y-m-d'));
-            $validated['email_address']    = Auth::user()->email;
-            $validated['marital_status_id']= $staff->marital_status_id;
+            $emp   = $staff->employment;
+            $promo = $this->wf->lastPromotion($staff);
 
-            // Pull from Employment
-            $validated['division_id']      = $staff->employment?->division_id;
-            $validated['department_id']    = $staff->employment?->department_id;
+            $personal = collect($validated)->except('conferences')->toArray() + [
+                'surname'                    => $staff->surname,
+                'firstname'                  => $staff->firstname,
+                'middlename'                 => $staff->othernames,
+                'dob'                        => $staff->dob?->format('Y-m-d'),
+                'retirement_date'            => $this->wf->retirementDate($staff),
+                'email_address'              => Auth::user()->email,
+                'marital_status_id'          => $staff->marital_status_id,
+                'division_id'                => $emp?->division_id,
+                'department_id'              => $emp?->department_id,
+                'date_first_appointment'     => $emp?->date_funaab_first_appointment?->format('Y-m-d'),
+                'post_first_appointment'     => $emp?->first_appointment_post,
+                'date_last_appointment'      => $promo['date'],
+                'post_last_appointment'      => $promo['post'],
+                'present_grade_level_salary' => $this->wf->gradeLevelText($staff),
+                'appointment_confirmed'      => $emp?->date_confirmation ? 1 : 0,
+                'confirmation_date'          => $emp?->date_confirmation,
+            ];
 
-            // Pull from Employment
-            $validated['date_first_appointment'] = $staff->employment->date_funaab_first_appointment->format('Y-m-d');
-            $validated['post_first_appointment'] = $staff->employment->first_appointment_post;
-            $validated['date_last_appointment'] = $staff->employment->date_present_appointment?->format('Y-m-d');
-            $validated['post_last_appointment'] = $staff->employment->designation?->cadreRank->cadre_rank_name;
+            DB::transaction(function () use ($aperForm, $staff, $personal, $validated) {
+                $key = ['aper_form_id' => $aperForm->id, 'staff_id' => $staff->id];
+                AperFormSeniorPersonal::updateOrCreate($key, $personal);
 
-            $validated['present_grade_level_salary'] = $staff->employment->salaryStep->salaryLevel->salaryStructure->salary_structure_name.' - '.$staff->employment->salaryStep->salaryLevel->level.' / Step '.$staff->employment->salaryStep->step;
-            $validated['appointment_confirmed'] = $staff->employment?->date_confirmation ? 1 : 0;
-            $validated['confirmation_date'] = $staff->employment?->date_confirmation;
-            
-            AperFormSeniorPersonal::updateOrCreate(
-                ['aper_form_id' => $aperForm->id, 'staff_id' => $staff->id],
-                array_merge(collect($validated)->except('conferences')->toArray(), ['uuid' => Str::uuid()])
-            );
-
-            AperFormSeniorConference::where('aper_form_id', $aperForm->id)->where('staff_id', $staff->id)->delete();
-            foreach ($validated['conferences'] ?? [] as $conf) {
-                if (empty(trim($conf))) continue;
-                AperFormSeniorConference::create([
-                    'uuid'         => Str::uuid(),
-                    'aper_form_id' => $aperForm->id,
-                    'staff_id'     => $staff->id,
-                    'conference'   => $conf,
-                ]);
-            }
+                AperFormSeniorConference::where($key)->delete();
+                foreach ($validated['conferences'] ?? [] as $conf) {
+                    if (blank($conf)) continue;
+                    AperFormSeniorConference::create($key + ['conference' => $conf]);
+                }
+            });
 
             return redirect()->route('staff.aper.senior.part_a2', $aperForm->uuid)
                             ->with('success', 'Part A (Personal) saved. Please complete Education.');
@@ -175,7 +178,8 @@ class Staff_AperSeniorController extends Controller
         $staff = $this->getStaff();
         $this->requirePartA1($aperForm, $staff);
 
-        $readonly       = !$this->isOpen($aperForm);
+        $readonly       = !$this->canEdit($aperForm, $staff);
+        $submission     = $this->submission($aperForm, $staff);
         $qualifications = AperFormSeniorQualification::where('aper_form_id', $aperForm->id)->where('staff_id', $staff->id)->get();
         $professionals  = AperFormSeniorProfessional::where('aper_form_id', $aperForm->id)->where('staff_id', $staff->id)->get();
         $associations   = AperFormSeniorProfessionalAssociation::where('aper_form_id', $aperForm->id)->where('staff_id', $staff->id)->get();
@@ -186,15 +190,14 @@ class Staff_AperSeniorController extends Controller
 
         return view('staff.aper.senior.part_a2_education', compact(
             'aperForm','readonly','qualifications','professionals','associations',
-            'hasQuals','hasProfs','hasAssocs'
+            'hasQuals','hasProfs','hasAssocs','submission'
         ));
     }
 
     public function storePartA2(Request $request, AperForm $aperForm): RedirectResponse
     {
-        if ($redirect = $this->guardOpen($aperForm)) return $redirect;
-
         $staff = $this->getStaff();
+        if ($redirect = $this->guardEditable($aperForm, $staff)) return $redirect;
 
         $request->validate([
             'qualifications'                => ['nullable','array'],
@@ -202,34 +205,42 @@ class Staff_AperSeniorController extends Controller
             'qualifications.*.class'        => ['nullable','string','max:255'],
             'qualifications.*.institution'  => ['nullable','string','max:255'],
             'qualifications.*.date_obtained'=> ['nullable','string','max:50'],
+            'qualifications.*.is_additional'=> ['nullable','boolean'],
             'professionals'                 => ['nullable','array'],
             'professionals.*.qualification' => ['nullable','string','max:255'],
             'professionals.*.award_body'    => ['nullable','string','max:255'],
             'professionals.*.date_obtained' => ['nullable','string','max:50'],
+            'professionals.*.is_additional' => ['nullable','boolean'],
             'associations'                  => ['nullable','array'],
             'associations.*'                => ['nullable','string','max:500'],
         ]);
 
-        // Sync academic qualifications
-        AperFormSeniorQualification::where('aper_form_id', $aperForm->id)->where('staff_id', $staff->id)->delete();
-        foreach ($request->input('qualifications', []) as $row) {
-            if (empty(array_filter($row))) continue;
-            AperFormSeniorQualification::create(array_merge($row, ['uuid'=>Str::uuid(),'aper_form_id'=>$aperForm->id,'staff_id'=>$staff->id]));
-        }
+        $key = ['aper_form_id' => $aperForm->id, 'staff_id' => $staff->id];
 
-        // Sync professional qualifications
-        AperFormSeniorProfessional::where('aper_form_id', $aperForm->id)->where('staff_id', $staff->id)->delete();
-        foreach ($request->input('professionals', []) as $row) {
-            if (empty(array_filter($row))) continue;
-            AperFormSeniorProfessional::create(array_merge($row, ['uuid'=>Str::uuid(),'aper_form_id'=>$aperForm->id,'staff_id'=>$staff->id]));
-        }
+        DB::transaction(function () use ($request, $key) {
+            // 12(a) Academic — * marks an additional qualification obtained during the period
+            AperFormSeniorQualification::where($key)->delete();
+            foreach ($request->input('qualifications', []) as $row) {
+                $row = array_intersect_key($row, array_flip(['degree', 'class', 'institution', 'date_obtained', 'is_additional']));
+                if (empty(array_filter(\Illuminate\Support\Arr::except($row, 'is_additional')))) continue;
+                AperFormSeniorQualification::create($key + $row + ['is_additional' => !empty($row['is_additional'])]);
+            }
 
-        // Sync associations
-        AperFormSeniorProfessionalAssociation::where('aper_form_id', $aperForm->id)->where('staff_id', $staff->id)->delete();
-        foreach ($request->input('associations', []) as $mem) {
-            if (empty(trim($mem))) continue;
-            AperFormSeniorProfessionalAssociation::create(['uuid'=>Str::uuid(),'aper_form_id'=>$aperForm->id,'staff_id'=>$staff->id,'membership'=>$mem]);
-        }
+            // 12(b) Professional
+            AperFormSeniorProfessional::where($key)->delete();
+            foreach ($request->input('professionals', []) as $row) {
+                $row = array_intersect_key($row, array_flip(['qualification', 'award_body', 'date_obtained', 'is_additional']));
+                if (empty(array_filter(\Illuminate\Support\Arr::except($row, 'is_additional')))) continue;
+                AperFormSeniorProfessional::create($key + $row + ['is_additional' => !empty($row['is_additional'])]);
+            }
+
+            // 12(c) Memberships
+            AperFormSeniorProfessionalAssociation::where($key)->delete();
+            foreach ($request->input('associations', []) as $mem) {
+                if (blank($mem)) continue;
+                AperFormSeniorProfessionalAssociation::create($key + ['membership' => $mem]);
+            }
+        });
 
         return redirect()->route('staff.aper.senior.part_a3', $aperForm->uuid)
                          ->with('success', 'Education saved. Please complete University Experience.');
@@ -244,7 +255,9 @@ class Staff_AperSeniorController extends Controller
         $staff = $this->getStaff();
         $this->requirePartA1($aperForm, $staff);
 
-        $readonly        = !$this->isOpen($aperForm);
+        $readonly        = !$this->canEdit($aperForm, $staff);
+        $submission      = $this->submission($aperForm, $staff);
+        $showPracticals  = $this->wf->isTechnologist($staff);
         $positions       = AperFormSeniorPositionHeld::where('aper_form_id', $aperForm->id)->where('staff_id', $staff->id)->get();
         $presentJobs     = AperFormSeniorPresentJob::where('aper_form_id', $aperForm->id)->where('staff_id', $staff->id)->get();
         $practicals      = AperFormSeniorPractical::where('aper_form_id', $aperForm->id)->where('staff_id', $staff->id)->get();
@@ -253,18 +266,19 @@ class Staff_AperSeniorController extends Controller
         $communityServices = AperFormSeniorCommunityService::where('aper_form_id', $aperForm->id)->where('staff_id', $staff->id)->get();
         $challenges      = AperFormSeniorChallenge::where('aper_form_id', $aperForm->id)->where('staff_id', $staff->id)->get();
         $hasData         = $positions->isNotEmpty() || $presentJobs->isNotEmpty();
+        $canSubmit       = $hasData;
 
         return view('staff.aper.senior.part_a3_university', compact(
             'aperForm','readonly','positions','presentJobs','practicals',
-            'publications','activities','communityServices','challenges','hasData'
+            'publications','activities','communityServices','challenges','hasData',
+            'submission','showPracticals','canSubmit'
         ));
     }
 
     public function storePartA3(Request $request, AperForm $aperForm): RedirectResponse
     {
-        if ($redirect = $this->guardOpen($aperForm)) return $redirect;
-
         $staff = $this->getStaff();
+        if ($redirect = $this->guardEditable($aperForm, $staff)) return $redirect;
 
         $request->validate([
             'positions'                       => ['nullable','array'],
@@ -287,24 +301,26 @@ class Staff_AperSeniorController extends Controller
         $fid = $aperForm->id;
         $sid = $staff->id;
 
-        $this->syncSimple(AperFormSeniorPresentJob::class,       $fid, $sid, $request->input('present_jobs',[]),    'official_duty');
-        $this->syncSimple(AperFormSeniorPractical::class,        $fid, $sid, $request->input('practicals',[]),      'practical');
-        $this->syncSimple(AperFormSeniorPublication::class,      $fid, $sid, $request->input('publications',[]),    'publication');
-        $this->syncSimple(AperFormSeniorOtherActivity::class,    $fid, $sid, $request->input('activities',[]),      'activity');
-        $this->syncSimple(AperFormSeniorCommunityService::class, $fid, $sid, $request->input('community_services',[]),'service');
-        $this->syncSimple(AperFormSeniorChallenge::class,        $fid, $sid, $request->input('challenges',[]),      'challenge');
+        DB::transaction(function () use ($request, $fid, $sid, $staff) {
+            $this->syncSimple(AperFormSeniorPresentJob::class,       $fid, $sid, $request->input('present_jobs', []),       'official_duty');
+            if ($this->wf->isTechnologist($staff)) {
+                $this->syncSimple(AperFormSeniorPractical::class,    $fid, $sid, $request->input('practicals', []),         'practical');
+            }
+            $this->syncSimple(AperFormSeniorPublication::class,      $fid, $sid, $request->input('publications', []),       'publication');
+            $this->syncSimple(AperFormSeniorOtherActivity::class,    $fid, $sid, $request->input('activities', []),         'activity');
+            $this->syncSimple(AperFormSeniorCommunityService::class, $fid, $sid, $request->input('community_services', []), 'service');
+            $this->syncSimple(AperFormSeniorChallenge::class,        $fid, $sid, $request->input('challenges', []),         'challenge');
 
-        // Positions (two-field rows)
-        AperFormSeniorPositionHeld::where('aper_form_id', $fid)->where('staff_id', $sid)->delete();
-        foreach ($request->input('positions', []) as $row) {
-            if (empty($row['position_held']) && empty($row['duty'])) continue;
-            AperFormSeniorPositionHeld::create(['uuid'=>Str::uuid(),'aper_form_id'=>$fid,'staff_id'=>$sid,'position_held'=>$row['position_held']??null,'duty'=>$row['duty']??null]);
-        }
+            AperFormSeniorPositionHeld::where('aper_form_id', $fid)->where('staff_id', $sid)->delete();
+            foreach ($request->input('positions', []) as $row) {
+                if (blank($row['position_held'] ?? null) && blank($row['duty'] ?? null)) continue;
+                AperFormSeniorPositionHeld::create(['aper_form_id' => $fid, 'staff_id' => $sid,
+                    'position_held' => $row['position_held'] ?? null, 'duty' => $row['duty'] ?? null]);
+            }
+        });
 
-        // TODO: redirect to Part C when ready
-       
-        return redirect()->route('staff.aper.senior.part_c', $aperForm->uuid)
-                          ->with('success', 'Part A (University Experience) saved. Awaiting HOD evaluation.');
+        return redirect()->route('staff.aper.senior.part_a3', $aperForm->uuid)
+            ->with('success', 'Part A saved. Review your entries, then click "Submit APER Form" to send it to your Head of Department.');
     }
 
     // ── Helpers ─────────────────────────────────────────────
@@ -321,8 +337,8 @@ class Staff_AperSeniorController extends Controller
     {
         $model::where('aper_form_id', $formId)->where('staff_id', $staffId)->delete();
         foreach ($rows as $val) {
-            if (empty(trim($val))) continue;
-            $model::create(['uuid'=>Str::uuid(),'aper_form_id'=>$formId,'staff_id'=>$staffId,$field=>$val]);
+            if (blank($val)) continue;
+            $model::create(['aper_form_id' => $formId, 'staff_id' => $staffId, $field => $val]);
         }
     }
 
@@ -341,22 +357,11 @@ class Staff_AperSeniorController extends Controller
                 ->with('error', 'Please complete Part A before accessing Part C.');
         }
 
-        // Find current HOD for staff's department
-        $employment = $staff->employment;
-        $hodRecord  = AperHod::where('department_id', $employment?->department_id)
-                         ->where('is_current', true)->first();
-
-        $performance  = null;
-        $trainingNeed = null;
-        $hodEvaluated = false;
-
-        if ($hodRecord) {
-            $performance = AperFormSeniorPerformance::where('aper_form_id', $aperForm->id)
-                               ->where('staff_id', $staff->id)->first();
-            $trainingNeed = AperFormSeniorTrainingNeed::where('aper_form_id', $aperForm->id)
-                                ->where('staff_id', $staff->id)->first();
-            $hodEvaluated = $performance !== null;
-        }
+        $submission   = $this->submission($aperForm, $staff);
+        $hodEvaluated = $submission && $submission->reached(AperSubmission::HOD_DONE);
+        $performance  = $hodEvaluated ? AperFormSeniorPerformance::where('aper_form_id', $aperForm->id)->where('staff_id', $staff->id)->first() : null;
+        $trainingNeed = $hodEvaluated ? AperFormSeniorTrainingNeed::where('aper_form_id', $aperForm->id)->where('staff_id', $staff->id)->first() : null;
+        $hodEvaluated = $hodEvaluated && $performance !== null;
 
         // Build HOD assessment display (items 17, 18, 19 — NOT 21)
         $hodAssessment = [];
@@ -383,8 +388,10 @@ class Staff_AperSeniorController extends Controller
         $staffComment = AperFormSeniorStaffComment::where('aper_form_id', $aperForm->id)
                             ->where('staff_id', $staff->id)->first();
 
+        $canComment = $hodEvaluated && $submission->status === AperSubmission::HOD_DONE && $this->wf->isWindowOpen($aperForm);
+
         return view('staff.aper.senior.part_c', compact(
-            'aperForm', 'hodEvaluated', 'hodAssessment', 'staffComment'
+            'aperForm', 'hodEvaluated', 'hodAssessment', 'staffComment', 'submission', 'canComment'
         ));
     }
 
@@ -394,13 +401,24 @@ class Staff_AperSeniorController extends Controller
     public function storePartCComment(Request $request, AperForm $aperForm): RedirectResponse
     {
         $staff = $this->getStaff();
+        $sub   = $this->submission($aperForm, $staff);
+
+        if (!$sub || $sub->status !== AperSubmission::HOD_DONE || !$this->wf->isWindowOpen($aperForm)) {
+            return back()->with('error', 'You can comment only after your HOD has completed Part B, and only once.');
+        }
 
         $request->validate(['comment' => ['required', 'string', 'max:2000']]);
 
-        AperFormSeniorStaffComment::updateOrCreate(
-            ['aper_form_id' => $aperForm->id, 'staff_id' => $staff->id],
-            ['uuid' => Str::uuid(), 'comment' => $request->comment]
-        );
+        DB::transaction(function () use ($request, $aperForm, $staff, $sub) {
+            AperFormSeniorStaffComment::updateOrCreate(
+                ['aper_form_id' => $aperForm->id, 'staff_id' => $staff->id],
+                ['comment' => $request->comment]
+            );
+            $sub->update([
+                'staff_commented_at' => now(),
+                'status' => $sub->recommended_for_promotion ? AperSubmission::STAFF_COMMENTED : AperSubmission::COMPLETED,
+            ]);
+        });
 
         return redirect()->route('staff.aper.senior.part_c', $aperForm->uuid)
                          ->with('success', 'Your comment has been submitted successfully.');

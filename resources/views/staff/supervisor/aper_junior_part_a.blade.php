@@ -206,14 +206,14 @@
                     <div>
                         <label class="wf-label">Date</label>
                         <input type="date" name="date_first_appointment"
-                               value="{{ old('date_first_appointment', optional($existing)->date_first_appointment?->format('Y-m-d') ?? optional($staff->employment->date_funaab_first_appointment)->format('Y-m-d')) }}"
+                               value="{{ old('date_first_appointment', optional($existing)->date_first_appointment?->format('Y-m-d') ?? optional($staff->employment?->date_funaab_first_appointment)->format('Y-m-d')) }}"
                                class="wf-input w-full bg-gray-50"
                               disabled />
                     </div>
                     <div>
                         <label class="wf-label">Post</label>
                         <input type="text" name="post_first_appointment"
-                               value="{{ old('post_first_appointment', $existing->post_first_appointment ?? $staff->employment->first_appointment_post) }}"
+                               value="{{ old('post_first_appointment', $existing->post_first_appointment ?? $staff->employment?->first_appointment_post) }}"
                                placeholder="e.g. Clerical Officer II"
                                class="wf-input w-full bg-gray-50"
                                disabled />
@@ -230,14 +230,14 @@
                     <div>
                         <label class="wf-label">Date</label>
                         <input type="date" name="date_last_appointment"
-                               value="{{ old('date_last_appointment', optional($existing->date_last_appointment)->format('Y-m-d') ?? optional($staff->employment->date_present_appointment)->format('Y-m-d') ) }}"
+                               value="{{ old('date_last_appointment', optional($existing->date_last_appointment)->format('Y-m-d') ?? optional($staff->employment?->date_present_appointment)->format('Y-m-d') ) }}"
                                class="wf-input w-full bg-gray-50"
                                disabled />
                     </div>
                     <div>
                         <label class="wf-label">Post</label>
                         <input type="text" name="post_last_appointment"
-                               value="{{ old('post_last_appointment', $existing->post_last_appointment ?? $staff->employment->designation?->cadreRank->cadre_rank_name)   }}"
+                               value="{{ old('post_last_appointment', $existing->post_last_appointment ?? $staff->employment?->designation?->cadreRank?->cadre_rank_name)   }}"
                                placeholder="e.g. Senior Clerical Officer"
                                class="wf-input w-full bg-gray-50"
                                disabled />
@@ -304,7 +304,7 @@
             <div>
                 <label class="wf-label">10. Present Grade Level and Salary <span class="text-red-500">*</span></label>
                 <input type="text" name="present_grade_level_salary"
-                       value="{{ old('present_grade_level_salary', $existing->present_grade_level_salary ?? ($staff->employment->salaryStep ? $staff->employment->salaryStep->salaryLevel->salaryStructure->salary_structure_name.' - '.$staff->employment->salaryStep->salaryLevel->level.' / Step '.$staff->employment->salaryStep->step : '')) }}"
+                       value="{{ old('present_grade_level_salary', $existing->present_grade_level_salary ?? (app(\App\Services\AperWorkflow::class)->gradeLevelText($staff))) }}"
                        placeholder="e.g. GL 06 / Step 3"
                        class="wf-input w-full max-w-sm @error('present_grade_level_salary') border-red-400 @enderror bg-gray-50"
                        disabled required />

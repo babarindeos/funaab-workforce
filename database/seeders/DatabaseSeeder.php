@@ -2,21 +2,22 @@
 
 namespace Database\Seeders;
 
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
 {
     /**
-     * Seed the application's database.
+     * All seeders are idempotent: they only add what is missing (and bring
+     * APER scoring in line with the official forms), so it is safe to run
+     * `php artisan db:seed` on the live database.
      */
     public function run(): void
     {
-        // \App\Models\User::factory(10)->create();
-
-        // \App\Models\User::factory()->create([
-        //     'name' => 'Test User',
-        //     'email' => 'test@example.com',
-        // ]);
+        $this->call([
+            ReferenceDataSeeder::class,
+            StaffCategorySeeder::class,
+            SalaryScaleSeeder::class,
+            AperScoringSeeder::class,
+        ]);
     }
 }

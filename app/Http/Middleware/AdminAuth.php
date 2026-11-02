@@ -24,7 +24,12 @@ class AdminAuth
         }
         
 
-        return redirect()->route('/');
+        // Signed in, but not an administrator: refuse instead of looping.
+        if (Auth::check()) {
+            abort(403, 'This area is for administrators only.');
+        }
+
+        return redirect()->route('admin.auth.index');
         
     }
 }

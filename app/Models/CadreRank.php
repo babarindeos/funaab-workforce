@@ -5,6 +5,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class CadreRank extends Model
 {
+    use \App\Models\Concerns\HasUuid;
     use HasFactory;
     protected $fillable = ['cadre_id', 'cadre_rank_name'];
 

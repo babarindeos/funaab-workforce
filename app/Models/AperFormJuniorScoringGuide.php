@@ -7,11 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class AperFormJuniorScoringGuide extends Model
 {
+    use \App\Models\Concerns\HasUuid;
     use HasFactory;
 
     protected $table = 'aper_form_junior_scoring_guides';
 
-    protected $fillable = ['uuid', 'metric', 'max_score'];
+    // All columns except the key are mass-assignable; controllers only pass validated data.
+    protected $guarded = ['id'];
 
     protected static function booted(): void
     {

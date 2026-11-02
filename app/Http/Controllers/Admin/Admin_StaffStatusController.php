@@ -9,6 +9,8 @@ use App\Models\StaffStatus;
 
 class Admin_StaffStatusController extends Controller
 {
+    use \App\Http\Controllers\Concerns\SafeDeletes;
+
     //
     public function index()
     {
@@ -52,5 +54,10 @@ class Admin_StaffStatusController extends Controller
         $staff_status->update(['status' => $request->status]);
 
         return redirect()->back()->with('success', 'Staff status updated successfully.');
+    }
+
+    public function destroy(StaffStatus $staff_status)
+    {
+        return $this->safeDelete($staff_status, 'staff status');
     }
 }

@@ -7,15 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class AperFormJuniorHodRecommend extends Model
 {
+    use \App\Models\Concerns\HasUuid;
     use HasFactory;
 
     protected $table = 'aper_form_junior_hod_recommend';
 
-    protected $fillable = [
-        'uuid', 'aper_form_id', 'staff_id',
-        'promotion_salary_level_id', 'salary_increment_id',
-        'no_salary_increment', 'hod',
-    ];
+    // All columns except the key are mass-assignable; controllers only pass validated data.
+    protected $guarded = ['id'];
 
     protected static function booted(): void
     {

@@ -9,6 +9,7 @@ use Carbon\Carbon;
 
 class AperForm extends Model
 {
+    use \App\Models\Concerns\HasUuid;
     use HasFactory;
 
     protected $table = 'aper_forms';
@@ -16,14 +17,18 @@ class AperForm extends Model
     protected $fillable = [
         'uuid',
         'name',
+        'review_period_start',
+        'review_period_end',
         'start_date',
         'end_date',
         'description',
     ];
 
     protected $casts = [
-        'start_date' => 'date',
-        'end_date'   => 'date',
+        'start_date'          => 'date',
+        'end_date'            => 'date',
+        'review_period_start' => 'date',
+        'review_period_end'   => 'date',
     ];
 
     // Auto-generate UUID on creation
@@ -40,6 +45,11 @@ class AperForm extends Model
     public function getRouteKeyName(): string
     {
         return 'uuid';
+    }
+
+    public function submissions()
+    {
+        return $this->hasMany(AperSubmission::class);
     }
 
     // Computed status attribute

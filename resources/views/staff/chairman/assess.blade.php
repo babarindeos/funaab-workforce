@@ -74,10 +74,19 @@
                     </thead>
                     <tbody>
                         @foreach($scoringGuides as $guide)
-                            @php $existing = $existingScores->get($guide->id); @endphp
+                            @php
+                                $existing = $existingScores->get($guide->id);
+                                $autoRow  = collect($scoreRows)->first(fn ($r) => $r['guide']->id === $guide->id);
+                                $isAuto   = $autoRow['auto'] ?? false;
+                            @endphp
                             <tr class="border-b border-gray-50 hover:bg-gray-50/50">
                                 <td class="px-4 py-3 text-sm font-semibold text-gray-700">
                                     {{ $guide->metric }}
+                                    @if($isAuto)
+                                        <span class="block text-[10px] font-normal text-gray-400">
+                                            {{ $guide->source === 'hod_total' ? 'Calculated: total of the HOD\'s grades' : 'Calculated: HOD\'s organisational-ability grade × 2' }}
+                                        </span>
+                                    @endif
                                 </td>
                                 <td class="px-4 py-3 text-center">
                                     <span class="text-xs font-bold text-gray-500">{{ $guide->max_score }}</span>
@@ -85,13 +94,13 @@
                                 <td class="px-4 py-3 text-center">
                                     <input type="number"
                                            name="scores[{{ $guide->id }}]"
-                                           value="{{ old("scores.{$guide->id}", $existing?->score) }}"
+                                           value="{{ $isAuto ? ($autoRow['value'] ?? '') : old("scores.{$guide->id}", $existing?->score) }}"
                                            min="0"
                                            max="{{ $guide->max_score }}"
                                            step="0.5"
                                            class="wf-input w-24 text-center @error("scores.{$guide->id}") border-red-400 @enderror"
-                                           {{ !$isOpen ? 'readonly' : '' }}
-                                           required />
+                                           {{ (!$isOpen || $isAuto) ? 'readonly' : '' }}
+                                           {{ $isAuto ? '' : 'required' }} />
                                     @error("scores.{$guide->id}")
                                         <p class="text-red-500 text-[10px] mt-1">Max: {{ $guide->max_score }}</p>
                                     @enderror
@@ -124,11 +133,19 @@
                 </table>
             </div>
 
+            @if($punctualityOk === false)
+                <div class="mt-3 flex items-center gap-2 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+                    <i class="ti ti-alert-triangle text-red-500 text-sm"></i>
+                    <p class="text-[11px] text-red-700 font-semibold">
+                        The HOD's punctuality grade is below {{ config('aper.punctuality_min_percent', 70) }}%: under the APER rules this staff member is not eligible for promotion this year.
+                    </p>
+                </div>
+            @endif
             @if($minReq)
                 <div class="mt-3 flex items-center gap-2 bg-amber-50 border border-amber-100 rounded-lg px-3 py-2">
                     <i class="ti ti-info-circle text-amber-500 text-sm"></i>
                     <p class="text-[11px] text-amber-700 font-semibold">
-                        Minimum score required for promotion at this grade level: <strong>{{ $minReq->percentage }}%</strong>
+                        Minimum score required for promotion from this grade level: <strong>{{ $minReq->percentage }}%</strong>
                     </p>
                 </div>
             @endif
@@ -240,7 +257,7 @@
                     total += parseFloat(input.value) || 0;
                 });
                 liveTotal.textContent = total.toFixed(1) + ' / 100';
-                liveTotal.className   = total >= 50
+                liveTotal.className   = total >= {{ $minReq ? (float) $minReq->percentage : 50 }}
                     ? 'text-[11px] text-green-600 font-bold'
                     : 'text-[11px] text-red-500 font-bold';
             }

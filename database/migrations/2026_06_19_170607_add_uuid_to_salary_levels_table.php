@@ -11,6 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // Guard: column may already exist (created in the base migration or added manually on live).
+        if (Schema::hasColumn('salary_levels', 'uuid')) {
+            return;
+        }
+
         Schema::table('salary_levels', function (Blueprint $table) {
             //
             $table->uuid('uuid')->after('id')->unique()->nullable();
@@ -22,9 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('salary_levels', function (Blueprint $table) {
-            //
-            $table->dropColumn('uuid');
-        });
+        // No-op: the column belongs to the base create_* migration.
     }
 };

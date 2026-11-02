@@ -27,6 +27,10 @@ class Staff_DashboardController extends Controller
 
         $profile = $user->profile;
         $staff = Staff::where('staff_no', $user->fileno)->first();
+        if (!$staff) {
+            // Login exists but Registry has not captured the staff record yet.
+            return response()->view('staff.aper.no_staff_record', [], 403);
+        }
         $nextOfKin = NextOfKin::where('staff_id', $staff->id)->first();
         
 
@@ -70,7 +74,7 @@ class Staff_DashboardController extends Controller
         }
 
         // Pending promotion notification
-        $pendingPromotion = Promotion::where('staff_id', $user->staff->id)
+        $pendingPromotion = Promotion::where('staff_id', $staff->id)
             ->where('status', 'pending')
             ->latest()
             ->first();
@@ -84,7 +88,7 @@ class Staff_DashboardController extends Controller
         }
 
         // Approved promotion notification
-        $approvedPromotion = Promotion::where('staff_id', $user->staff->id)
+        $approvedPromotion = Promotion::where('staff_id', $staff->id)
             ->where('status', 'approved')
             ->whereYear('updated_at', now()->year)
             ->latest('updated_at')
@@ -99,7 +103,7 @@ class Staff_DashboardController extends Controller
         }
 
         // Step increment notification
-        $stepIncrement = StepIncrement::where('staff_id', $user->staff->id)
+        $stepIncrement = StepIncrement::where('staff_id', $staff->id)
             ->latest()
             ->first();
         if ($stepIncrement) {

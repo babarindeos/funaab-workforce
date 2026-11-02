@@ -8,6 +8,7 @@ use Illuminate\Support\Str;
 
 class Staff extends Model
 {
+    use \App\Models\Concerns\HasUuid;
     use HasFactory;
 
     protected $table = 'staff';

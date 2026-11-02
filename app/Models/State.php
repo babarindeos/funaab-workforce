@@ -7,7 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class State extends Model
 {
+    use \App\Models\Concerns\HasUuid;
     use HasFactory;
+
+    protected $fillable = ['geo_pol_zone_id', 'state_name'];
 
     public function geo_pol_zone()
     {

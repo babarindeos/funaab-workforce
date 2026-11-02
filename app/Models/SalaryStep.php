@@ -6,6 +6,7 @@ use Illuminate\Support\Str;
 
 class SalaryStep extends Model
 {
+    use \App\Models\Concerns\HasUuid;
     use HasFactory;
     protected $fillable = ['uuid', 'salary_level_id', 'step'];
 

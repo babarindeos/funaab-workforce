@@ -8,6 +8,7 @@ use App\Models\Employment;
 
 class StaffCategory extends Model
 {
+    use \App\Models\Concerns\HasUuid;
     use HasFactory;
 
     protected $fillable = ['parent_staff_category', 'category'];

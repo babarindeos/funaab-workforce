@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Contact extends Model
 {
+    use \App\Models\Concerns\HasUuid;
     use HasFactory;
 
     protected $fillable = ['staff_id', 'contact_type_id', 'contact_value'];

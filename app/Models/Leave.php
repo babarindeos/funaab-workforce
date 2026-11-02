@@ -8,6 +8,7 @@ use Carbon\Carbon;
 
 class Leave extends Model
 {
+    use \App\Models\Concerns\HasUuid;
     use HasFactory;
 
     protected $fillable = [

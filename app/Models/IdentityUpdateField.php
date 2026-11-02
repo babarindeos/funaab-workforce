@@ -7,5 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class IdentityUpdateField extends Model
 {
+    use \App\Models\Concerns\HasUuid;
     use HasFactory;
 }

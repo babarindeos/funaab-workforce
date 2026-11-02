@@ -1,18 +1,6 @@
 <x-staff-layout title="APER Form — Part B">
     @php
-        $supervisorHasEvaluated = false;
-        $authStaff = \App\Models\Staff::where('staff_no', Auth::user()->fileno)->first();
-        if ($authStaff) {
-            $employment = $authStaff->employment;
-            $supervisorRecord = \App\Models\AperSupervisor::where('department_id', $employment?->department_id)
-                                    ->where('is_current', true)->first();
-            if ($supervisorRecord) {
-                $supervisorHasEvaluated = \App\Models\AperFormJuniorSickLeave::where('aper_form_id', $aperForm->id)
-                                            ->where('staff_id', $authStaff->id)
-                                            ->where('supervisor', $supervisorRecord->staff_id)
-                                            ->exists();
-            }
-        }
+        $supervisorHasEvaluated = $submission?->reached('supervisor_done') ?? false;
     @endphp
 
     {{-- Page Header --}}
@@ -69,14 +57,7 @@
             </a>
         @endif
     </div>
-
-    {{-- Readonly notice --}}
-    @if($readonly)
-        <div class="flex items-center gap-2 bg-amber-50 border border-amber-200 text-amber-700 text-xs font-semibold px-4 py-3 rounded-lg mb-4">
-            <i class="ti ti-lock text-base"></i>
-            This APER form is closed. Your submission is displayed in read-only mode.
-        </div>
-    @endif
+    @include('staff.aper._status_banner')
 
     <form action="{{ $readonly ? '#' : route('staff.aper.junior.part_b.store', $aperForm->uuid) }}"
           method="POST">
@@ -234,7 +215,7 @@
                     <i class="ti ti-arrow-left text-sm"></i> Back to Part A
                 </a>
                 <button type="submit" class="btn-wf-primary">
-                    <i class="ti ti-device-floppy text-sm"></i> Save Part B &amp; Continue
+                    <i class="ti ti-device-floppy text-sm"></i> Save Part B
                 </button>
             </div>
         @endif

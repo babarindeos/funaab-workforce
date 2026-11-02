@@ -9,6 +9,8 @@ use App\Models\EmploymentType;
 
 class Admin_EmploymentTypeController extends Controller
 {
+    use \App\Http\Controllers\Concerns\SafeDeletes;
+
     //
     public function index(Request $request)
     {
@@ -119,4 +121,8 @@ class Admin_EmploymentTypeController extends Controller
         return redirect()->back()->with($data);
     }
 
+    public function destroy(EmploymentType $employment_type)
+    {
+        return $this->safeDelete($employment_type, 'employment type');
+    }
 }

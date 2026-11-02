@@ -10,6 +10,8 @@
         </a>
     </div>
 
+    @include('staff.aper._status_banner')
+
     {{-- Progress Indicator --}}
     <div class="wf-card mb-4">
         <div class="flex items-center gap-0">
@@ -104,9 +106,16 @@
                         Submitted {{ \Carbon\Carbon::parse($staffComment->created_at)->diffForHumans() }}
                     </p>
                 </div>
+            @elseif(!$canComment)
+                <p class="text-xs text-gray-500">The submission window is closed, so a comment can no longer be added.</p>
             @else
-                <form action="{{ route('staff.aper.senior.part_c.comment', $aperForm->uuid) }}" method="POST">
+                <form action="{{ route('staff.aper.senior.part_c.comment', $aperForm->uuid) }}" method="POST"
+                      onsubmit="return confirm('Submit your comment? This signs Item 20 and cannot be changed afterwards.')">
                     @csrf
+                    <p class="text-xs text-gray-600 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 mb-3">
+                        <strong>Item 20.</strong> I certify that I have seen the contents of this report and that my
+                        Head of Department has discussed them with me. I have the following comments to add:
+                    </p>
                     <div class="mb-4">
                         <textarea name="comment" rows="5"
                                   class="wf-input w-full resize-none @error('comment') border-red-400 @enderror"

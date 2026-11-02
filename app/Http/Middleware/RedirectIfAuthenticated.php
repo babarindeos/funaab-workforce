@@ -21,7 +21,13 @@ class RedirectIfAuthenticated
 
         foreach ($guards as $guard) {
             if (Auth::guard($guard)->check()) {
-                return redirect(RouteServiceProvider::HOME);
+                // Send signed-in users to their own portal.
+                return match (Auth::guard($guard)->user()->role) {
+                    'admin'            => redirect()->route('admin.dashboard.index'),
+                    'identity'         => redirect()->route('identity.dashboard.index'),
+                    'staff', 'manager' => redirect()->route('staff.dashboard.index'),
+                    default            => $next($request),
+                };
             }
         }
 

@@ -23,7 +23,7 @@
             </div>
             <div>
                 <p class="text-[10px] font-bold tracking-wider text-gray-400 mb-1">DEPARTMENT</p>
-                <p class="text-sm font-bold text-gray-700">{{ $hod->department?->department_name }}</p>
+                <p class="text-sm font-bold text-gray-700">{{ $staff->employment?->department?->department_name }}</p>
             </div>
             <div>
                 <p class="text-[10px] font-bold tracking-wider text-gray-400 mb-1">GRADE LEVEL</p>
@@ -38,6 +38,20 @@
             <p class="text-sm font-bold text-gray-500">This APER form is closed and no assessment was submitted.</p>
         </div>
     @else
+
+    {{-- Supervisor particulars (items 15–16) --}}
+    <div class="wf-card mb-4">
+        <div class="wf-card-title"><i class="ti ti-user-check text-gray-400"></i> Particulars supplied by the Supervisor</div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+            <div><p class="text-[10px] font-bold tracking-wider text-gray-400 mb-1">15(a). SICK LEAVE WITH MEDICAL CERT.</p>{{ $sickLeave?->with_medical_certificate ?? '—' }}</div>
+            <div><p class="text-[10px] font-bold tracking-wider text-gray-400 mb-1">15(b). SICK LEAVE WITHOUT MEDICAL CERT.</p>{{ $sickLeave?->without_medical_certificate ?? '—' }}</div>
+            <div><p class="text-[10px] font-bold tracking-wider text-gray-400 mb-1">HEALTH CENTRE ATTENDANCE</p>{{ $frequency?->frequency ?? '—' }}</div>
+        </div>
+        <div class="mt-3 text-sm">
+            <p class="text-[10px] font-bold tracking-wider text-gray-400 mb-1">16. SANCTIONS INCURRED</p>
+            @forelse($sanctions as $sn)<p>• {{ $sn->sanction }}</p>@empty<p class="text-gray-400">None recorded</p>@endforelse
+        </div>
+    </div>
 
     <form action="{{ route('staff.hod.store_assessment', [$aperForm->uuid, $staff->uuid]) }}"
           method="POST">
@@ -142,6 +156,15 @@
                 </span>
             </div>
             <p class="text-[11px] text-gray-400 mb-4">I recommend:</p>
+            <div class="mb-4 text-[11px] bg-amber-50 border border-amber-200 text-amber-800 rounded-lg px-3 py-2">
+                <i class="ti ti-alert-triangle"></i>
+                A staff member who did not obtain at least {{ $punctualityMin }}% in punctuality (a grade of 4 or 5 in item "Punctuality")
+                is not eligible for promotion or the annual salary increment — use option (iii).
+                @if($errors->has('promotion_level_id') || $errors->has('promotion_salary_level_id'))
+                    <p class="text-red-600 font-semibold mt-1">{{ $errors->first('promotion_level_id') ?: $errors->first('promotion_salary_level_id') }}</p>
+                @endif
+                @error('no_salary_increment') <p class="text-red-600 font-semibold mt-1">{{ $message }}</p> @enderror
+            </div>
 
             <div class="space-y-4">
                 <div>
@@ -153,23 +176,18 @@
                         @foreach($salaryLevels as $level)
                             <option value="{{ $level->id }}"
                                 {{ old('promotion_salary_level_id', $recommendation?->promotion_salary_level_id) == $level->id ? 'selected' : '' }}>
-                                {{ ($level->salaryStructure?->salary_structure_name ?? '') . ' - ' . ($level->level ?? $level->name ?? 'GL ' . $level->id) }}
+                                {{ $level->salaryStructure?->salary_structure_name }} {{ $level->level }}
                             </option>
                         @endforeach
                     </select>
                 </div>
 
                 <div>
-                    <label class="wf-label">(ii). Salary Increment</label>
-                    <select name="salary_increment_id"
-                            class="wf-input w-full max-w-sm"
-                            {{ !$isOpen ? 'disabled' : '' }}>
-                        <option value="">— Select Salary Step —</option>
-                        @foreach($salarySteps as $step)
-                            <option value="{{ $step->id }}"
-                                {{ old('salary_increment_id', $recommendation?->salary_increment_id) == $step->id ? 'selected' : '' }}>
-                                {{ ($step->salaryLevel?->salaryStructure?->salary_structure_name ?? '') . '-' . ($step->salaryLevel?->level ?? '') . '/Step ' . ($step->step ?? $step->name ?? $step->id) }}
-                            </option>
+                    <label class="wf-label">(ii). Salary increment by ___ step(s) within the present scale</label>
+                    <select name="increment_steps" class="wf-input w-full max-w-sm" {{ !$isOpen ? 'disabled' : '' }}>
+                        <option value="">— No increment recommended —</option>
+                        @foreach([1,2,3,4,5] as $n)
+                            <option value="{{ $n }}" {{ old('increment_steps', $recommendation?->increment_steps) == $n ? 'selected' : '' }}>{{ $n }} step{{ $n > 1 ? 's' : '' }}</option>
                         @endforeach
                     </select>
                 </div>

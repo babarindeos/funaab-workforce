@@ -10,6 +10,8 @@
         </a>
     </div>
 
+    @include('staff.aper._status_banner')
+
     {{-- Progress Indicator --}}
     <div class="wf-card mb-4">
         <div class="flex items-center gap-0">

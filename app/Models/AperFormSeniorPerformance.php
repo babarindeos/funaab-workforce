@@ -7,16 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class AperFormSeniorPerformance extends Model
 {
+    use \App\Models\Concerns\HasUuid;
     protected $table = 'aper_form_senior_performances';
 
-    protected $fillable = [
-        'uuid', 'aper_form_id', 'staff_id',
-        'report_agreement', 'report_agreement_comment',
-        'punctuality', 'initiative', 'expression',
-        'interpersonal', 'responsibility', 'competence',
-        'organisational_ability', 'work_quality', 'special_responsibility',
-        'general_remarks', 'assessor',
-    ];
+    // All columns except the key are mass-assignable; controllers only pass validated data.
+    protected $guarded = ['id'];
 
     protected $casts = ['report_agreement' => 'boolean'];
 

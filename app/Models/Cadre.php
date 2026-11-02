@@ -5,6 +5,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Cadre extends Model
 {
+    use \App\Models\Concerns\HasUuid;
     use HasFactory;
     protected $fillable = ['department_id', 'cadre_name'];
 

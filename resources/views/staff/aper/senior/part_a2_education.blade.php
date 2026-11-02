@@ -10,6 +10,8 @@
         </a>
     </div>
 
+    @include('staff.aper._status_banner')
+
     {{-- Part Progress --}}
     <div class="wf-card mb-4">
         <div class="flex items-center gap-0">
@@ -49,11 +51,6 @@
         </a>
     </div>
 
-    @if($readonly)
-        <div class="flex items-center gap-2 bg-amber-50 border border-amber-200 text-amber-700 text-xs font-semibold px-4 py-3 rounded-lg mb-4">
-            <i class="ti ti-lock text-base"></i> This APER form is closed. Displayed in read-only mode.
-        </div>
-    @endif
 
     <form action="{{ $readonly ? '#' : route('staff.aper.senior.part_a2.store', $aperForm->uuid) }}" method="POST">
         @csrf
@@ -62,6 +59,7 @@
         {{-- ── 12(a): ACADEMIC QUALIFICATIONS ─────────────────── --}}
         <div class="wf-card mb-4">
             <div class="wf-card-title"><i class="ti ti-certificate text-gray-400"></i> 12(a). Academic Qualifications</div>
+            <p class="text-[11px] text-gray-400 mb-3">Tick <strong>*New this period</strong> for any additional qualification obtained during the period under review.</p>
 
             <div class="overflow-x-auto">
                 <table class="w-full text-sm border border-gray-200 rounded-lg overflow-hidden" id="qual-table">
@@ -71,6 +69,7 @@
                             <th class="px-3 py-2.5 text-left border-b border-gray-200">CLASS (IF ANY)</th>
                             <th class="px-3 py-2.5 text-left border-b border-gray-200">INSTITUTION</th>
                             <th class="px-3 py-2.5 text-left border-b border-gray-200">DATE OF AWARD</th>
+                            <th class="px-3 py-2.5 text-center border-b border-gray-200" title="Additional qualification obtained during the period under review">*NEW THIS PERIOD</th>
                             @if(!$readonly) <th class="px-3 py-2.5 w-10 border-b border-gray-200"></th> @endif
                         </tr>
                     </thead>
@@ -78,8 +77,8 @@
                         @php
                             $qualRows = old('qualifications',
                                 $qualifications->isNotEmpty()
-                                    ? $qualifications->map(fn($q) => ['degree'=>$q->degree,'class'=>$q->class,'institution'=>$q->institution,'date_obtained'=>$q->date_obtained])->toArray()
-                                    : [['degree'=>'','class'=>'','institution'=>'','date_obtained'=>'']]
+                                    ? $qualifications->map(fn($q) => ['degree'=>$q->degree,'class'=>$q->class,'institution'=>$q->institution,'date_obtained'=>$q->date_obtained,'is_additional'=>$q->is_additional])->toArray()
+                                    : [['degree'=>'','class'=>'','institution'=>'','date_obtained'=>'','is_additional'=>0]]
                             );
                         @endphp
                         @foreach($qualRows as $i => $row)
@@ -88,6 +87,7 @@
                                 <td class="px-3 py-2"><input type="text" name="qualifications[{{ $i }}][class]" value="{{ $row['class'] }}" class="wf-input w-full" {{ $readonly ? 'readonly' : '' }} placeholder="e.g. Second Class Upper" /></td>
                                 <td class="px-3 py-2"><input type="text" name="qualifications[{{ $i }}][institution]" value="{{ $row['institution'] }}" class="wf-input w-full" {{ $readonly ? 'readonly' : '' }} placeholder="Institution name" /></td>
                                 <td class="px-3 py-2"><input type="text" name="qualifications[{{ $i }}][date_obtained]" value="{{ $row['date_obtained'] }}" class="wf-input w-full" {{ $readonly ? 'readonly' : '' }} placeholder="e.g. 2005" /></td>
+                                <td class="px-3 py-2 text-center"><input type="checkbox" name="qualifications[{{ $i }}][is_additional]" value="1" {{ !empty($row['is_additional']) ? 'checked' : '' }} {{ $readonly ? 'disabled' : '' }} /></td>
                                 @if(!$readonly)
                                     <td class="px-3 py-2 text-center">
                                         <button type="button" onclick="removeTableRow(this, '.qual-row')" class="text-red-400 hover:text-red-600"><i class="ti ti-trash text-sm"></i></button>
@@ -116,6 +116,7 @@
                             <th class="px-3 py-2.5 text-left border-b border-gray-200">QUALIFICATION</th>
                             <th class="px-3 py-2.5 text-left border-b border-gray-200">AWARDING BODY / SOCIETY</th>
                             <th class="px-3 py-2.5 text-left border-b border-gray-200">DATE OF AWARD</th>
+                            <th class="px-3 py-2.5 text-center border-b border-gray-200" title="Additional qualification obtained during the period under review">*NEW THIS PERIOD</th>
                             @if(!$readonly) <th class="px-3 py-2.5 w-10 border-b border-gray-200"></th> @endif
                         </tr>
                     </thead>
@@ -123,8 +124,8 @@
                         @php
                             $profRows = old('professionals',
                                 $professionals->isNotEmpty()
-                                    ? $professionals->map(fn($p) => ['qualification'=>$p->qualification,'award_body'=>$p->award_body,'date_obtained'=>$p->date_obtained])->toArray()
-                                    : [['qualification'=>'','award_body'=>'','date_obtained'=>'']]
+                                    ? $professionals->map(fn($p) => ['qualification'=>$p->qualification,'award_body'=>$p->award_body,'date_obtained'=>$p->date_obtained,'is_additional'=>$p->is_additional])->toArray()
+                                    : [['qualification'=>'','award_body'=>'','date_obtained'=>'','is_additional'=>0]]
                             );
                         @endphp
                         @foreach($profRows as $i => $row)
@@ -132,6 +133,7 @@
                                 <td class="px-3 py-2"><input type="text" name="professionals[{{ $i }}][qualification]" value="{{ $row['qualification'] }}" class="wf-input w-full" {{ $readonly ? 'readonly' : '' }} placeholder="e.g. ACCA" /></td>
                                 <td class="px-3 py-2"><input type="text" name="professionals[{{ $i }}][award_body]" value="{{ $row['award_body'] }}" class="wf-input w-full" {{ $readonly ? 'readonly' : '' }} placeholder="Awarding body" /></td>
                                 <td class="px-3 py-2"><input type="text" name="professionals[{{ $i }}][date_obtained]" value="{{ $row['date_obtained'] }}" class="wf-input w-full" {{ $readonly ? 'readonly' : '' }} placeholder="e.g. 2010" /></td>
+                                <td class="px-3 py-2 text-center"><input type="checkbox" name="professionals[{{ $i }}][is_additional]" value="1" {{ !empty($row['is_additional']) ? 'checked' : '' }} {{ $readonly ? 'disabled' : '' }} /></td>
                                 @if(!$readonly)
                                     <td class="px-3 py-2 text-center">
                                         <button type="button" onclick="removeTableRow(this, '.prof-row')" class="text-red-400 hover:text-red-600"><i class="ti ti-trash text-sm"></i></button>
@@ -211,6 +213,7 @@
                 <td class="px-3 py-2"><input type="text" name="qualifications[${i}][class]" class="wf-input w-full" placeholder="e.g. Second Class Upper" /></td>
                 <td class="px-3 py-2"><input type="text" name="qualifications[${i}][institution]" class="wf-input w-full" placeholder="Institution name" /></td>
                 <td class="px-3 py-2"><input type="text" name="qualifications[${i}][date_obtained]" class="wf-input w-full" placeholder="e.g. 2005" /></td>
+                <td class="px-3 py-2 text-center"><input type="checkbox" name="qualifications[${i}][is_additional]" value="1" /></td>
                 <td class="px-3 py-2 text-center"><button type="button" onclick="removeTableRow(this, '.qual-row')" class="text-red-400 hover:text-red-600"><i class="ti ti-trash text-sm"></i></button></td>`;
             tbody.appendChild(tr);
         }
@@ -224,6 +227,7 @@
                 <td class="px-3 py-2"><input type="text" name="professionals[${i}][qualification]" class="wf-input w-full" placeholder="e.g. ACCA" /></td>
                 <td class="px-3 py-2"><input type="text" name="professionals[${i}][award_body]" class="wf-input w-full" placeholder="Awarding body" /></td>
                 <td class="px-3 py-2"><input type="text" name="professionals[${i}][date_obtained]" class="wf-input w-full" placeholder="e.g. 2010" /></td>
+                <td class="px-3 py-2 text-center"><input type="checkbox" name="professionals[${i}][is_additional]" value="1" /></td>
                 <td class="px-3 py-2 text-center"><button type="button" onclick="removeTableRow(this, '.prof-row')" class="text-red-400 hover:text-red-600"><i class="ti ti-trash text-sm"></i></button></td>`;
             tbody.appendChild(tr);
         }

@@ -11,6 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // Guard: column may already exist (created in the base migration or added manually on live).
+        if (Schema::hasColumn('staff', 'created_by')) {
+            return;
+        }
+
         Schema::table('staff', function (Blueprint $table) {
             //
             $table->unsignedBigInteger('created_by')->after('staff_status_id')->nullable();

@@ -9,6 +9,8 @@ use App\Models\GeoPolZone;
 
 class Admin_GeoPolZoneController extends Controller
 {
+    use \App\Http\Controllers\Concerns\SafeDeletes;
+
     //
     public function index(Request $request)
     {
@@ -117,5 +119,10 @@ class Admin_GeoPolZoneController extends Controller
         }
 
         return redirect()->back()->with($data);
+    }
+
+    public function destroy(GeoPolZone $geo_pol_zone)
+    {
+        return $this->safeDelete($geo_pol_zone, 'geo-political zone');
     }
 }

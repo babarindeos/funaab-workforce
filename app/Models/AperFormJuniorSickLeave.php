@@ -7,16 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class AperFormJuniorSickLeave extends Model
 {
+    use \App\Models\Concerns\HasUuid;
     use HasFactory;
 
     protected $table = 'aper_form_junior_sick_leaves';
 
-    protected $fillable = [
-        'uuid', 'aper_form_id', 'staff_id',
-        'with_medical_certificate',
-        'without_medical_certificate',
-        'supervisor',
-    ];
+    // All columns except the key are mass-assignable; controllers only pass validated data.
+    protected $guarded = ['id'];
 
     protected static function booted(): void
     {

@@ -9,6 +9,8 @@ use App\Models\MaritalStatus;
 
 class Admin_MaritalStatusController extends Controller
 {
+    use \App\Http\Controllers\Concerns\SafeDeletes;
+
     //
     public function index(Request $request)
     {
@@ -129,5 +131,10 @@ class Admin_MaritalStatusController extends Controller
 
         return redirect()->back()->with($data);
 
+    }
+
+    public function destroy(MaritalStatus $marital_status)
+    {
+        return $this->safeDelete($marital_status, 'marital status');
     }
 }

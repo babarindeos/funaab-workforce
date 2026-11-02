@@ -8,23 +8,13 @@ use Illuminate\Support\Str;
 
 class AperFormJuniorPersonal extends Model
 {
+    use \App\Models\Concerns\HasUuid;
     use HasFactory;
 
     protected $table = 'aper_form_junior_personals';
 
-    protected $fillable = [
-        'uuid', 'aper_form_id', 'staff_id',
-        'surname', 'firstname', 'middlename',
-        'dob', 'retirement_date',
-        'marital_status_id', 'children',
-        'telephone_no', 'email_address',
-        'division_id', 'department_id',
-        'date_first_appointment', 'post_first_appointment',
-        'date_last_appointment', 'post_last_appointment',
-        'date_current_appointment', 'post_current_appointment',
-        'appointment_confirmed', 'confirmation_date',
-        'present_grade_level_salary',
-    ];
+    // All columns except the key are mass-assignable; controllers only pass validated data.
+    protected $guarded = ['id'];
 
     protected $casts = [
         'dob'                      => 'date',

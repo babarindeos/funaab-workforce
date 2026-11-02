@@ -7,12 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class AperFormSeniorScoring extends Model
 {
+    use \App\Models\Concerns\HasUuid;
     protected $table = 'aper_form_senior_scorings';
 
-    protected $fillable = [
-        'aper_form_id', 'staff_id',
-        'metric_id', 'score', 'assessor',
-    ];
+    // All columns except the key are mass-assignable; controllers only pass validated data.
+    protected $guarded = ['id'];
 
     protected $casts = ['score' => 'float'];
 

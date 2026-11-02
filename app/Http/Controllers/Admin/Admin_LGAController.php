@@ -10,6 +10,8 @@ use App\Models\State;
 
 class Admin_LGAController extends Controller
 {
+    use \App\Http\Controllers\Concerns\SafeDeletes;
+
     //
    public function index(Request $request)
    {
@@ -35,4 +37,31 @@ class Admin_LGAController extends Controller
 
          return view('admin.lgas.index', compact('lgas', 'states'));
    }
+
+    public function store(Request $request)
+    {
+        $data = $request->validate([
+            'state_id' => ['required', 'exists:states,id'],
+            'lga_name' => ['required', 'string', 'max:255',
+                \Illuminate\Validation\Rule::unique('lgas', 'lga_name')->where('state_id', $request->state_id)],
+        ]);
+        \App\Models\Lga::create($data);
+        return back()->with('success', 'LGA created successfully.');
+    }
+
+    public function update(Request $request, \App\Models\Lga $lga)
+    {
+        $data = $request->validate([
+            'state_id' => ['required', 'exists:states,id'],
+            'lga_name' => ['required', 'string', 'max:255',
+                \Illuminate\Validation\Rule::unique('lgas', 'lga_name')->where('state_id', $request->state_id)->ignore($lga->id)],
+        ]);
+        $lga->update($data);
+        return back()->with('success', 'LGA updated successfully.');
+    }
+
+    public function destroy(\App\Models\Lga $lga)
+    {
+        return $this->safeDelete($lga, 'LGA');
+    }
 }

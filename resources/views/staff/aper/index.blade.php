@@ -24,6 +24,7 @@
                     <th>START DATE</th>
                     <th>END DATE</th>
                     <th>STATUS</th>
+                    <th>MY FORM</th>
                     <th>ACTION</th>
                 </tr>
             </thead>
@@ -53,6 +54,14 @@
                             @endif
                         </td>
                         <td>
+                            @php $mySub = $submissions->get($form->id); @endphp
+                            @if($mySub)
+                                <span class="badge {{ $mySub->status === 'completed' ? 'badge-approved' : ($mySub->isDraft() ? 'badge-pending' : 'badge-info') }}">{{ $mySub->status_label }}</span>
+                            @else
+                                <span class="text-[11px] text-gray-400">Not started</span>
+                            @endif
+                        </td>
+                        <td>
                             <a href="{{ route('staff.aper.open', $form->uuid) }}"
                                class="btn-wf-ghost btn-wf-sm">
                                 @if($isOpen)
@@ -65,7 +74,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="6" class="text-center py-10 text-gray-400">
+                        <td colspan="7" class="text-center py-10 text-gray-400">
                             <i class="ti ti-file-certificate text-3xl block mb-2"></i>
                             No APER forms are available at this time.
                         </td>

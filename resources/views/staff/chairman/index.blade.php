@@ -3,7 +3,7 @@
     <div class="flex items-start justify-between mb-5">
         <div>
             <h1 class="pg-title">Chairman DAPC Assessment</h1>
-            <p class="pg-sub">APER forms available for your assessment — {{ $chairman->department?->department_name }}</p>
+            <p class="pg-sub">APER forms available for your assessment — {{ $records->pluck('department.department_name')->filter()->unique()->implode(', ') }}</p>
         </div>
     </div>
 

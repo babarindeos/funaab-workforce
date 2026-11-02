@@ -34,14 +34,7 @@
             </div>
         </div>
     </div>
-
-    {{-- Readonly notice --}}
-    @if($readonly)
-        <div class="flex items-center gap-2 bg-amber-50 border border-amber-200 text-amber-700 text-xs font-semibold px-4 py-3 rounded-lg mb-4">
-            <i class="ti ti-lock text-base"></i>
-            This APER form is closed. Your submission is displayed in read-only mode.
-        </div>
-    @endif
+    @include('staff.aper._status_banner')
 
     <form action="{{ $readonly ? '#' : route('staff.aper.junior.part_a.store', $aperForm->uuid) }}"
           method="POST">
@@ -212,14 +205,14 @@
                     <div>
                         <label class="wf-label">Date</label>
                         <input type="date" name="date_first_appointment"
-                               value="{{ old('date_first_appointment', optional($existing)->date_first_appointment?->format('Y-m-d') ?? optional($staff->employment->date_funaab_first_appointment)->format('Y-m-d')) }}"
+                               value="{{ old('date_first_appointment', optional($existing)->date_first_appointment?->format('Y-m-d') ?? optional($staff->employment?->date_funaab_first_appointment)->format('Y-m-d')) }}"
                                class="wf-input w-full bg-gray-50"
                               disabled />
                     </div>
                     <div>
                         <label class="wf-label">Post</label>
                         <input type="text" name="post_first_appointment"
-                               value="{{ old('post_first_appointment', $existing->post_first_appointment ?? $staff->employment->first_appointment_post) }}"
+                               value="{{ old('post_first_appointment', $existing->post_first_appointment ?? $staff->employment?->first_appointment_post) }}"
                                placeholder="e.g. Clerical Officer II"
                                class="wf-input w-full bg-gray-50"
                                disabled />
@@ -236,13 +229,13 @@
                     <div>
                         <label class="wf-label">Date</label>                      
                          <input type="date" name="date_last_appointment"
-                               value="{{ old('date_last_appointment', optional($existing)->date_last_appointment?->format('Y-m-d') ?? optional($staff->employment)->date_present_appointment?->format('Y-m-d')) }}"
+                               value="{{ old('date_last_appointment', optional($existing)->date_last_appointment?->format('Y-m-d') ?? $lastPromotion['date']) }}"
                                class="wf-input w-full bg-gray-50" disabled />
                     </div>
                     <div>
                         <label class="wf-label">Post</label>
                         <input type="text" name="post_last_appointment"
-                               value="{{ old('post_last_appointment', $existing->post_last_appointment ?? $staff->employment->designation?->cadreRank->cadre_rank_name)   }}"
+                               value="{{ old('post_last_appointment', $existing->post_last_appointment ?? $lastPromotion['post']) }}"
                                placeholder="e.g. Senior Clerical Officer"
                                class="wf-input w-full bg-gray-50"
                                disabled />
@@ -309,7 +302,7 @@
             <div>
                 <label class="wf-label">10. Present Grade Level and Salary <span class="text-red-500">*</span></label>
                 <input type="text" name="present_grade_level_salary"
-                       value="{{ old('present_grade_level_salary', $existing->present_grade_level_salary ?? ($staff->employment->salaryStep ? $staff->employment->salaryStep->salaryLevel->salaryStructure->salary_structure_name.' - '.$staff->employment->salaryStep->salaryLevel->level.' / Step '.$staff->employment->salaryStep->step : '')) }}"
+                       value="{{ old('present_grade_level_salary', $existing->present_grade_level_salary ?? $gradeText) }}"
                        placeholder="e.g. GL 06 / Step 3"
                        class="wf-input w-full max-w-sm @error('present_grade_level_salary') border-red-400 @enderror bg-gray-50"
                        disabled required />
@@ -334,6 +327,7 @@
                             <th class="px-3 py-2.5 text-left border-b border-gray-200">DURATION FROM</th>
                             <th class="px-3 py-2.5 text-left border-b border-gray-200">DURATION TO</th>
                             <th class="px-3 py-2.5 text-left border-b border-gray-200">QUALIFICATION OBTAINED</th>
+                            <th class="px-3 py-2.5 text-left border-b border-gray-200">SUBJECTS &amp; GRADES</th>
                             @if(!$readonly)
                                 <th class="px-3 py-2.5 text-center border-b border-gray-200 w-10"></th>
                             @endif
@@ -348,8 +342,9 @@
                                         'from_date'             => $q->from_date,
                                         'to_date'               => $q->to_date,
                                         'qualification_obtained'=> $q->qualification_obtained,
+                                        'subjects_grades'       => $q->subjects_grades,
                                     ])->toArray()
-                                    : [['institution'=>'','from_date'=>'','to_date'=>'','qualification_obtained'=>'']]
+                                    : [['institution'=>'','from_date'=>'','to_date'=>'','qualification_obtained'=>'','subjects_grades'=>'']]
                             );
                         @endphp
 
@@ -382,6 +377,13 @@
                                            class="wf-input w-full"
                                            {{ $readonly ? 'readonly' : '' }}
                                            placeholder="e.g. B.Sc. Computer Science" />
+                                </td>
+                                <td class="px-3 py-2">
+                                    <input type="text" name="qualifications[{{ $i }}][subjects_grades]"
+                                           value="{{ $row['subjects_grades'] ?? '' }}"
+                                           class="wf-input w-full"
+                                           {{ $readonly ? 'readonly' : '' }}
+                                           placeholder="e.g. English C4, Maths B3" />
                                 </td>
                                 @if(!$readonly)
                                     <td class="px-3 py-2 text-center">
@@ -437,6 +439,7 @@
                 <td class="px-3 py-2"><input type="text" name="qualifications[${qualIndex}][from_date]" class="wf-input w-full" placeholder="e.g. 2010" /></td>
                 <td class="px-3 py-2"><input type="text" name="qualifications[${qualIndex}][to_date]" class="wf-input w-full" placeholder="e.g. 2014" /></td>
                 <td class="px-3 py-2"><input type="text" name="qualifications[${qualIndex}][qualification_obtained]" class="wf-input w-full" placeholder="e.g. B.Sc." /></td>
+                <td class="px-3 py-2"><input type="text" name="qualifications[${qualIndex}][subjects_grades]" class="wf-input w-full" placeholder="e.g. English C4, Maths B3" /></td>
                 <td class="px-3 py-2 text-center"><button type="button" onclick="removeQualRow(this)" class="text-red-400 hover:text-red-600"><i class="ti ti-trash text-sm"></i></button></td>
             `;
             tbody.appendChild(tr);

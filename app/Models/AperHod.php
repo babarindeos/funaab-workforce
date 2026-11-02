@@ -7,6 +7,7 @@ use Illuminate\Support\Str;
 
 class AperHod extends Model
 {
+    use \App\Models\Concerns\HasUuid;
     protected $table = 'aper_hods';
 
     protected $fillable = ['uuid', 'department_id', 'staff_category_id', 'staff_id', 'is_current'];

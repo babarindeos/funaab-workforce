@@ -33,7 +33,6 @@
             </div>
     </section>
 
-    <!-- @include('partials._dashboard_submenu1') -->
 
 
     <section class='border-0 mx-auto w-full py-4'>

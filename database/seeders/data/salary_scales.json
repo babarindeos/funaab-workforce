@@ -1,0 +1,56 @@
+{
+ "_note": "Levels per structure and the highest step to create. Derived from the July 2026 nominal roll (highest step in use) and the standard CONTISS step counts. Adjust here if the official scale differs; re-running the seeder only ADDS missing levels/steps.",
+ "scales": {
+  "CONTISS": {
+   "01": 15,
+   "02": 15,
+   "03": 15,
+   "04": 15,
+   "05": 15,
+   "06": 15,
+   "07": 15,
+   "08": 15,
+   "09": 15,
+   "11": 13,
+   "12": 13,
+   "13": 13,
+   "14": 9,
+   "15": 9
+  },
+  "CONUASS": {
+   "01": 7,
+   "02": 5,
+   "03": 9,
+   "04": 10,
+   "05": 11,
+   "06": 6,
+   "07": 10
+  },
+  "CONHESS": {
+   "01": 1,
+   "02": 1,
+   "03": 1,
+   "04": 1,
+   "05": 1,
+   "06": 8,
+   "07": 5,
+   "08": 5,
+   "09": 4,
+   "10": 1,
+   "11": 6,
+   "12": 11,
+   "13": 9,
+   "14": 8,
+   "15": 1
+  },
+  "CONMESS": {
+   "01": 1,
+   "02": 1,
+   "03": 1,
+   "04": 2,
+   "05": 3,
+   "06": 5,
+   "07": 7
+  }
+ }
+}

@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class DivisionType extends Model
 {
+    use \App\Models\Concerns\HasUuid;
     use HasFactory;
 
     protected $fillable = ['division_type_name'];

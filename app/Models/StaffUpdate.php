@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class StaffUpdate extends Model
 {
+    use \App\Models\Concerns\HasUuid;
     use HasFactory;
 
     protected $fillable = ['user_id', 

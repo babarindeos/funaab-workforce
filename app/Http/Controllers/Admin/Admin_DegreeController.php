@@ -9,6 +9,8 @@ use App\Models\Degree;
 
 class Admin_DegreeController extends Controller
 {
+    use \App\Http\Controllers\Concerns\SafeDeletes;
+
     //
     public function index()
     {
@@ -61,5 +63,21 @@ class Admin_DegreeController extends Controller
         }
 
         return redirect()->back()->with($data);
+    }
+
+    public function update(Request $request, Degree $degree)
+    {
+        $data = $request->validate([
+            'degree_name' => ['required', 'string', 'max:255', 'unique:degrees,degree_name,' . $degree->id],
+            'order_level' => ['nullable', 'integer'],
+            'remark'      => ['nullable', 'string', 'max:255'],
+        ]);
+        $degree->update($data);
+        return back()->with('success', 'Degree updated successfully.');
+    }
+
+    public function destroy(Degree $degree)
+    {
+        return $this->safeDelete($degree, 'degree');
     }
 }

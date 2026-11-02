@@ -7,7 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class Lga extends Model
 {
+    use \App\Models\Concerns\HasUuid;
     use HasFactory;
+
+    protected $fillable = ['state_id', 'lga_name'];
 
     public function state()
     {

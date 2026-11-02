@@ -23,7 +23,7 @@
             </div>
             <div>
                 <p class="text-[10px] font-bold tracking-wider text-gray-400 mb-1">DEPARTMENT</p>
-                <p class="text-sm font-bold text-gray-700">{{ $supervisor->department?->department_name }}</p>
+                <p class="text-sm font-bold text-gray-700">{{ $staff->employment?->department?->department_name }}</p>
             </div>
             <div>
                 <p class="text-[10px] font-bold tracking-wider text-gray-400 mb-1">FORM STATUS</p>

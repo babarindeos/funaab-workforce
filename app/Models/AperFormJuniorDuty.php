@@ -8,13 +8,13 @@ use Illuminate\Support\Str;
 
 class AperFormJuniorDuty extends Model
 {
+    use \App\Models\Concerns\HasUuid;
     use HasFactory;
 
     protected $table = 'aper_form_junior_duties';
 
-    protected $fillable = [
-        'uuid', 'aper_form_id', 'staff_id', 'duty',
-    ];
+    // All columns except the key are mass-assignable; controllers only pass validated data.
+    protected $guarded = ['id'];
 
     protected static function booted(): void
     {

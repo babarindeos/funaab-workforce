@@ -11,6 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // Guard: column may already exist (created in the base migration or added manually on live).
+        if (Schema::hasColumn('staff', 'geo_zone_id')) {
+            return;
+        }
+
         Schema::table('staff', function (Blueprint $table) {
             //
             $table->unsignedBigInteger('geo_zone_id')->after('senatorial_district_id')->nullable();

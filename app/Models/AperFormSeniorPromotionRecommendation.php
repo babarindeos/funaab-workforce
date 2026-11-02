@@ -7,12 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class AperFormSeniorPromotionRecommendation extends Model
 {
+    use \App\Models\Concerns\HasUuid;
     protected $table = 'aper_form_senior_promotion_recommendations';
 
-    protected $fillable = [
-        'uuid', 'aper_form_id', 'staff_id',
-        'endorse', 'reject', 'chairman',
-    ];
+    // All columns except the key are mass-assignable; controllers only pass validated data.
+    protected $guarded = ['id'];
 
     protected static function booted(): void
     {

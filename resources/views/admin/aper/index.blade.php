@@ -68,6 +68,8 @@
                     <th>NAME</th>
                     <th>START DATE</th>
                     <th>END DATE</th>
+                    <th>PERIOD OF REPORT</th>
+                    <th>SUBMISSIONS</th>
                     <th>STATUS</th>
                     <th class="text-right">ACTIONS</th>
                 </tr>
@@ -85,6 +87,14 @@
                         <td class="col-name">{{ $form->name }}</td>
                         <td>{{ $start->format('d M Y') }}</td>
                         <td>{{ $end->format('d M Y') }}</td>
+                        <td class="text-[11px]">
+                            @if($form->review_period_start)
+                                {{ $form->review_period_start->format('d M Y') }} – {{ $form->review_period_end?->format('d M Y') }}
+                            @else
+                                <span class="text-amber-600">Not set</span>
+                            @endif
+                        </td>
+                        <td>{{ $form->submissions_count }}</td>
                         <td>
                             @if($isOpen)
                                 <span class="badge badge-active">Opened</span>
@@ -98,14 +108,17 @@
                                 <button onclick="openEdit(this)"
                                         data-id="{{ $form->uuid }}"
                                         data-name="{{ addslashes($form->name) }}"
-                                        data-start="{{ $form->start_date }}"
-                                        data-end="{{ $form->end_date }}"
+                                        data-start="{{ $form->start_date?->format('Y-m-d') }}"
+                                        data-end="{{ $form->end_date?->format('Y-m-d') }}"
+                                        data-review-start="{{ $form->review_period_start?->format('Y-m-d') }}"
+                                        data-review-end="{{ $form->review_period_end?->format('Y-m-d') }}"
                                         data-description="{{ addslashes($form->description ?? '') }}"
                                         class="btn-wf-ghost btn-wf-sm">
                                     <i class="ti ti-edit text-xs"></i> Edit
                                 </button>
 
 
+                                @if($form->submissions_count == 0)
                                 <form action="{{ route('admin.aper.destroy', $form->uuid) }}"
                                       method="POST"
                                       onsubmit="return confirm('Are you sure you want to delete this APER form? This action cannot be undone.')">
@@ -114,12 +127,13 @@
                                         <i class="ti ti-trash text-xs"></i>
                                     </button>
                                 </form>
+                                @endif
                             </div>
                         </td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="6" class="text-center py-10 text-gray-400">
+                        <td colspan="8" class="text-center py-10 text-gray-400">
                             <i class="ti ti-forms text-3xl block mb-2"></i>
                             No APER forms found. Create one to get started.
                         </td>
@@ -164,6 +178,28 @@
                                   focus:outline-none focus:border-funaab-500 focus:ring-2 focus:ring-funaab-50"
                            required />
                     @error('name') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+                </div>
+                <div class="grid grid-cols-2 gap-3 mb-4">
+                    <div>
+                        <label class="block text-[11px] font-bold tracking-wider text-gray-500 mb-1.5">
+                            PERIOD OF REPORT – FROM <span class="text-red-500">*</span>
+                        </label>
+                        <input type="date" name="review_period_start" value="{{ old('review_period_start') }}"
+                               class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-funaab-500 focus:ring-2 focus:ring-funaab-50"
+                               required />
+                        <p class="text-[10px] text-gray-400 mt-1">Normally 1 October</p>
+                        @error('review_period_start') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold tracking-wider text-gray-500 mb-1.5">
+                            PERIOD OF REPORT – TO <span class="text-red-500">*</span>
+                        </label>
+                        <input type="date" name="review_period_end" value="{{ old('review_period_end') }}"
+                               class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-funaab-500 focus:ring-2 focus:ring-funaab-50"
+                               required />
+                        <p class="text-[10px] text-gray-400 mt-1">Normally 30 September</p>
+                        @error('review_period_end') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+                    </div>
                 </div>
                 <div class="grid grid-cols-2 gap-3 mb-4">
                     <div>
@@ -234,6 +270,28 @@
                 <div class="grid grid-cols-2 gap-3 mb-4">
                     <div>
                         <label class="block text-[11px] font-bold tracking-wider text-gray-500 mb-1.5">
+                            PERIOD OF REPORT – FROM <span class="text-red-500">*</span>
+                        </label>
+                        <input type="date" name="review_period_start" id="edit-review-start"
+                               class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-funaab-500 focus:ring-2 focus:ring-funaab-50"
+                               required />
+                        <p class="text-[10px] text-gray-400 mt-1">Normally 1 October</p>
+                        @error('review_period_start') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold tracking-wider text-gray-500 mb-1.5">
+                            PERIOD OF REPORT – TO <span class="text-red-500">*</span>
+                        </label>
+                        <input type="date" name="review_period_end" id="edit-review-end"
+                               class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-funaab-500 focus:ring-2 focus:ring-funaab-50"
+                               required />
+                        <p class="text-[10px] text-gray-400 mt-1">Normally 30 September</p>
+                        @error('review_period_end') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3 mb-4">
+                    <div>
+                        <label class="block text-[11px] font-bold tracking-wider text-gray-500 mb-1.5">
                             START DATE <span class="text-red-500">*</span>
                         </label>
                         <input type="date" name="start_date" id="edit-start-date"
@@ -277,6 +335,8 @@
             document.getElementById('edit-name').value         = btn.dataset.name;
             document.getElementById('edit-start-date').value   = btn.dataset.start;
             document.getElementById('edit-end-date').value     = btn.dataset.end;
+            document.getElementById('edit-review-start').value = btn.dataset.reviewStart || '';
+            document.getElementById('edit-review-end').value   = btn.dataset.reviewEnd || '';
             document.getElementById('edit-description').value  = btn.dataset.description;
             document.getElementById('edit-form').action        = `/admin/aper/${btn.dataset.id}`;
             document.getElementById('modal-edit').classList.remove('hidden');

@@ -3,7 +3,7 @@
     <div class="flex items-start justify-between mb-5">
         <div>
             <h1 class="pg-title">{{ $aperForm->name }}</h1>
-            <p class="pg-sub">Senior Non-Teaching Staff recommended for promotion — {{ $chairman->department?->department_name }}</p>
+            <p class="pg-sub">Senior Non-Teaching Staff recommended for promotion — {{ $records->pluck('department.department_name')->filter()->unique()->implode(', ') }}</p>
         </div>
         <a href="{{ route('staff.chairman.index') }}" class="btn-wf-ghost btn-wf-sm">
             <i class="ti ti-arrow-left text-sm"></i> Back

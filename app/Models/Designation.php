@@ -5,6 +5,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Designation extends Model
 {
+    use \App\Models\Concerns\HasUuid;
     use HasFactory;
     protected $fillable = [
         'cadre_rank_id', 'salary_structure_id', 'salary_level_id', 'next_cadre_rank',

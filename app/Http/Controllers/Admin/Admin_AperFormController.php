@@ -30,7 +30,7 @@ class Admin_AperFormController extends Controller
             $query->closed();
         }
 
-        $aperForms = $query->paginate(15)->withQueryString();
+        $aperForms = $query->withCount('submissions')->paginate(15)->withQueryString();
 
         return view('admin.aper.index', compact('aperForms'));
     }
@@ -41,12 +41,15 @@ class Admin_AperFormController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            'name'        => ['required', 'string', 'max:255'],
-            'start_date'  => ['required', 'date'],
-            'end_date'    => ['required', 'date', 'after_or_equal:start_date'],
-            'description' => ['nullable', 'string', 'max:1000'],
+            'name'                => ['required', 'string', 'max:255'],
+            'review_period_start' => ['required', 'date'],
+            'review_period_end'   => ['required', 'date', 'after:review_period_start'],
+            'start_date'          => ['required', 'date'],
+            'end_date'            => ['required', 'date', 'after_or_equal:start_date'],
+            'description'         => ['nullable', 'string', 'max:1000'],
         ], [
             'end_date.after_or_equal' => 'The end date must be on or after the start date.',
+            'review_period_end.after' => 'The end of the reporting period must be after its start (normally 1 October – 30 September).',
         ]);
 
         AperForm::create($validated);
@@ -61,12 +64,15 @@ class Admin_AperFormController extends Controller
     public function update(Request $request, AperForm $aper): RedirectResponse
     {
         $validated = $request->validate([
-            'name'        => ['required', 'string', 'max:255'],
-            'start_date'  => ['required', 'date'],
-            'end_date'    => ['required', 'date', 'after_or_equal:start_date'],
-            'description' => ['nullable', 'string', 'max:1000'],
+            'name'                => ['required', 'string', 'max:255'],
+            'review_period_start' => ['required', 'date'],
+            'review_period_end'   => ['required', 'date', 'after:review_period_start'],
+            'start_date'          => ['required', 'date'],
+            'end_date'            => ['required', 'date', 'after_or_equal:start_date'],
+            'description'         => ['nullable', 'string', 'max:1000'],
         ], [
             'end_date.after_or_equal' => 'The end date must be on or after the start date.',
+            'review_period_end.after' => 'The end of the reporting period must be after its start (normally 1 October – 30 September).',
         ]);
 
         $aper->update($validated);
@@ -80,6 +86,12 @@ class Admin_AperFormController extends Controller
      */
     public function destroy(AperForm $aper): RedirectResponse
     {
+        // Deleting a form would cascade-delete every staff submission in it.
+        if ($aper->submissions()->exists()) {
+            return redirect()->route('admin.aper.index')
+                ->with('error', 'This APER form already has staff submissions and cannot be deleted. Change its dates instead.');
+        }
+
         $aper->delete();
 
         return redirect()->route('admin.aper.index')

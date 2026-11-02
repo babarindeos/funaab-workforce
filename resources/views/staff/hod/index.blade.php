@@ -3,7 +3,7 @@
     <div class="flex items-start justify-between mb-5">
         <div>
             <h1 class="pg-title">HOD Assessment</h1>
-            <p class="pg-sub">APER forms available for your evaluation — {{ $hod->department?->department_name }}</p>
+            <p class="pg-sub">APER forms available for your evaluation — {{ $records->pluck('department.department_name')->filter()->unique()->implode(', ') }}</p>
         </div>
     </div>
 

@@ -30,6 +30,12 @@
                     <div class="flex flex-col w-full border border-0" >
                     <form  action="{{ route('staff.auth.login') }}" method="POST" class="flex flex-col mx-auto w-[90%] items-center justify-center space-y-2">
                             @csrf
+                            @if (session('success'))
+                                <div class="w-[80%] rounded-md bg-green-50 border border-green-200 px-3 py-2 text-sm text-green-800">{{ session('success') }}</div>
+                            @endif
+                            @if (session('error'))
+                                <div class="w-[80%] rounded-md bg-red-50 border border-red-200 px-3 py-2 text-sm text-red-800">{{ session('error') }}</div>
+                            @endif
 
                             <div class="flex flex-col w-[80%] md:w-[80%] py-4 mt-4 font-serif" >
                                 <h2 class="font-semibold text-xl py-1" >Sign In</h2>
@@ -102,7 +108,7 @@
                             <!-- end of submit //-->
 
                              <div class='flex flex-row border-0 w-[80%] justify-end items-center space-x-5'>                                 
-                                <a href="#" class='flex flex-row text-sm border-0 hover:underline'>Forgot Password</a>
+                                <a href="{{ route('password.request') }}" class='flex flex-row text-sm border-0 hover:underline'>Forgot Password</a>
                             </div>
 
                         </form>

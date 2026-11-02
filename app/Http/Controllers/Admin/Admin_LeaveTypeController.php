@@ -14,10 +14,6 @@ class Admin_LeaveTypeController extends Controller
         return view('admin.leave.types.index', compact('leaveTypes'));
     }
 
-    public function create()
-    {
-        return view('admin.leave.types.create');
-    }
 
     public function store(Request $request)
     {
@@ -31,10 +27,6 @@ class Admin_LeaveTypeController extends Controller
                          ->with('success', 'Leave type created successfully.');
     }
 
-    public function edit(LeaveType $leaveType)
-    {
-        return view('admin.leave.types.edit', compact('leaveType'));
-    }
 
     public function update(Request $request, LeaveType $leaveType)
     {

@@ -4,353 +4,254 @@ namespace App\Http\Controllers\Staff;
 
 use App\Http\Controllers\Controller;
 use App\Models\AperForm;
-use App\Models\AperFormJuniorDuty;
-use App\Models\AperFormJuniorPersonal;
 use App\Models\AperFormJuniorHodRecommend;
-use App\Models\AperFormJuniorScoringGuide;
-use App\Models\AperFormJuniorScoring;
+use App\Models\AperFormJuniorPerformance;
+use App\Models\AperFormJuniorPersonal;
 use App\Models\AperFormJuniorPromotionMinReq;
 use App\Models\AperFormJuniorPromotionRecommendation;
-use App\Models\AperChairmanDapc;
-use App\Models\Staff;
-use App\Models\StaffCategory;
-use Illuminate\Http\Request;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Str;
-use Illuminate\View\View;
-use Carbon\Carbon;
-
-use App\Models\AperFormSeniorPersonal;
+use App\Models\AperFormJuniorScoring;
+use App\Models\AperFormJuniorScoringGuide;
 use App\Models\AperFormSeniorHodRecommend;
-use App\Models\AperFormSeniorScoringGuide;
-use App\Models\AperFormSeniorScoring;
+use App\Models\AperFormSeniorPerformance;
+use App\Models\AperFormSeniorPersonal;
 use App\Models\AperFormSeniorPromotionMinReq;
 use App\Models\AperFormSeniorPromotionRecommendation;
+use App\Models\AperFormSeniorScoring;
+use App\Models\AperFormSeniorScoringGuide;
+use App\Models\AperSubmission;
+use App\Models\Staff;
+use App\Services\AperWorkflow;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\View\View;
 
+/**
+ * Departmental Assessment Panel (Chairman DAPC) — Part C "Detailed scoring",
+ * only for staff the HOD recommended for promotion, after the staff comment.
+ *
+ * "HOD's Assessment" and "Managerial Ability"/"Degree of Reliability" are
+ * calculated from the HOD's grades (see AperScoringSeeder); the Panel enters
+ * the rest. The total is checked against the minimum for the staff member's
+ * current level ("CONTISS 08 – 45" = minimum to be promoted FROM level 08).
+ */
 class Staff_ChairmanController extends Controller
 {
-    private function getStaff(): Staff
+    private const READY = [AperSubmission::STAFF_COMMENTED, AperSubmission::COMPLETED];
+
+    public function __construct(private AperWorkflow $wf) {}
+
+    private function records(Staff $me)
     {
-        return Staff::where('staff_no', Auth::user()->fileno)->firstOrFail();
+        $records = $this->wf->chairmanRecords($me);
+        if ($records->isEmpty()) abort(403, 'You are not assigned as a Chairman DAPC.');
+        return $records;
     }
 
-    private function getChairmanRecord(): ?AperChairmanDapc
+    private function resolve(string $aperForm, string $staff, string $type): array
     {
-        $staff = $this->getStaff();
-        return AperChairmanDapc::where('staff_id', $staff->id)
-                               ->where('is_current', true)
-                               ->first();
+        $form   = AperForm::where('uuid', $aperForm)->firstOrFail();
+        $target = Staff::where('uuid', $staff)->with(['employment.department', 'employment.staffCategory'])->firstOrFail();
+        $this->wf->authorize('chairman', $this->wf->currentStaff(), $target);
+
+        $sub = $this->wf->submissionFor($form, $target, false);
+        if (!$sub || $sub->form_type !== $type || !in_array($sub->status, self::READY, true) || !$sub->recommended_for_promotion) {
+            abort(403, 'Part C is only for staff recommended for promotion by the HOD, after the staff member has commented.');
+        }
+        return [$form, $target, $sub];
     }
 
-    private function juniorCategoryId(): int
+    private function config(string $type): array
     {
-        return StaffCategory::where('category', 'like', '%Junior%')->value('id');
+        return $type === 'junior'
+            ? [AperFormJuniorScoringGuide::class, AperFormJuniorScoring::class, AperFormJuniorPromotionRecommendation::class,
+               AperFormJuniorPersonal::class, AperFormJuniorHodRecommend::class, AperFormJuniorPerformance::class, AperFormJuniorPromotionMinReq::class,
+               ['punctuality', 'initiative', 'interpersonal', 'responsibility', 'organisational_ability', 'work_quality']]
+            : [AperFormSeniorScoringGuide::class, AperFormSeniorScoring::class, AperFormSeniorPromotionRecommendation::class,
+               AperFormSeniorPersonal::class, AperFormSeniorHodRecommend::class, AperFormSeniorPerformance::class, AperFormSeniorPromotionMinReq::class,
+               ['punctuality', 'initiative', 'expression', 'interpersonal', 'responsibility', 'competence',
+                'organisational_ability', 'work_quality', 'special_responsibility']];
     }
 
-    /**
-     * Chairman dashboard — list APER forms.
-     */
+    // ─────────────────────────────────────────────────────
+    // Lists
+    // ─────────────────────────────────────────────────────
+
     public function index(): View
     {
-        $chairman = $this->getChairmanRecord();
-        if (!$chairman) abort(403, 'You are not assigned as a Chairman DAPC.');
-
+        $me       = $this->wf->currentStaff();
+        $records  = $this->records($me);
+        $chairman = $records->first();
         $aperForms = AperForm::orderBy('start_date', 'desc')->get();
 
-        return view('staff.chairman.index', compact('aperForms', 'chairman'));
+        return view('staff.chairman.index', compact('aperForms', 'chairman', 'records'));
     }
 
-    /**
-     * List Junior Non-Teaching staff in Chairman's department
-     * who have been recommended for promotion by the HOD.
-     */
     public function staffList(AperForm $aperForm): View
     {
-        $chairman    = $this->getChairmanRecord();
-        $juniorCatId = $this->juniorCategoryId();
-
-        if (!$chairman) abort(403, 'You are not assigned as a Chairman DAPC.');
-
-        // Only staff recommended for promotion by HOD (promotion_salary_level_id is not null)
-        $staffList = Staff::whereHas('employment', function ($q) use ($chairman, $juniorCatId) {
-                        $q->where('department_id', $chairman->department_id)
-                          ->where('staff_category_id', $juniorCatId);
-                    })
-                    ->with(['employment.department'])
-                    ->get()
-                    ->filter(function ($s) use ($aperForm) {
-                        // Only staff where HOD recommended promotion
-                        return AperFormJuniorHodRecommend::where('aper_form_id', $aperForm->id)
-                                   ->where('staff_id', $s->id)
-                                   ->whereNotNull('promotion_salary_level_id')
-                                   ->exists();
-                    });
-
-        $scoredStaffIds = AperFormJuniorScoring::where('aper_form_id', $aperForm->id)
-                              ->pluck('staff_id')
-                              ->unique()
-                              ->toArray();
-
-        return view('staff.chairman.staff_list', compact(
-            'aperForm', 'chairman', 'staffList', 'scoredStaffIds'
-        ));
+        return $this->list($aperForm, 'junior', 'staff.chairman.staff_list', AperFormJuniorScoring::class);
     }
 
-    /**
-     * Show the Chairman's assessment form for a specific staff member.
-     */
+    public function seniorStaffList(AperForm $aperForm): View
+    {
+        return $this->list($aperForm, 'senior', 'staff.chairman.senior_staff_list', AperFormSeniorScoring::class);
+    }
+
+    private function list(AperForm $aperForm, string $type, string $view, string $scoringModel): View
+    {
+        $me       = $this->wf->currentStaff();
+        $records  = $this->records($me);
+        $chairman = $records->first();
+
+        $staffList = $this->wf->staffInScope($records, $aperForm, [$type], self::READY, $me)
+            ->filter(fn ($s) => $s->aperSubmission?->recommended_for_promotion)->values();
+
+        $scoredStaffIds = $staffList->filter(fn ($s) => $s->aperSubmission?->status === AperSubmission::COMPLETED)->pluck('id')->all();
+
+        return view($view, compact('aperForm', 'chairman', 'records', 'staffList', 'scoredStaffIds'));
+    }
+
+    // ─────────────────────────────────────────────────────
+    // Assess (Junior / Senior share the logic)
+    // ─────────────────────────────────────────────────────
+
     public function assess(string $aperForm, string $staff): View
     {
+        return $this->show($aperForm, $staff, 'junior', 'staff.chairman.assess');
+    }
 
-        $aperForm = AperForm::where('uuid', $aperForm)->firstOrFail();
-        $staff    = Staff::where('uuid', $staff)->firstOrFail();
+    public function assessSenior(string $aperForm, string $staff): View
+    {
+        return $this->show($aperForm, $staff, 'senior', 'staff.chairman.senior_assess');
+    }
 
-        $chairman      = $this->getChairmanRecord();
-        $chairmanStaff = $this->getStaff();
+    public function storeAssessment(Request $request, string $aperForm, string $staff): RedirectResponse
+    {
+        return $this->store($request, $aperForm, $staff, 'junior', 'staff.chairman.staff_list');
+    }
 
-        if (!$chairman) abort(403, 'You are not assigned as a Chairman DAPC.');
+    public function storeAssessmentSenior(Request $request, string $aperForm, string $staff): RedirectResponse
+    {
+        return $this->store($request, $aperForm, $staff, 'senior', 'staff.chairman.senior.staff_list');
+    }
 
-        // Load scoring guides (the 9 metrics)
-        $scoringGuides = AperFormJuniorScoringGuide::orderBy('id')->get();
+    private function show(string $aperForm, string $staff, string $type, string $view): View
+    {
+        [$aperForm, $staff, $sub] = $this->resolve($aperForm, $staff, $type);
+        [$guideM, $scoreM, $recM, $personalM, $hodRecM, $perfM, $minM, $gradeFields] = $this->config($type);
+        $key = ['aper_form_id' => $aperForm->id, 'staff_id' => $staff->id];
 
-        // Load existing scores keyed by metric_id
-        $existingScores = AperFormJuniorScoring::where('aper_form_id', $aperForm->id)
-                              ->where('staff_id', $staff->id)
-                              ->get()
-                              ->keyBy('metric_id');
+        $scoringGuides  = $guideM::orderBy('sort_order')->orderBy('id')->get();
+        $existingScores = $scoreM::where($key)->get()->keyBy('metric_id');
+        $recommendation = $recM::where($key)->first();
+        $personalInfo   = $personalM::where($key)->first();
+        $hodRecommend   = $hodRecM::where($key)->first();
+        $performance    = $perfM::where($key)->first();
+        $chairman       = $this->wf->chairmanRecords($this->wf->currentStaff())->first();
 
-        // Load existing recommendation
-        $recommendation = AperFormJuniorPromotionRecommendation::where('aper_form_id', $aperForm->id)
-                              ->where('staff_id', $staff->id)
-                              ->first();
+        $hodGrades = $performance ? array_map(fn ($f) => (int) $performance->{$f}, $gradeFields) : [];
+        $scoreRows = $this->wf->scoringRows($scoringGuides, $hodGrades, $performance?->organisational_ability);
 
-        // Staff personal info for context
-        $personalInfo = AperFormJuniorPersonal::where('aper_form_id', $aperForm->id)
-                            ->where('staff_id', $staff->id)
-                            ->first();
+        // Pre-fill the auto rows so the page shows the derived values.
+        foreach ($scoreRows as $row) {
+            if ($row['auto'] && !$existingScores->has($row['guide']->id) && $row['value'] !== null) {
+                $existingScores->put($row['guide']->id, (object) ['score' => $row['value']]);
+            }
+        }
 
-        $hodRecommend = AperFormJuniorHodRecommend::where('aper_form_id', $aperForm->id)
-                            ->where('staff_id', $staff->id)
-                            ->first();
-
-        // Resolve salary level via employment → designation → salary_level_id
-        $salaryLevelId = $staff->employment?->designation?->salary_level_id;
-
-        // Find minimum promotion requirement for this salary level
-        $minReq = $salaryLevelId
-            ? AperFormJuniorPromotionMinReq::where('salary_level_id', $salaryLevelId)
-                  ->with('salaryLevel')
-                  ->first()
-            : null;
-
-        // Calculate total score and percentage if already scored
+        $minReq      = $sub->salary_level_id ? $minM::where('salary_level_id', $sub->salary_level_id)->with('salaryLevel')->first() : null;
         $totalScore  = $existingScores->sum('score');
         $maxTotal    = $scoringGuides->sum('max_score');
         $percentage  = $maxTotal > 0 ? round(($totalScore / $maxTotal) * 100, 1) : 0;
         $meetsMinReq = $minReq ? ($percentage >= (float) $minReq->percentage) : null;
+        $isOpen      = $this->wf->isWindowOpen($aperForm);
+        $hasExisting = $sub->status === AperSubmission::COMPLETED;
+        $punctualityOk = $sub->punctuality_ok;
 
-        $isOpen      = Carbon::today()->between($aperForm->start_date, $aperForm->end_date);
-        $hasExisting = $existingScores->isNotEmpty();
-
-        return view('staff.chairman.assess', compact(
-            'aperForm', 'staff', 'chairman',
-            'scoringGuides', 'existingScores', 'recommendation',
-            'personalInfo', 'hodRecommend', 'minReq',
-            'totalScore', 'maxTotal', 'percentage', 'meetsMinReq',
-            'isOpen', 'hasExisting'
+        return view($view, compact(
+            'aperForm', 'staff', 'chairman', 'scoringGuides', 'existingScores', 'recommendation',
+            'personalInfo', 'hodRecommend', 'minReq', 'totalScore', 'maxTotal', 'percentage',
+            'meetsMinReq', 'isOpen', 'hasExisting', 'scoreRows', 'sub', 'punctualityOk'
         ));
     }
 
-    /**
-     * Store the Chairman's scoring and recommendation.
-     */
-    public function storeAssessment(Request $request, string $aperForm, string $staff): RedirectResponse
+    private function store(Request $request, string $aperForm, string $staff, string $type, string $listRoute): RedirectResponse
     {
-        $aperForm = AperForm::where('uuid', $aperForm)->firstOrFail();
-        $staff    = Staff::where('uuid', $staff)->firstOrFail();
+        [$aperForm, $staff, $sub] = $this->resolve($aperForm, $staff, $type);
+        $me = $this->wf->currentStaff();
 
-        if (!Carbon::today()->between($aperForm->start_date, $aperForm->end_date)) {
-            return back()->with('error', 'This APER form is closed.');
-        }
+        if (!$this->wf->isWindowOpen($aperForm)) return back()->with('error', 'This APER form is closed.');
 
-        $chairmanStaff = $this->getStaff();
-        $chairman      = $this->getChairmanRecord();
+        [$guideM, $scoreM, $recM, , , $perfM, , $gradeFields] = $this->config($type);
+        $key = ['aper_form_id' => $aperForm->id, 'staff_id' => $staff->id];
 
-        if (!$chairman) abort(403, 'You are not assigned as a Chairman DAPC.');
+        $guides      = $guideM::orderBy('sort_order')->orderBy('id')->get();
+        $performance = $perfM::where($key)->first();
+        $hodGrades   = $performance ? array_map(fn ($f) => (int) $performance->{$f}, $gradeFields) : [];
+        $rows        = collect($this->wf->scoringRows($guides, $hodGrades, $performance?->organisational_ability))->keyBy(fn ($r) => $r['guide']->id);
 
-        // Load scoring guides for max score validation
-        $guides = AperFormJuniorScoringGuide::orderBy('id')->get()->keyBy('id');
-
-        // Build dynamic validation rules for each metric
+        // Item 23 (Departmental A&PC endorse / disagree) is on the Junior form only.
+        $endorseRequired = $type === 'junior';
         $rules = [
-            'scores'            => ['required', 'array'],
-            'recommendation'    => ['required', 'in:endorse,reject'],
-            'endorse'           => ['nullable', 'string', 'max:2000', 'required_if:recommendation,endorse'],
-            'reject'            => ['nullable', 'string', 'max:2000', 'required_if:recommendation,reject'],
+            'scores'         => ['nullable', 'array'],
+            'recommendation' => [$endorseRequired ? 'required' : 'nullable', 'in:endorse,reject'],
+            'endorse'        => ['nullable', 'string', 'max:2000', 'required_if:recommendation,endorse'],
+            'reject'         => ['nullable', 'string', 'max:2000', 'required_if:recommendation,reject'],
         ];
-
-        foreach ($guides as $id => $guide) {
-            $rules["scores.{$id}"] = ['required', 'numeric', 'min:0', "max:{$guide->max_score}"];
+        foreach ($rows as $id => $row) {
+            if (!$row['auto']) {
+                $rules["scores.{$id}"] = ['required', 'numeric', 'min:0', "max:{$row['guide']->max_score}"];
+            }
         }
-
         $request->validate($rules, [
             'endorse.required_if' => 'Please provide endorsement comments.',
             'reject.required_if'  => 'Please provide reasons for disagreement.',
         ]);
 
-        // Sync scores — delete existing and re-insert
-        AperFormJuniorScoring::where('aper_form_id', $aperForm->id)
-            ->where('staff_id', $staff->id)
-            ->delete();
-
-        foreach ($request->input('scores', []) as $metricId => $score) {
-            AperFormJuniorScoring::create([
-                'uuid'         => Str::uuid(),
-                'aper_form_id' => $aperForm->id,
-                'staff_id'     => $staff->id,
-                'metric_id'    => $metricId,
-                'score'        => $score,
-                'assessor'     => $chairmanStaff->id,
-            ]);
+        // Final scores: derived values win over anything posted for auto rows.
+        $scores = [];
+        foreach ($rows as $id => $row) {
+            $scores[$id] = $row['auto'] ? (float) ($row['value'] ?? 0) : (float) $request->input("scores.{$id}");
         }
+        $total = array_sum($scores);
+        $max   = (float) $guides->sum('max_score');
+        $pct   = $max > 0 ? round($total / $max * 100, 2) : 0;
+        $min   = $this->wf->minimumRequired($type, $sub->salary_level_id);
 
-        // Upsert recommendation
-        AperFormJuniorPromotionRecommendation::updateOrCreate(
-            ['aper_form_id' => $aperForm->id, 'staff_id' => $staff->id],
-            [
-                'uuid'      => Str::uuid(),
-                'endorse'   => $request->recommendation === 'endorse' ? $request->endorse : null,
-                'reject'    => $request->recommendation === 'reject'  ? $request->reject  : null,
-                'chairman'  => $chairmanStaff->id,
-            ]
+        // Junior: the Panel's "Punctuality & Regularity" score also counts for the 70% rule.
+        $punctGuide = $guides->firstWhere('code', 'punctuality');
+        $punctOk = $this->wf->punctualityOk(
+            $performance?->punctuality,
+            $punctGuide ? ($scores[$punctGuide->id] ?? null) : null,
+            $punctGuide?->max_score
         );
 
-        return redirect()
-            ->route('staff.chairman.staff_list', $aperForm->uuid)
-            ->with('success', "Assessment for {$staff->surname}, {$staff->firstname} submitted successfully.");
-    }
+        DB::transaction(function () use ($scoreM, $recM, $key, $scores, $request, $me, $sub, $pct, $min, $punctOk) {
+            $scoreM::where($key)->delete();
+            foreach ($scores as $metricId => $score) {
+                $scoreM::create($key + ['metric_id' => $metricId, 'score' => $score, 'assessor' => $me->id]);
+            }
 
-    public function seniorStaffList(AperForm $aperForm): View
-    {
-        $chairman    = $this->getChairmanRecord();
-        $seniorCatId = StaffCategory::where('category', 'like', '%Senior%')->value('id');
-        if (!$chairman) abort(403, 'You are not assigned as a Chairman DAPC.');
-
-        $staffList = Staff::whereHas('employment', function ($q) use ($chairman, $seniorCatId) {
-                        $q->where('department_id', $chairman->department_id)
-                          ->where('staff_category_id', $seniorCatId);
-                    })
-                    ->with(['employment.department'])
-                    ->get()
-                    ->filter(function ($s) use ($aperForm) {
-                        return AperFormSeniorHodRecommend::where('aper_form_id', $aperForm->id)
-                                   ->where('staff_id', $s->id)
-                                   ->whereNotNull('promotion_level_id')
-                                   ->exists();
-                    });
-
-        $scoredStaffIds = AperFormSeniorScoring::where('aper_form_id', $aperForm->id)
-                              ->pluck('staff_id')->unique()->toArray();
-
-        return view('staff.chairman.senior_staff_list', compact(
-            'aperForm', 'chairman', 'staffList', 'scoredStaffIds'
-        ));
-    }
-
-    public function assessSenior(string $aperForm, string $staff): View
-    {
-        $aperForm = AperForm::where('uuid', $aperForm)->firstOrFail();
-        $staff    = Staff::where('uuid', $staff)->firstOrFail();
-
-        $chairman      = $this->getChairmanRecord();
-        $chairmanStaff = $this->getStaff();
-        if (!$chairman) abort(403, 'You are not assigned as a Chairman DAPC.');
-
-        $scoringGuides  = AperFormSeniorScoringGuide::orderBy('id')->get();
-        $existingScores = AperFormSeniorScoring::where('aper_form_id', $aperForm->id)
-                              ->where('staff_id', $staff->id)->get()->keyBy('metric_id');
-        $recommendation = AperFormSeniorPromotionRecommendation::where('aper_form_id', $aperForm->id)
-                              ->where('staff_id', $staff->id)->first();
-        $personalInfo   = AperFormSeniorPersonal::where('aper_form_id', $aperForm->id)
-                              ->where('staff_id', $staff->id)->first();
-        $hodRecommend   = AperFormSeniorHodRecommend::where('aper_form_id', $aperForm->id)
-                              ->where('staff_id', $staff->id)->first();
-
-        $salaryLevelId  = $staff->employment?->designation?->salary_level_id;
-        $minReq         = $salaryLevelId
-            ? AperFormSeniorPromotionMinReq::where('salary_level_id', $salaryLevelId)
-                  ->with('salaryLevel')->first()
-            : null;
-
-        $totalScore  = $existingScores->sum('score');
-        $maxTotal    = $scoringGuides->sum('max_score');
-        $percentage  = $maxTotal > 0 ? round(($totalScore / $maxTotal) * 100, 1) : 0;
-        $meetsMinReq = $minReq ? ($percentage >= (float) $minReq->percentage) : null;
-        $isOpen      = Carbon::today()->between($aperForm->start_date, $aperForm->end_date);
-        $hasExisting = $existingScores->isNotEmpty();
-
-        return view('staff.chairman.senior_assess', compact(
-            'aperForm', 'staff', 'chairman',
-            'scoringGuides', 'existingScores', 'recommendation',
-            'personalInfo', 'hodRecommend', 'minReq',
-            'totalScore', 'maxTotal', 'percentage', 'meetsMinReq',
-            'isOpen', 'hasExisting'
-        ));
-    }
-
-    public function storeAssessmentSenior(Request $request, string $aperForm, string $staff): RedirectResponse
-    {
-        $aperForm = AperForm::where('uuid', $aperForm)->firstOrFail();
-        $staff    = Staff::where('uuid', $staff)->firstOrFail();
-
-        if (!Carbon::today()->between($aperForm->start_date, $aperForm->end_date)) {
-            return back()->with('error', 'This APER form is closed.');
-        }
-
-        $chairmanStaff = $this->getStaff();
-        $chairman      = $this->getChairmanRecord();
-        if (!$chairman) abort(403, 'You are not assigned as a Chairman DAPC.');
-
-        $guides = AperFormSeniorScoringGuide::orderBy('id')->get()->keyBy('id');
-
-        $rules = [
-            'scores'         => ['required', 'array'],
-            'recommendation' => ['required', 'in:endorse,reject'],
-            'endorse'        => ['nullable', 'string', 'max:2000', 'required_if:recommendation,endorse'],
-            'reject'         => ['nullable', 'string', 'max:2000', 'required_if:recommendation,reject'],
-        ];
-        foreach ($guides as $id => $guide) {
-            $rules["scores.{$id}"] = ['required', 'numeric', 'min:0', "max:{$guide->max_score}"];
-        }
-        $request->validate($rules);
-
-        AperFormSeniorScoring::where('aper_form_id', $aperForm->id)
-            ->where('staff_id', $staff->id)->delete();
-
-        foreach ($request->input('scores', []) as $metricId => $score) {
-            AperFormSeniorScoring::create([
-                'aper_form_id' => $aperForm->id,
-                'staff_id'     => $staff->id,
-                'metric_id'    => $metricId,
-                'score'        => $score,
-                'assessor'     => $chairmanStaff->id,
-            ]);
-        }
-
-        AperFormSeniorPromotionRecommendation::updateOrCreate(
-            ['aper_form_id' => $aperForm->id, 'staff_id' => $staff->id],
-            [
-                'uuid'     => Str::uuid(),
+            $recM::updateOrCreate($key, [
                 'endorse'  => $request->recommendation === 'endorse' ? $request->endorse : null,
-                'reject'   => $request->recommendation === 'reject'  ? $request->reject  : null,
-                'chairman' => $chairmanStaff->id,
-            ]
-        );
+                'reject'   => $request->recommendation === 'reject' ? $request->reject : null,
+                'chairman' => $me->id,
+            ]);
 
-        return redirect()
-            ->route('staff.chairman.senior.staff_list', $aperForm->uuid)
-            ->with('success', "Assessment for {$staff->surname}, {$staff->firstname} submitted successfully.");
+            $sub->update([
+                'status'          => AperSubmission::COMPLETED,
+                'panel_staff_id'  => $me->id,
+                'panel_signed_at' => now(),
+                'total_score'     => $pct,
+                'min_required'    => $min,
+                'meets_minimum'   => $min !== null ? ($pct >= $min && $punctOk !== false) : null,
+                'punctuality_ok'  => $punctOk,
+            ]);
+        });
+
+        $result = $min !== null ? ($pct >= $min ? "meets the minimum of {$min}" : "is below the minimum of {$min}") : 'no minimum is set for this level';
+
+        return redirect()->route($listRoute, $aperForm->uuid)
+            ->with('success', "Part C for {$staff->surname}, {$staff->firstname} saved: score {$pct}% — {$result}.");
     }
-
 }

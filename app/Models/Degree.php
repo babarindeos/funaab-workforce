@@ -7,8 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class Degree extends Model
 {
+    use \App\Models\Concerns\HasUuid;
     use HasFactory;
 
-    protected $fillable = ['degree_name', 'order_level'];
+    protected $fillable = ['degree_name', 'order_level', 'remark'];
 
 }

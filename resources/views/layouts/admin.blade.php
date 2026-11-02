@@ -126,11 +126,17 @@
         <p class="sb-section-label" x-show="!collapsed" x-transition.opacity>OVERVIEW</p>
 
         @php
-            function sbRoute($name) {
-                try { return route($name); } catch(\Exception $e) { return '#'; }
+            // Guarded: a layout can be rendered more than once per request
+            // (e.g. error pages), and PHP cannot declare a function twice.
+            if (!function_exists('sbRoute')) {
+                function sbRoute($name) {
+                    try { return route($name); } catch(\Exception $e) { return '#'; }
+                }
             }
-            function sbActive($name) {
-                try { return request()->routeIs($name); } catch(\Exception $e) { return false; }
+            if (!function_exists('sbActive')) {
+                function sbActive($name) {
+                    try { return request()->routeIs($name); } catch(\Exception $e) { return false; }
+                }
             }
         @endphp
 

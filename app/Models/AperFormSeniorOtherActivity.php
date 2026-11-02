@@ -7,10 +7,12 @@ use Illuminate\Database\Eloquent\Model;
 
 class AperFormSeniorOtherActivity extends Model
 {
+    use \App\Models\Concerns\HasUuid;
     use HasFactory;
 
     protected $table = 'aper_form_senior_other_activities';
-    protected $fillable = ['uuid','aper_form_id','staff_id','activity'];
+    // All columns except the key are mass-assignable; controllers only pass validated data.
+    protected $guarded = ['id'];
     protected static function booted(): void { static::creating(fn($m) => $m->uuid ??= (string)Str::uuid()); }
     public function aperForm() { return $this->belongsTo(AperForm::class); }
     public function staff()    { return $this->belongsTo(Staff::class); }

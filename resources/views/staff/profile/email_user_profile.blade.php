@@ -5,8 +5,8 @@
             <h1 class="pg-title">Staff Profile</h1>
             <p class="pg-sub">View staff member details</p>
         </div>
-        <a href="{{ route('staff.circles.index') }}" class="btn-wf-ghost btn-wf-sm">
-            <i class="ti ti-arrow-left text-sm"></i> Back to Circles
+        <a href="{{ url()->previous() }}" class="btn-wf-ghost btn-wf-sm">
+            <i class="ti ti-arrow-left text-sm"></i> Back
         </a>
     </div>
 

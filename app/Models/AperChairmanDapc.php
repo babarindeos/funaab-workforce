@@ -7,6 +7,7 @@ use Illuminate\Support\Str;
 
 class AperChairmanDapc extends Model
 {
+    use \App\Models\Concerns\HasUuid;
     protected $table = 'aper_chairman_dapcs';
 
     protected $fillable = ['uuid', 'department_id', 'staff_category_id', 'staff_id', 'is_current'];

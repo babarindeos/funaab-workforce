@@ -81,7 +81,6 @@
                     </button>
                     <!-- Sub-menu for Mobile -->
                     <div class="hidden bg-slate-50 rounded-md" id="services-sub-menu-mobile">                        
-                        <a href="{{ route('staff.circles.index')}}" class="block px-4 py-2 hover:bg-gray-200">Circles</a>                        
                     </div>
                 </div>                
                 <a href="#" class="block text-white px-4 py-2 hover:bg-gray-700 rounded-md">Documents</a>

@@ -10,6 +10,8 @@
         </a>
     </div>
 
+    @include('staff.aper._status_banner')
+
     {{-- Part Progress --}}
     <div class="wf-card mb-4">
         <div class="flex items-center gap-0">
@@ -44,11 +46,6 @@
         </div>
     </div>
 
-    @if($readonly)
-        <div class="flex items-center gap-2 bg-amber-50 border border-amber-200 text-amber-700 text-xs font-semibold px-4 py-3 rounded-lg mb-4">
-            <i class="ti ti-lock text-base"></i> This APER form is closed. Displayed in read-only mode.
-        </div>
-    @endif
 
     <form action="{{ $readonly ? '#' : route('staff.aper.senior.part_a3.store', $aperForm->uuid) }}" method="POST">
         @csrf
@@ -112,10 +109,12 @@
             @endif
         </div>
 
-        {{-- ── 13b: PRACTICALS ─────────────────────────────────── --}}
+        {{-- ── 13b: PRACTICALS — "*For Academic Technologists only" ── --}}
+        @php $practRows = old('practicals', $practicals->isNotEmpty() ? $practicals->pluck('practical')->toArray() : ['']) @endphp
+        @if($showPracticals || $practicals->isNotEmpty())
         <div class="wf-card mb-4">
-            <div class="wf-card-title"><i class="ti ti-tools text-gray-400"></i> 13(b). Practicals Involved in During the Period Under Review</div>
-            @php $practRows = old('practicals', $practicals->isNotEmpty() ? $practicals->pluck('practical')->toArray() : ['']) @endphp
+            <div class="wf-card-title"><i class="ti ti-tools text-gray-400"></i> *13(b). Practicals Involved in During the Period Under Review</div>
+            <p class="text-[11px] text-gray-400 mb-3">* For Academic Technologists only.</p>
             <div id="pract-tbody" class="space-y-2">
                 @foreach($practRows as $i => $pract)
                     <div class="pract-row flex items-start gap-2">
@@ -131,6 +130,7 @@
                 <button type="button" onclick="addSimpleRow('pract-tbody','practicals','pract-row', practIdx++)" class="mt-3 btn-wf-ghost btn-wf-sm"><i class="ti ti-plus text-xs"></i> Add Entry</button>
             @endif
         </div>
+        @endif
 
         {{-- ── 14: PUBLICATIONS ────────────────────────────────── --}}
         <div class="wf-card mb-4">
@@ -219,7 +219,7 @@
                     <i class="ti ti-arrow-left text-sm"></i> Back to Education
                 </a>
                 <button type="submit" class="btn-wf-primary">
-                    <i class="ti ti-device-floppy text-sm"></i> Save &amp; Continue to Part B
+                    <i class="ti ti-device-floppy text-sm"></i> Save Part A
                 </button>
             </div>
         @endif

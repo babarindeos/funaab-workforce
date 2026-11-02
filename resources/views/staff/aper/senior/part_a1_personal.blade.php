@@ -10,6 +10,8 @@
         </a>
     </div>
 
+    @include('staff.aper._status_banner')
+
     {{-- Part Progress --}}
     <div class="wf-card mb-4">
         <div class="flex items-center gap-0">
@@ -44,11 +46,6 @@
         </div>
     </div>
 
-    @if($readonly)
-        <div class="flex items-center gap-2 bg-amber-50 border border-amber-200 text-amber-700 text-xs font-semibold px-4 py-3 rounded-lg mb-4">
-            <i class="ti ti-lock text-base"></i> This APER form is closed. Displayed in read-only mode.
-        </div>
-    @endif
 
     <form action="{{ $readonly ? '#' : route('staff.aper.senior.part_a1.store', $aperForm->uuid) }}" method="POST">
         @csrf
@@ -174,7 +171,7 @@
                     <div>
                         <label class="wf-label">Date</label>
                         <input type="date" name="date_first_appointment"
-                               value="{{ old('date_first_appointment', optional($existing)->date_first_appointment?->format('Y-m-d') ?? optional($employment->date_funaab_first_appointment)->format('Y-m-d')) }}"
+                               value="{{ old('date_first_appointment', optional($existing)->date_first_appointment?->format('Y-m-d') ?? optional($employment?->date_funaab_first_appointment)->format('Y-m-d')) }}"
                                class="wf-input w-full bg-gray-50" disabled />
                     </div>
                     <div>
@@ -192,13 +189,13 @@
                     <div>
                         <label class="wf-label">Date</label>
                         <input type="date" name="date_last_appointment"
-                               value="{{ old('date_last_appointment', optional($existing)->date_last_appointment?->format('Y-m-d') ?? optional($employment)->date_present_appointment?->format('Y-m-d')) }}"
+                               value="{{ old('date_last_appointment', optional($existing)->date_last_appointment?->format('Y-m-d') ?? $lastPromotion['date']) }}"
                                class="wf-input w-full bg-gray-50" disabled />
                     </div>
                     <div>
                         <label class="wf-label">Post</label>
                         <input type="text" name="post_last_appointment"
-                               value="{{ old('post_last_appointment', $existing->post_last_appointment ?? optional($employment)->designation->cadreRank->cadre_rank_name) }}"
+                               value="{{ old('post_last_appointment', $existing->post_last_appointment ?? $lastPromotion['post']) }}"
                                class="wf-input w-full bg-gray-50" disabled placeholder="e.g. Senior Administrative Officer" />
                     </div>
                 </div>
@@ -240,10 +237,10 @@
                     </label>
                     @error('appointment_confirmed') <p class="text-red-500 text-[11px] mt-1">{{ $message }}</p> @enderror
                 </div>
-                <div id="confirmation-date-row" class="{{ $employment->date_confirmation ? 'block' : 'hidden' }}">
+                <div id="confirmation-date-row" class="{{ $employment?->date_confirmation ? 'block' : 'hidden' }}">
                     <label class="wf-label">Date of Confirmation</label>
                     <input type="date" name="confirmation_date" disabled
-                           value="{{ $employment->date_confirmation?->format('Y-m-d') }}"
+                           value="{{ $employment?->date_confirmation?->format('Y-m-d') }}"
                            class="wf-input w-full max-w-xs bg-gray-50" />
                 </div>
             </div>
@@ -251,7 +248,7 @@
             <div>
                 <label class="wf-label">10. Present Grade Level and Salary <span class="text-red-500">*</span></label>
                 <input type="text" name="present_grade_level_salary"
-                       value="{{ old('present_grade_level_salary', $existing->present_grade_level_salary ?? ($staff->employment->salaryStep ? $staff->employment->salaryStep->salaryLevel->salaryStructure->salary_structure_name.' - '.$staff->employment->salaryStep->salaryLevel->level.' / Step '.$staff->employment->salaryStep->step : '')) }}"
+                       value="{{ old('present_grade_level_salary', $existing->present_grade_level_salary ?? $gradeText) }}"
                        placeholder="e.g. GL 09 / Step 4"
                        class="wf-input w-full max-w-sm bg-gray-50" disabled required />
                 @error('present_grade_level_salary') <p class="text-red-500 text-[11px] mt-1">{{ $message }}</p> @enderror

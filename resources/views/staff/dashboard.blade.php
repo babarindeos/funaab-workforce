@@ -127,9 +127,8 @@
                     ['label' => 'Apply for Leave',  'icon' => 'ti-calendar-plus',   'color' => 'bg-funaab-50 text-funaab-700',  'href' => '#'],
                     ['label' => 'APER Form',         'icon' => 'ti-file-certificate','color' => 'bg-gold-50 text-gold-700',      'href' => route('staff.aper.index')],
                     ['label' => 'My Promotion',      'icon' => 'ti-award',           'color' => 'bg-blue-50 text-blue-700',      'href' => '#'],
-                    ['label' => 'My Documents',      'icon' => 'ti-file-description','color' => 'bg-purple-50 text-purple-700',  'href' => '#'],
                     ['label' => 'Update Profile',    'icon' => 'ti-user-edit',       'color' => 'bg-green-50 text-green-700',    'href' => route('staff.profile.myprofile.edit')],
-                    ['label' => 'Circles',           'icon' => 'ti-circle-dot',      'color' => 'bg-pink-50 text-pink-700',      'href' => route('staff.circles.index') ],
+                    ['label' => 'My APER Forms',     'icon' => 'ti-clipboard-text',  'color' => 'bg-pink-50 text-pink-700',      'href' => route('staff.aper.index') ],
                 ];
                 @endphp
                 @foreach($actions as $action)

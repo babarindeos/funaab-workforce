@@ -3,7 +3,7 @@
     <div class="flex items-start justify-between mb-5">
         <div>
             <h1 class="pg-title">{{ $aperForm->name }}</h1>
-            <p class="pg-sub">Junior Non-Teaching Staff — {{ $hod->department?->department_name }}</p>
+            <p class="pg-sub">Non-Teaching Staff — {{ $records->pluck('department.department_name')->filter()->unique()->implode(', ') }}</p>
         </div>
         <a href="{{ route('staff.hod.index') }}" class="btn-wf-ghost btn-wf-sm">
             <i class="ti ti-arrow-left text-sm"></i> Back
@@ -22,7 +22,7 @@
                 <i class="ti ti-users text-gray-400"></i> Staff Submissions
             </div>
             <span class="text-[10.5px] text-gray-400 font-semibold">
-                {{ $staffList->count() }} staff submitted Part B
+                {{ $staffList->count() }} staff ready for / assessed by the HOD
             </span>
         </div>
 
@@ -43,7 +43,7 @@
                         <td class="col-name">{{ $s->surname }}, {{ $s->firstname }}</td>
                         <td class="col-mono">{{ $s->staff_no }}</td>
                         @php
-                            $isJunior = $s->employment?->staff_category_id == $juniorCatId;
+                            $isJunior = $s->aperSubmission?->isJunior();
                             $isAssessed = $isJunior
                                 ? in_array($s->id, $assessedJuniorIds)
                                 : in_array($s->id, $assessedSeniorIds);
@@ -55,11 +55,7 @@
                                 : route('staff.hod.senior.assess', [$aperForm->uuid, $s->uuid]);
                         @endphp
                         <td>
-                            @if($isAssessed)
-                                <span class="badge badge-active">Assessed</span>
-                            @else
-                                <span class="badge badge-inactive">Pending</span>
-                            @endif
+                            <span class="badge {{ $isAssessed ? 'badge-active' : 'badge-pending' }}">{{ $s->aperSubmission?->status_label }}</span>
                         </td>
                         <td>
                             <div class="flex items-center gap-1">
@@ -80,7 +76,7 @@
                     <tr>
                         <td colspan="5" class="text-center py-10 text-gray-400">
                             <i class="ti ti-users text-3xl block mb-2"></i>
-                            No Junior Non-Teaching staff have submitted Part B yet.
+                            No staff forms are awaiting the HOD yet. (Junior forms arrive after the Supervisor.)
                         </td>
                     </tr>
                 @endforelse
