@@ -222,28 +222,29 @@
                 </div>
             </div>
 
+            
             <div class="mb-4">
-                <label class="block text-[11px] font-bold tracking-wider text-gray-500 mb-2">9. Has Appointment been confirmed?</label>
+                <label class="block text-[11px] font-bold tracking-wider text-gray-500 mb-2">9. Has Appointment been confirmed? </label>
                 <div class="flex items-center gap-6 mb-3">
-                    <label class="flex items-center gap-2 cursor-pointer">
+                    <label class="flex items-center gap-2 cursor-pointer" disabled>
                         <input type="radio" name="appointment_confirmed" value="1"
-                               {{ old('appointment_confirmed', $existing->appointment_confirmed ?? 0) == 1 ? 'checked' : '' }}
-                               {{ $readonly ? 'disabled' : '' }} class="text-funaab-600" />
+                               {{ old('appointment_confirmed', $employment?->date_confirmation ? 'checked' : '') }}
+                               disabled class="text-funaab-600" />
                         <span class="text-sm font-semibold text-gray-700">Yes</span>
                     </label>
-                    <label class="flex items-center gap-2 cursor-pointer">
+                    <label class="flex items-center gap-2 cursor-pointer" disabled>
                         <input type="radio" name="appointment_confirmed" value="0"
-                               {{ old('appointment_confirmed', $existing->appointment_confirmed ?? 1) == 0 ? 'checked' : '' }}
-                               {{ $readonly ? 'disabled' : '' }} class="text-funaab-600" />
+                               {{ old('appointment_confirmed', $employment?->date_confirmation == null ? 'checked' : '') }}
+                               disabled class="text-funaab-600" />
                         <span class="text-sm font-semibold text-gray-700">No</span>
                     </label>
                     @error('appointment_confirmed') <p class="text-red-500 text-[11px] mt-1">{{ $message }}</p> @enderror
                 </div>
-                <div id="confirmation-date-row" class="{{ (old('appointment_confirmed', $existing->appointment_confirmed ?? 0) == 1) ? '' : 'hidden' }}">
+                <div id="confirmation-date-row" class="{{ $employment->date_confirmation ? 'block' : 'hidden' }}">
                     <label class="wf-label">Date of Confirmation</label>
-                    <input type="date" name="confirmation_date"
-                           value="{{ old('confirmation_date', $existing->confirmation_date ?? optional($employment)->date_confirmation?->format('Y-m-d')) }}"
-                           class="wf-input w-full max-w-xs" {{ $readonly ? 'readonly' : '' }} />
+                    <input type="date" name="confirmation_date" disabled
+                           value="{{ $employment->date_confirmation?->format('Y-m-d') }}"
+                           class="wf-input w-full max-w-xs bg-gray-50" />
                 </div>
             </div>
 
@@ -304,11 +305,13 @@
     </form>
 
     <script>
+        /*
         document.querySelectorAll('input[name="appointment_confirmed"]').forEach(r => {
             r.addEventListener('change', function () {
                 document.getElementById('confirmation-date-row').classList.toggle('hidden', this.value !== '1');
             });
         });
+        */
 
         let confIndex = {{ count($confRows) }};
 

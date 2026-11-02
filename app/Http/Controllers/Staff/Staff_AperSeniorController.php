@@ -97,6 +97,7 @@ class Staff_AperSeniorController extends Controller
         $retirementDate = $this->calculateRetirementDate($staff->dob->format('Y-m-d'));
         
 
+        
         return view('staff.aper.senior.part_a1_personal', compact(
             'aperForm','staff','profile','employment','existing',
             'readonly','maritalStatuses','divisions','departments','conferences', 'retirementDate'
@@ -109,6 +110,7 @@ class Staff_AperSeniorController extends Controller
     {
         if ($redirect = $this->guardOpen($aperForm)) return $redirect;
 
+            
             $staff = $this->getStaff();
 
             $validated = $request->validate([
@@ -116,7 +118,6 @@ class Staff_AperSeniorController extends Controller
                 'telephone_no'               => ['required', 'string', 'max:20'],
                 'date_current_appointment'   => ['nullable', 'date'],
                 'post_current_appointment'   => ['nullable', 'string', 'max:255'],
-                'appointment_confirmed'      => ['required', 'boolean'],
                 'confirmation_date'          => ['nullable', 'date', 'required_if:appointment_confirmed,1'],
                 'conferences'                => ['nullable', 'array'],
                 'conferences.*'              => ['nullable', 'string', 'max:500'],
@@ -142,9 +143,9 @@ class Staff_AperSeniorController extends Controller
             $validated['post_last_appointment'] = $staff->employment->designation?->cadreRank->cadre_rank_name;
 
             $validated['present_grade_level_salary'] = $staff->employment->salaryStep->salaryLevel->salaryStructure->salary_structure_name.' - '.$staff->employment->salaryStep->salaryLevel->level.' / Step '.$staff->employment->salaryStep->step;
+            $validated['appointment_confirmed'] = $staff->employment?->date_confirmation ? 1 : 0;
+            $validated['confirmation_date'] = $staff->employment?->date_confirmation;
             
-
-
             AperFormSeniorPersonal::updateOrCreate(
                 ['aper_form_id' => $aperForm->id, 'staff_id' => $staff->id],
                 array_merge(collect($validated)->except('conferences')->toArray(), ['uuid' => Str::uuid()])
