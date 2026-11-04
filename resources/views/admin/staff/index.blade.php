@@ -159,10 +159,10 @@
                             </div>
                         </td>
                         <td>{{ $staff->employment?->department?->department_name ?? '—' }}</td>
-                        <td>{{ $staff->employment?->staffCategory?->staff_category ?? '—' }}</td>
+                        <td>{{ $staff->employment?->staffCategory?->category ?? '—' }}</td>
                         <td>{{ $staff->employment?->employmentType?->employment_type ?? '—' }}</td>
                         <td>
-                            @php $s = $staff->staffStatus?->staff_status; @endphp
+                            @php $s = $staff->staffStatus?->status; @endphp
                             @if(str_contains(strtolower($s ?? ''), 'active'))
                                 <span class="badge badge-active">{{ $s }}</span>
                             @elseif(str_contains(strtolower($s ?? ''), 'leave'))

@@ -6,6 +6,7 @@ use App\Http\Controllers\Staff\Staff_DocumentController;
 use App\Http\Controllers\Admin\Admin_DocumentSetupController;
 use App\Http\Controllers\Admin\Admin_StaffDocumentController;
 use App\Http\Controllers\Admin\Admin_AperOverviewController;
+use App\Http\Controllers\Admin\Admin_StaffQualificationController;
 use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Middleware\AdminAuth;
 
@@ -261,6 +262,11 @@ Route::prefix('admin')->middleware(['auth','admin'])->group(function(){
     Route::get('staff/{staff}/edit',   [Admin_StaffController::class, 'edit'])->name('admin.staff.edit');
     Route::put('staff/{staff}',        [Admin_StaffController::class, 'update'])->name('admin.staff.update');
     Route::delete('staff/{staff}',     [Admin_StaffController::class, 'destroy'])->name('admin.staff.destroy');
+
+    // Staff record → Qualifications tab
+    Route::post  ('staff/{staff}/qualifications',                 [Admin_StaffQualificationController::class, 'store'])->name('admin.staff.qualifications.store');
+    Route::put   ('staff/{staff}/qualifications/{qualification}', [Admin_StaffQualificationController::class, 'update'])->name('admin.staff.qualifications.update');
+    Route::delete('staff/{staff}/qualifications/{qualification}', [Admin_StaffQualificationController::class, 'destroy'])->name('admin.staff.qualifications.destroy');
 
     // Division Types
     Route::get('division_types', [Admin_DivisionTypeController::class, 'index'])->name('admin.division_types.index');

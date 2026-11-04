@@ -66,7 +66,7 @@
                         <td class="col-name">{{ $hod->staff?->surname }}, {{ $hod->staff?->firstname }}</td>
                         <td class="col-mono">{{ $hod->staff?->staff_no ?? '—' }}</td>
                         <td>{{ $hod->department?->department_name ?? '—' }}</td>
-                        <td>{{ $hod->staffCategory?->staff_category ?? '—' }}</td>
+                        <td>{{ $hod->staffCategory?->category ?? '—' }}</td>
                         <td>
                             @if($hod->is_current)
                                 <span class="badge badge-active">Current</span>

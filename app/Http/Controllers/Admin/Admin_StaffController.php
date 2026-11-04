@@ -177,9 +177,12 @@ class Admin_StaffController extends Controller
             'nextOfKin', 'contacts.contactType', 'qualifications.degree',
             'qualifications.degreeClass', 'deployments.department',
             'deployments.deploymentPost', 'offEmployments.staffStatus',
-            'leaves.leaveType', 'profile',
+            'leaves.leaveType', 'user.profile', 'state', 'employment.division', 'employment.designation.cadreRank', 'employment.salaryStep.salaryLevel.salaryStructure',
         ]);
-        return view('admin.staff.show', compact('staff'));
+        $degrees       = \App\Models\Degree::orderBy('order_level')->orderBy('degree_name')->get();
+        $degreeClasses = \App\Models\DegreeClass::orderBy('order_level')->orderBy('degree_class_name')->get();
+
+        return view('admin.staff.show', compact('staff', 'degrees', 'degreeClasses'));
     }
 
     public function edit(Staff $staff)

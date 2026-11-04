@@ -30,6 +30,7 @@ class ReferenceDataSeeder extends Seeder
         $this->seedByKey('staff_statuses', $data['staff_statuses'], ['status']);
         $this->seedByKey('employment_types', $data['employment_types'], ['employment_type']);
         $this->seedByKey('degrees', $data['degrees'], ['degree_name']);
+        $this->seedByKey('degree_classes', $data['degree_classes'], ['degree_class_name']);
         $this->seedByKey('division_types', $data['division_types'], ['division_type_name']);
         $this->seedByKey('contact_types', $data['contact_types'], ['contact_type_name']);
         $this->seedByKey('identity_update_fields', $data['identity_update_fields'], ['field']);

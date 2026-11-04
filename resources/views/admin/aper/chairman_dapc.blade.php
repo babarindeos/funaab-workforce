@@ -66,7 +66,7 @@
                         <td class="col-name">{{ $ch->staff?->surname }}, {{ $ch->staff?->firstname }}</td>
                         <td class="col-mono">{{ $ch->staff?->staff_no ?? '—' }}</td>
                         <td>{{ $ch->department?->department_name ?? '—' }}</td>
-                        <td>{{ $ch->staffCategory?->staff_category ?? '—' }}</td>
+                        <td>{{ $ch->staffCategory?->category ?? '—' }}</td>
                         <td>
                             @if($ch->is_current)
                                 <span class="badge badge-active">Current</span>

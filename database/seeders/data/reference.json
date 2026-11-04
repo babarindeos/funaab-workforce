@@ -4502,5 +4502,47 @@
   {
    "status": "Separated"
   }
+ ],
+ "degree_classes": [
+  {
+   "degree_class_name": "First Class",
+   "order_level": 1
+  },
+  {
+   "degree_class_name": "Second Class Upper",
+   "order_level": 2
+  },
+  {
+   "degree_class_name": "Second Class Lower",
+   "order_level": 3
+  },
+  {
+   "degree_class_name": "Third Class",
+   "order_level": 4
+  },
+  {
+   "degree_class_name": "Pass",
+   "order_level": 5
+  },
+  {
+   "degree_class_name": "Distinction",
+   "order_level": 6
+  },
+  {
+   "degree_class_name": "Upper Credit",
+   "order_level": 7
+  },
+  {
+   "degree_class_name": "Lower Credit",
+   "order_level": 8
+  },
+  {
+   "degree_class_name": "Credit",
+   "order_level": 9
+  },
+  {
+   "degree_class_name": "Merit",
+   "order_level": 10
+  }
  ]
 }
