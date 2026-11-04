@@ -11,7 +11,7 @@ class Deployment extends Model
     use HasFactory;
 
     protected $fillable = [
-        'staff_id', 'department_id', 'deployment_post_id',
+        'staff_id', 'from_department_id', 'department_id', 'deployment_post_id',
         'start_date', 'end_date', 'expected_end_date', 'remark',
     ];
 
@@ -23,5 +23,8 @@ class Deployment extends Model
 
     public function staff()          { return $this->belongsTo(Staff::class); }
     public function department()     { return $this->belongsTo(Department::class); }
+    public function fromDepartment() { return $this->belongsTo(Department::class, 'from_department_id'); }
+
+    public function isOngoing(): bool { return $this->end_date === null; }
     public function deploymentPost() { return $this->belongsTo(DeploymentPost::class); }
 }

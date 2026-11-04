@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\Admin_DocumentSetupController;
 use App\Http\Controllers\Admin\Admin_StaffDocumentController;
 use App\Http\Controllers\Admin\Admin_AperOverviewController;
 use App\Http\Controllers\Admin\Admin_StaffQualificationController;
+use App\Http\Controllers\Admin\Admin_StaffRecordController;
 use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Middleware\AdminAuth;
 
@@ -267,6 +268,21 @@ Route::prefix('admin')->middleware(['auth','admin'])->group(function(){
     Route::post  ('staff/{staff}/qualifications',                 [Admin_StaffQualificationController::class, 'store'])->name('admin.staff.qualifications.store');
     Route::put   ('staff/{staff}/qualifications/{qualification}', [Admin_StaffQualificationController::class, 'update'])->name('admin.staff.qualifications.update');
     Route::delete('staff/{staff}/qualifications/{qualification}', [Admin_StaffQualificationController::class, 'destroy'])->name('admin.staff.qualifications.destroy');
+
+    // Staff record → Next of Kin / Contact / Deployments / Off-Employment tabs
+    Route::post  ('staff/{staff}/next-of-kin',                    [Admin_StaffRecordController::class, 'storeKin'])->name('admin.staff.kin.store');
+    Route::put   ('staff/{staff}/next-of-kin/{kin}',              [Admin_StaffRecordController::class, 'updateKin'])->name('admin.staff.kin.update');
+    Route::patch ('staff/{staff}/next-of-kin/{kin}/current',      [Admin_StaffRecordController::class, 'makeKinCurrent'])->name('admin.staff.kin.current');
+    Route::delete('staff/{staff}/next-of-kin/{kin}',              [Admin_StaffRecordController::class, 'destroyKin'])->name('admin.staff.kin.destroy');
+    Route::post  ('staff/{staff}/contacts',                       [Admin_StaffRecordController::class, 'storeContact'])->name('admin.staff.contacts.store');
+    Route::put   ('staff/{staff}/contacts/{contact}',             [Admin_StaffRecordController::class, 'updateContact'])->name('admin.staff.contacts.update');
+    Route::delete('staff/{staff}/contacts/{contact}',             [Admin_StaffRecordController::class, 'destroyContact'])->name('admin.staff.contacts.destroy');
+    Route::post  ('staff/{staff}/deployments',                    [Admin_StaffRecordController::class, 'storeDeployment'])->name('admin.staff.deployments.store');
+    Route::put   ('staff/{staff}/deployments/{deployment}',       [Admin_StaffRecordController::class, 'updateDeployment'])->name('admin.staff.deployments.update');
+    Route::delete('staff/{staff}/deployments/{deployment}',       [Admin_StaffRecordController::class, 'destroyDeployment'])->name('admin.staff.deployments.destroy');
+    Route::post  ('staff/{staff}/off-employments',                [Admin_StaffRecordController::class, 'storeOff'])->name('admin.staff.off.store');
+    Route::put   ('staff/{staff}/off-employments/{offEmployment}', [Admin_StaffRecordController::class, 'updateOff'])->name('admin.staff.off.update');
+    Route::delete('staff/{staff}/off-employments/{offEmployment}', [Admin_StaffRecordController::class, 'destroyOff'])->name('admin.staff.off.destroy');
 
     // Division Types
     Route::get('division_types', [Admin_DivisionTypeController::class, 'index'])->name('admin.division_types.index');

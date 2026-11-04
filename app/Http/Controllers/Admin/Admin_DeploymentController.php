@@ -41,8 +41,9 @@ class Admin_DeploymentController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
+        $data = $request->validate([
             'staff_id'           => 'required|exists:staff,id',
+            'from_department_id' => 'nullable|exists:departments,id',
             'department_id'      => 'required|exists:departments,id',
             'deployment_post_id' => 'required|exists:deployment_posts,id',
             'start_date'         => 'required|date',
@@ -51,7 +52,12 @@ class Admin_DeploymentController extends Controller
             'remark'             => 'nullable|string|max:500',
         ]);
 
-        Deployment::create($request->all());
+        // Same rules as the staff record: previous ongoing deployment is ended,
+        // "from" department defaults to where the staff member currently is.
+        app(\App\Services\StaffRecordService::class)->addDeployment(
+            \App\Models\Staff::findOrFail($data['staff_id']),
+            collect($data)->except('staff_id')->all()
+        );
         return redirect()->route('admin.deployments.index')->with(['status' => 'success', 'message' => 'Deployment recorded successfully.']);
     }
 

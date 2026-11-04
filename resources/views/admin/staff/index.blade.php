@@ -30,7 +30,7 @@
                 </div>
                 ACTIVE
             </div>
-            <div class="text-2xl font-bold text-gray-800"></div>
+            <div class="text-2xl font-bold text-gray-800">{{ number_format($totalActive) }}</div>
             <div class="text-[10.5px] text-green-600 mt-1">Currently serving</div>
         </div>
         <div class="stat-card">
@@ -52,35 +52,6 @@
             </div>
             <div class="text-2xl font-bold text-gray-800">{{ number_format($departments->count()) }}</div>
             <div class="text-[10.5px] text-gray-400 mt-1">Across all faculties</div>
-        </div>
-    </div>
-
-    {{-- ── Section Navigation ── --}}
-    <div class="wf-card mb-5 !py-3">
-        <div class="flex items-center gap-1.5 flex-wrap">
-            <span class="text-[10.5px] font-bold text-gray-400 tracking-wider mr-2">SECTIONS:</span>
-            @php
-                $sections = [
-                    ['label' => 'Personal Info',   'icon' => 'ti-user',             'route' => 'admin.staff.index', 'active' => true],
-                    ['label' => 'Employment',       'icon' => 'ti-briefcase',        'route' => 'admin.staff.index'],
-                    ['label' => 'Qualifications',   'icon' => 'ti-school',           'route' => 'admin.staff.index'],
-                    ['label' => 'Next of Kin',      'icon' => 'ti-users',            'route' => 'admin.staff.index'],
-                    ['label' => 'Contact',          'icon' => 'ti-phone',            'route' => 'admin.staff.index'],
-                    ['label' => 'Deployments',      'icon' => 'ti-arrows-exchange',  'route' => 'admin.staff.index'],
-                    ['label' => 'Off Employments',  'icon' => 'ti-user-off',         'route' => 'admin.staff.index'],
-                    ['label' => 'Profile',          'icon' => 'ti-id-badge',         'route' => 'admin.staff.index'],
-                ];
-            @endphp
-            @foreach($sections as $section)
-                <a href="{{ route($section['route']) }}"
-                   class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors
-                          {{ !empty($section['active'])
-                              ? 'bg-funaab-700 text-white'
-                              : 'bg-gray-100 text-gray-500 hover:bg-funaab-50 hover:text-funaab-700' }}">
-                    <i class="ti {{ $section['icon'] }} text-sm"></i>
-                    {{ $section['label'] }}
-                </a>
-            @endforeach
         </div>
     </div>
 

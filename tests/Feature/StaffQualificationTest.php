@@ -33,7 +33,7 @@ class StaffQualificationTest extends TestCase
         // Correct column values now show on the tabs.
         $this->actingAs($admin)->get("/admin/staff/{$staffId}")->assertOk()
             ->assertSee('Female')->assertSee('Married')->assertSee('Active')->assertSee('Senior Non-Teaching Staff')
-            ->assertSee('Add Qualification')->assertDontSee('Add Contact')->assertDontSee('Record Off Employment');
+            ->assertSee('Add Qualification')->assertSee('Add Contact')->assertSee('Add Next of Kin')->assertSee('Add Deployment')->assertSee('Record Off-Employment');
 
         $bsc   = DB::table('degrees')->where('degree_name', 'Bachelor of Science')->value('id');
         $msc   = DB::table('degrees')->where('degree_name', 'Master of Science')->value('id');

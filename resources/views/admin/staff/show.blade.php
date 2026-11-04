@@ -143,11 +143,12 @@
             </div>
 
             {{-- Add / edit form --}}
-            <form id="qual-form" method="POST" action="{{ route('admin.staff.qualifications.store', $staff) }}"
+            <form id="qual-form" method="POST" action="{{ $qErr->any() ? old('_form_action', route('admin.staff.qualifications.store', $staff)) : route('admin.staff.qualifications.store', $staff) }}"
                   data-store="{{ route('admin.staff.qualifications.store', $staff) }}"
                   class="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-4 {{ $qErr->any() ? '' : 'hidden' }}">
                 @csrf
-                <input type="hidden" name="_method" id="qual-method" value="{{ old('_method', 'POST') }}">
+                <input type="hidden" name="_method" id="qual-method" value="{{ $qErr->any() ? old('_method', 'POST') : 'POST' }}">
+                <input type="hidden" name="_form_action" id="qual-form-action" value="{{ $qErr->any() ? old('_form_action', route('admin.staff.qualifications.store', $staff)) : route('admin.staff.qualifications.store', $staff) }}">
                 <p class="text-sm font-bold text-gray-700 mb-3" id="qual-form-title">{{ old('_method') === 'PUT' ? 'Edit Qualification' : 'Add Qualification' }}</p>
                 @if($qErr->any())
                     <div class="mb-3 text-xs text-red-600">{{ $qErr->first() }}</div>
@@ -235,93 +236,22 @@
 
         {{-- ── NEXT OF KIN ── --}}
         <div data-panel="nextofkin" class="staff-panel p-5" style="display:none">
-            @if($staff->nextOfKin)
-                <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
-                    <div class="{{ $cell }}"><div class="{{ $cellKey }}">SURNAME</div><div class="{{ $cellVal }}">{{ $staff->nextOfKin->surname }}</div></div>
-                    <div class="{{ $cell }}"><div class="{{ $cellKey }}">FIRST NAME</div><div class="{{ $cellVal }}">{{ $staff->nextOfKin->firstname }}</div></div>
-                    <div class="{{ $cell }}"><div class="{{ $cellKey }}">OTHER NAMES</div><div class="{{ $cellVal }}">{{ $staff->nextOfKin->othernames ?? '—' }}</div></div>
-                    <div class="{{ $cell }}"><div class="{{ $cellKey }}">PHONE</div><div class="{{ $cellVal }}">{{ $staff->nextOfKin->phone ?? '—' }}</div></div>
-                    <div class="{{ $cell }}"><div class="{{ $cellKey }}">EMAIL</div><div class="{{ $cellVal }}">{{ $staff->nextOfKin->email ?? '—' }}</div></div>
-                    <div class="{{ $cell }}"><div class="{{ $cellKey }}">STATE</div><div class="{{ $cellVal }}">{{ $staff->nextOfKin->state?->state_name ?? '—' }}</div></div>
-                    <div class="{{ $cell }} col-span-2"><div class="{{ $cellKey }}">ADDRESS</div><div class="{{ $cellVal }}">{{ $staff->nextOfKin->address ?? '—' }}</div></div>
-                    <div class="{{ $cell }}"><div class="{{ $cellKey }}">CITY</div><div class="{{ $cellVal }}">{{ $staff->nextOfKin->city ?? '—' }}</div></div>
-                </div>
-            @else
-                <p class="text-center text-gray-400 py-8 text-sm">No next of kin on record.</p>
-            @endif
+            @include('admin.staff.tabs._kin')
         </div>
 
         {{-- ── CONTACT ── --}}
         <div data-panel="contact" class="staff-panel p-5" style="display:none">
-            @if($staff->contacts->count())
-                <table class="wf-table">
-                    <thead>
-                        <tr><th>CONTACT TYPE</th><th>VALUE</th><th>ADDED</th></tr>
-                    </thead>
-                    <tbody>
-                        @foreach($staff->contacts as $contact)
-                        <tr>
-                            <td class="col-name">{{ $contact->contactType?->contact_type_name ?? '—' }}</td>
-                            <td>{{ $contact->contact_value }}</td>
-                            <td class="text-gray-400 text-xs">{{ $contact->created_at?->format('d M Y') }}</td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            @else
-                <p class="text-center text-gray-400 py-8 text-sm">No contact information on record.</p>
-            @endif
+            @include('admin.staff.tabs._contact')
         </div>
 
         {{-- ── DEPLOYMENTS ── --}}
         <div data-panel="deployments" class="staff-panel p-5" style="display:none">
-            @if($staff->deployments->count())
-                <table class="wf-table">
-                    <thead>
-                        <tr><th>DEPARTMENT</th><th>POST</th><th>START DATE</th><th>EXPECTED END</th><th>ACTUAL END</th><th>REMARK</th></tr>
-                    </thead>
-                    <tbody>
-                        @foreach($staff->deployments as $dep)
-                        <tr>
-                            <td class="col-name">{{ $dep->department?->department_name ?? '—' }}</td>
-                            <td>{{ $dep->deploymentPost?->deployment_post ?? '—' }}</td>
-                            <td>{{ $dep->start_date?->format('d M Y') ?? '—' }}</td>
-                            <td>{{ $dep->expected_end_date?->format('d M Y') ?? '—' }}</td>
-                            <td>{{ $dep->end_date?->format('d M Y') ?? 'Ongoing' }}</td>
-                            <td class="text-gray-400 text-xs">{{ $dep->remark ?? '—' }}</td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            @else
-                <p class="text-center text-gray-400 py-8 text-sm">No deployment records.</p>
-            @endif
+            @include('admin.staff.tabs._deployments')
         </div>
 
         {{-- ── OFF EMPLOYMENTS ── --}}
         <div data-panel="offemployments" class="staff-panel p-5" style="display:none">
-            @if($staff->offEmployments->count())
-                <table class="wf-table">
-                    <thead>
-                        <tr><th>STATUS</th><th>EFFECTIVE DATE</th><th>REASON</th><th>DOC REFERENCE</th><th>RECORDED</th></tr>
-                    </thead>
-                    <tbody>
-                        @foreach($staff->offEmployments as $off)
-                        <tr>
-                            <td>
-                                <span class="badge badge-inactive">{{ $off->staffStatus?->status ?? '—' }}</span>
-                            </td>
-                            <td>{{ $off->effective_date?->format('d M Y') ?? '—' }}</td>
-                            <td>{{ $off->reason }}</td>
-                            <td class="col-mono">{{ $off->document_reference ?? '—' }}</td>
-                            <td class="text-gray-400 text-xs">{{ $off->created_at?->format('d M Y') }}</td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            @else
-                <p class="text-center text-gray-400 py-8 text-sm">No off-employment records.</p>
-            @endif
+            @include('admin.staff.tabs._off')
         </div>
 
         {{-- ── PROFILE ── --}}
@@ -372,19 +302,44 @@
                 history.replaceState(null, '', '#' + key);
             }
             tabs.forEach(t => t.addEventListener('click', () => show(t.dataset.tab)));
-            show({{ $errors->getBag('qualification')->any() ? "'qualifications'" : 'location.hash.slice(1)' }});
+            window.addEventListener('hashchange', () => show(location.hash.slice(1)));
+            @php
+                $errorTab = collect(['qualification' => 'qualifications', 'kin' => 'nextofkin', 'contact' => 'contact',
+                                     'deployment' => 'deployments', 'offemp' => 'offemployments'])
+                    ->first(fn ($tab, $bag) => $errors->getBag($bag)->any());
+            @endphp
+            show(@json($errorTab) || location.hash.slice(1));
         })();
+
+        // Add / edit forms on the Next of Kin, Contact, Deployments and Off-Employment tabs.
+        // Edit buttons carry data-action plus one data-<field> per form field.
+        function openRecordForm(formId, btn) {
+            const f = document.getElementById(formId);
+            const editing = !!(btn && btn.dataset.action);
+            f.reset();
+            f.querySelectorAll('input:not([type=hidden]), select, textarea').forEach(el => {
+                el.value = editing ? (btn.dataset[el.name] ?? '') : (el.dataset.default ?? '');
+            });
+            const url = editing ? btn.dataset.action : f.dataset.store;
+            f.action = url;
+            f.querySelector('input[name=_method]').value = editing ? 'PUT' : 'POST';
+            f.querySelector('input[name=_form_action]').value = url;
+            f.querySelector('.record-form-title').textContent = editing ? f.dataset.titleEdit : f.dataset.titleAdd;
+            f.querySelectorAll('.add-only').forEach(el => el.style.display = editing ? 'none' : '');
+            f.classList.remove('hidden');
+            f.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
 
         function openQualForm(q) {
             const f = document.getElementById('qual-form');
             const set = (id, v) => document.getElementById(id).value = v ?? '';
             if (q) {
-                f.action = q.action; set('qual-method', 'PUT');
+                f.action = q.action; set('qual-method', 'PUT'); set('qual-form-action', q.action);
                 document.getElementById('qual-form-title').textContent = 'Edit Qualification';
                 set('q-degree', q.degree_id); set('q-institution', q.institution); set('q-start', q.start_date);
                 set('q-end', q.end_date); set('q-class', q.degree_class_id); set('q-remark', q.remark);
             } else {
-                f.action = f.dataset.store; set('qual-method', 'POST');
+                f.action = f.dataset.store; set('qual-method', 'POST'); set('qual-form-action', f.dataset.store);
                 document.getElementById('qual-form-title').textContent = 'Add Qualification';
                 ['q-degree','q-institution','q-start','q-end','q-class','q-remark'].forEach(id => set(id, ''));
             }

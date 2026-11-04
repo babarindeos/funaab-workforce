@@ -57,7 +57,8 @@ class Admin_StaffController extends Controller
         $total           = Staff::count();
 
         // Summary counts for the top cards
-        //$totalActive     = Staff::whereHas('staffStatus', fn($q) => $q->where('staff_status', 'like', '%Active%'))->count();
+        $inactive    = StaffStatus::whereIn('status', config('workforce.inactive_staff_statuses', []))->pluck('id');
+        $totalActive = Staff::when($inactive->isNotEmpty(), fn ($q) => $q->where(fn ($w) => $w->whereNull('staff_status_id')->orWhereNotIn('staff_status_id', $inactive)))->count();
         $totalOnLeave    = \App\Models\Leave::where('approval_status', 'approved')
                             ->where('start_date', '<=', now())->where('resumption_date', '>=', now())->count();
 
@@ -65,7 +66,7 @@ class Admin_StaffController extends Controller
 
         return view('admin.staff.index', compact(
             'staffs', 'departments', 'categories', 'statuses', 'states', 'senatorial_districts', 'geo_zones',
-            'employmentTypes', 'total', 'totalOnLeave'
+            'employmentTypes', 'total', 'totalOnLeave', 'totalActive'
         ));
     }
 
@@ -174,15 +175,25 @@ class Admin_StaffController extends Controller
             'employment.department.division', 'employment.staffCategory',
             'employment.employmentType', 'employment.designation',
             'employment.salaryStructure', 'employment.salaryStep',
-            'nextOfKin', 'contacts.contactType', 'qualifications.degree',
-            'qualifications.degreeClass', 'deployments.department',
+            'nextOfKins.state', 'contacts.contactType', 'qualifications.degree',
+            'qualifications.degreeClass', 'deployments.department', 'deployments.fromDepartment',
             'deployments.deploymentPost', 'offEmployments.staffStatus',
             'leaves.leaveType', 'user.profile', 'state', 'employment.division', 'employment.designation.cadreRank', 'employment.salaryStep.salaryLevel.salaryStructure',
         ]);
         $degrees       = \App\Models\Degree::orderBy('order_level')->orderBy('degree_name')->get();
         $degreeClasses = \App\Models\DegreeClass::orderBy('order_level')->orderBy('degree_class_name')->get();
 
-        return view('admin.staff.show', compact('staff', 'degrees', 'degreeClasses'));
+        $states          = \App\Models\State::orderBy('state_name')->get();
+        $contactTypes    = \App\Models\ContactType::orderBy('contact_type_name')->get();
+        $departments     = \App\Models\Department::orderBy('department_name')->get();
+        $deploymentPosts = \App\Models\DeploymentPost::orderBy('deployment_post')->get();
+        $offStatuses     = \App\Models\StaffStatus::where('status', '<>', 'Active')->orderBy('status')->get();
+        $currentDepartmentId = app(\App\Services\StaffRecordService::class)->currentDepartmentId($staff);
+
+        return view('admin.staff.show', compact(
+            'staff', 'degrees', 'degreeClasses', 'states', 'contactTypes', 'departments',
+            'deploymentPosts', 'offStatuses', 'currentDepartmentId'
+        ));
     }
 
     public function edit(Staff $staff)

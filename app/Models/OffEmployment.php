@@ -11,7 +11,7 @@ class OffEmployment extends Model
     use HasFactory;
 
     protected $fillable = [
-        'staff_id', 'staff_status_id', 'effective_date', 'reason', 'document_reference',
+        'staff_id', 'staff_status_id', 'previous_staff_status_id', 'effective_date', 'reason', 'document_reference',
     ];
 
     protected $casts = ['effective_date' => 'date'];

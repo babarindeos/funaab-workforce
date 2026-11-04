@@ -34,7 +34,9 @@ class Staff extends Model
     public function staffStatus()    { return $this->belongsTo(StaffStatus::class); }
     public function employment()     { return $this->hasOne(Employment::class); }
     public function leaves()         { return $this->hasMany(Leave::class); }
-    public function nextOfKin()      { return $this->hasOne(NextOfKin::class); }
+    /** The current next of kin (older ones are kept as history in nextOfKins). */
+    public function nextOfKin()      { return $this->hasOne(NextOfKin::class)->where('is_current', true)->latestOfMany(); }
+    public function nextOfKins()     { return $this->hasMany(NextOfKin::class)->orderByDesc('is_current')->orderByDesc('id'); }
     public function contacts()       { return $this->hasMany(Contact::class); }
     public function qualifications() { return $this->hasMany(Qualification::class); }
     public function deployments()    { return $this->hasMany(Deployment::class); }

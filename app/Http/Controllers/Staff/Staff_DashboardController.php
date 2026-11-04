@@ -31,7 +31,7 @@ class Staff_DashboardController extends Controller
             // Login exists but Registry has not captured the staff record yet.
             return response()->view('staff.aper.no_staff_record', [], 403);
         }
-        $nextOfKin = NextOfKin::where('staff_id', $staff->id)->first();
+        $nextOfKin = NextOfKin::where('staff_id', $staff->id)->where('is_current', true)->latest('id')->first();
         
 
         // Leave stats
