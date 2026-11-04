@@ -5,6 +5,7 @@ use App\Http\Controllers\Staff\Staff_CircleController;
 use App\Http\Controllers\Staff\Staff_DocumentController;
 use App\Http\Controllers\Admin\Admin_DocumentSetupController;
 use App\Http\Controllers\Admin\Admin_StaffDocumentController;
+use App\Http\Controllers\Admin\Admin_AperOverviewController;
 use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Middleware\AdminAuth;
 
@@ -509,6 +510,8 @@ Route::prefix('admin')->middleware(['auth','admin'])->group(function(){
     Route::patch('leave-applications/{leave}/reject',       [Admin_LeaveApplicationController::class, 'reject'])->name('admin.leave_applications.reject');
 
      // ── APER Forms ───────────────────────────────────
+    Route::get   ('aper/overview',       [Admin_AperOverviewController::class, 'index'])->name('admin.aper.overview');
+    Route::get   ('aper/overview/staff', [Admin_AperOverviewController::class, 'staff'])->name('admin.aper.overview.staff');
     Route::get   ('aper',          [Admin_AperFormController::class, 'index'  ])->name('admin.aper.index');
     Route::post  ('aper',          [Admin_AperFormController::class, 'store'  ])->name('admin.aper.store');
     Route::put   ('aper/{aper}',   [Admin_AperFormController::class, 'update' ])->name('admin.aper.update');

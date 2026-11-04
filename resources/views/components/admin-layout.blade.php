@@ -111,7 +111,7 @@
         <div class="sb-section-label" x-show="!collapsed">OVERVIEW</div>
 
         <x-sb-item route="admin.dashboard.index" icon="ti-layout-dashboard" label="Dashboard" :collapsed="false" />
-        <x-sb-item route="admin.staff.index" icon="ti-users" label="Staff Management" badge="1,247" :collapsed="false" />
+        <x-sb-item route="admin.staff.index" icon="ti-users" label="Staff Management" :collapsed="false" />
 
         {{-- ── ORGANISATION ── --}}
         <div class="sb-section-label mt-1" x-show="!collapsed">ORGANISATION</div>

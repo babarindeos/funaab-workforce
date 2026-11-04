@@ -153,9 +153,13 @@
            :title="collapsed ? 'Staff Management' : ''">
             <i class="ti ti-users text-base flex-shrink-0"></i>
             <span x-show="!collapsed" x-transition.opacity class="flex-1 truncate">Staff Management</span>
+            @php
+                $sbInactive   = \App\Models\StaffStatus::whereIn('status', config('workforce.inactive_staff_statuses', []))->pluck('id');
+                $sbStaffCount = \App\Models\Staff::when($sbInactive->isNotEmpty(), fn ($q) => $q->where(fn ($w) => $w->whereNull('staff_status_id')->orWhereNotIn('staff_status_id', $sbInactive)))->count();
+            @endphp
             <span x-show="!collapsed" x-transition.opacity
                   class="text-[9.5px] bg-funaab-100 text-funaab-800 font-bold px-1.5 py-0.5 rounded-full flex-shrink-0">
-                1,247
+                {{ number_format($sbStaffCount) }}
             </span>
         </a>
 
@@ -252,6 +256,7 @@
                 :class="open ? 'rotate-90' : ''"></i>
             </button>
             <div x-show="open && !collapsed" x-collapse>
+                <a href="{{ sbRoute('admin.aper.overview') }}"           class="sb-item sub {{ sbActive('admin.aper.overview*') ? 'active' : '' }}"><i class="ti ti-chart-bar text-sm flex-shrink-0"></i><span x-show="!collapsed" x-transition.opacity>Overview</span></a>
                 <a href="{{ sbRoute('admin.aper.index') }}"              class="sb-item sub {{ sbActive('admin.aper.index') ? 'active' : '' }}"><i class="ti ti-forms text-sm flex-shrink-0"></i><span x-show="!collapsed" x-transition.opacity>APER Forms</span></a>
                 <a href="{{ sbRoute('admin.aper.supervisors.index') }}"  class="sb-item sub {{ sbActive('admin.aper.supervisors.*') ? 'active' : '' }}"><i class="ti ti-user-check text-sm flex-shrink-0"></i><span x-show="!collapsed" x-transition.opacity>Supervisors</span></a>
                 <a href="{{ sbRoute('admin.aper.hods.index') }}"         class="sb-item sub {{ sbActive('admin.aper.hods.*') ? 'active' : '' }}"><i class="ti ti-user-star text-sm flex-shrink-0"></i><span x-show="!collapsed" x-transition.opacity>HOD</span></a>
