@@ -19,6 +19,7 @@
 
     {{-- Vite --}}
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <style>[x-cloak]{display:none !important}</style>
 </head>
 
 <body class="bg-gray-100 font-sans antialiased text-gray-700"
@@ -177,6 +178,17 @@
 
         {{-- HR OPERATIONS --}}
         <p class="sb-section-label mt-1" x-show="!collapsed" x-transition.opacity>HR OPERATIONS</p>
+
+        @php $pendingDocs = \App\Models\StaffDocument::where('status', 'pending')->count(); @endphp
+        <a href="{{ sbRoute('admin.staff_documents.index') }}"
+           class="sb-item {{ sbActive('admin.staff_documents.*') || sbActive('admin.document_setup.*') ? 'active' : '' }}"
+           :title="collapsed ? 'Staff Documents' : ''">
+            <i class="ti ti-folders text-base flex-shrink-0"></i>
+            <span x-show="!collapsed" x-transition.opacity class="truncate flex-1">Staff Documents</span>
+            @if($pendingDocs)
+                <span x-show="!collapsed" class="ml-auto text-[10px] font-bold bg-amber-100 text-amber-700 rounded-full px-1.5">{{ $pendingDocs }}</span>
+            @endif
+        </a>
 
         {{-- Leave Management group --}}
         <div x-data="{ open: {{ request()->is('*/leave*') ? 'true' : 'false' }} }">

@@ -1,6 +1,10 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Staff\Staff_CircleController;
+use App\Http\Controllers\Staff\Staff_DocumentController;
+use App\Http\Controllers\Admin\Admin_DocumentSetupController;
+use App\Http\Controllers\Admin\Admin_StaffDocumentController;
 use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Middleware\AdminAuth;
 
@@ -113,6 +117,17 @@ Route::middleware('guest')->group(function(){
 Route::prefix('staff')->middleware(['auth', 'staff', 'profile.complete'])->group(function(){
     Route::get('/dashboard', [Staff_DashboardController::class, 'index'])->name('staff.dashboard.index');
     Route::post('/logout', [Staff_AuthController::class, 'logout'])->name('staff.auth.logout');
+
+    // Circle — colleagues in my division (read-only)
+    Route::get('/circle', [Staff_CircleController::class, 'index'])->name('staff.circle.index');
+
+    // My Documents — my Registry file; my uploads wait for Registry approval
+    Route::get   ('/documents',                     [Staff_DocumentController::class, 'index'])->name('staff.documents.index');
+    Route::get   ('/documents/upload',              [Staff_DocumentController::class, 'create'])->name('staff.documents.create');
+    Route::post  ('/documents',                     [Staff_DocumentController::class, 'store'])->name('staff.documents.store');
+    Route::get   ('/documents/{document}/view',     [Staff_DocumentController::class, 'view'])->name('staff.documents.view');
+    Route::get   ('/documents/{document}/download', [Staff_DocumentController::class, 'download'])->name('staff.documents.download');
+    Route::delete('/documents/{document}',          [Staff_DocumentController::class, 'destroy'])->name('staff.documents.destroy');
 
     // Profile
     Route::get('/profile/create', [Staff_ProfileController::class, 'create'])->name('staff.profile.create');
@@ -530,6 +545,27 @@ Route::prefix('admin')->middleware(['auth','admin'])->group(function(){
     Route::put('divisions/{division}/update',                  [Admin_DivisionController::class, 'update'])->name('admin.divisions.update_put');
     Route::put('classes_of_degrees/{class_of_degree}/update',  [Admin_ClassOfDegreeController::class, 'update'])->name('admin.classes_of_degrees.update_put2');
     Route::put('staff_categories/{staff_category}/update',     [Admin_StaffCategoryController::class, 'update'])->name('admin.staff_categories.update_put2');
+
+    // =====================================================================
+    // Staff Documents (Registry file)
+    // =====================================================================
+    Route::get   ('documents',                         [Admin_StaffDocumentController::class, 'index'])->name('admin.staff_documents.index');
+    Route::get   ('documents/upload',                  [Admin_StaffDocumentController::class, 'create'])->name('admin.staff_documents.create');
+    Route::post  ('documents',                         [Admin_StaffDocumentController::class, 'store'])->name('admin.staff_documents.store');
+    Route::get   ('documents/staff/{staff}',           [Admin_StaffDocumentController::class, 'staff'])->name('admin.staff_documents.staff');
+    Route::get   ('documents/{document}/view',         [Admin_StaffDocumentController::class, 'view'])->name('admin.staff_documents.view');
+    Route::get   ('documents/{document}/download',     [Admin_StaffDocumentController::class, 'download'])->name('admin.staff_documents.download');
+    Route::patch ('documents/{document}/approve',      [Admin_StaffDocumentController::class, 'approve'])->name('admin.staff_documents.approve');
+    Route::patch ('documents/{document}/reject',       [Admin_StaffDocumentController::class, 'reject'])->name('admin.staff_documents.reject');
+    Route::delete('documents/{document}',              [Admin_StaffDocumentController::class, 'destroy'])->name('admin.staff_documents.destroy');
+
+    Route::get   ('document-setup',                    [Admin_DocumentSetupController::class, 'index'])->name('admin.document_setup.index');
+    Route::post  ('document-setup/categories',         [Admin_DocumentSetupController::class, 'storeCategory'])->name('admin.document_setup.categories.store');
+    Route::put   ('document-setup/categories/{category}', [Admin_DocumentSetupController::class, 'updateCategory'])->name('admin.document_setup.categories.update');
+    Route::delete('document-setup/categories/{category}', [Admin_DocumentSetupController::class, 'destroyCategory'])->name('admin.document_setup.categories.destroy');
+    Route::post  ('document-setup/types',              [Admin_DocumentSetupController::class, 'storeType'])->name('admin.document_setup.types.store');
+    Route::put   ('document-setup/types/{type}',       [Admin_DocumentSetupController::class, 'updateType'])->name('admin.document_setup.types.update');
+    Route::delete('document-setup/types/{type}',       [Admin_DocumentSetupController::class, 'destroyType'])->name('admin.document_setup.types.destroy');
 
     // =====================================================================
     // Senatorial Districts

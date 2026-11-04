@@ -12,6 +12,7 @@
     <script src="https://code.jquery.com/jquery-3.7.1.min.js" crossorigin="anonymous"></script>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <style>[x-cloak]{display:none !important}</style>
 </head>
 
 <body class="bg-gray-100 font-sans antialiased" x-data="staffLayout()" x-init="init()">
@@ -130,6 +131,20 @@
             <span x-show="!sidebarCollapsed" x-transition.opacity class="truncate">My Profile</span>
         </a>
 
+        <a href="{{ route('staff.circle.index') }}"
+           class="sb-item {{ request()->routeIs('staff.circle.*') ? 'active' : '' }}"
+           :title="sidebarCollapsed ? 'Circle' : ''">
+            <i class="ti ti-users-group text-base flex-shrink-0"></i>
+            <span x-show="!sidebarCollapsed" x-transition.opacity class="truncate">Circle</span>
+        </a>
+
+        <a href="{{ route('staff.documents.index') }}"
+           class="sb-item {{ request()->routeIs('staff.documents.*') ? 'active' : '' }}"
+           :title="sidebarCollapsed ? 'My Documents' : ''">
+            <i class="ti ti-folder text-base flex-shrink-0"></i>
+            <span x-show="!sidebarCollapsed" x-transition.opacity class="truncate">My Documents</span>
+        </a>
+
         <p class="sb-section-label mt-1" x-show="!sidebarCollapsed" x-transition.opacity>HR SERVICES</p>
 
         <a href="#"
@@ -232,6 +247,8 @@
         <p class="sb-section-label">MY PORTAL</p>
         <a href="{{ route('staff.dashboard.index') }}" class="sb-item {{ request()->routeIs('staff.dashboard.index') ? 'active' : '' }}"><i class="ti ti-home text-base flex-shrink-0"></i><span class="truncate">Dashboard</span></a>
         <a href="{{ route('staff.profile.myprofile') }}" class="sb-item {{ request()->routeIs('staff.profile.*') ? 'active' : '' }}"><i class="ti ti-user text-base flex-shrink-0"></i><span class="truncate">My Profile</span></a>
+        <a href="{{ route('staff.circle.index') }}" class="sb-item {{ request()->routeIs('staff.circle.*') ? 'active' : '' }}"><i class="ti ti-users-group text-base flex-shrink-0"></i><span class="truncate">Circle</span></a>
+        <a href="{{ route('staff.documents.index') }}" class="sb-item {{ request()->routeIs('staff.documents.*') ? 'active' : '' }}"><i class="ti ti-folder text-base flex-shrink-0"></i><span class="truncate">My Documents</span></a>
         <p class="sb-section-label mt-1">HR SERVICES</p>
         <a href="#" class="sb-item"><i class="ti ti-calendar-off text-base flex-shrink-0"></i><span class="truncate">Leave</span></a>
 

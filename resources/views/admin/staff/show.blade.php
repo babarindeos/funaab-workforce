@@ -9,6 +9,9 @@
             <h1 class="pg-title">Staff Profile</h1>
             <p class="pg-sub">{{ $staff->staff_no }}</p>
         </div>
+        <a href="{{ route('admin.staff_documents.staff', $staff) }}" class="btn-wf-ghost">
+            <i class="ti ti-folders text-sm"></i> Documents
+        </a>
         <a href="{{ route('admin.staff.edit', $staff) }}" class="btn-wf-ghost">
             <i class="ti ti-edit text-sm"></i> Edit
         </a>

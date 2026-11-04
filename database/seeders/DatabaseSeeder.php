@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
             StaffCategorySeeder::class,
             SalaryScaleSeeder::class,
             AperScoringSeeder::class,
+            DocumentCategorySeeder::class,
         ]);
     }
 }
