@@ -1,0 +1,1701 @@
+{
+ "_note": "Built from the July 2026 nominal roll. 'review': true marks names Registry should confirm. 'aliases' are the spellings used in the nominal roll; they let a later import match staff to these records.",
+ "division_types": [
+  "Principal Office",
+  "Directorate",
+  "Center",
+  "College",
+  "Unit",
+  "Institute"
+ ],
+ "divisions": [
+  {
+   "short": "COLAMRUD",
+   "name": "College of Agricultural Management and Rural Development",
+   "type": "College",
+   "aliases": [],
+   "review": false,
+   "departments": [
+    {
+     "short": "COLAMRUD-DO",
+     "name": "Dean's Office, COLAMRUD",
+     "aliases": [
+      "COLAMRUD"
+     ],
+     "review": false
+    },
+    {
+     "short": "AEFM",
+     "name": "Agricultural Economics and Farm Management",
+     "aliases": [],
+     "review": false
+    },
+    {
+     "short": "AERD",
+     "name": "Agricultural Extension and Rural Development",
+     "aliases": [],
+     "review": false
+    },
+    {
+     "short": "AGAD",
+     "name": "Agricultural Administration",
+     "aliases": [],
+     "review": false
+    },
+    {
+     "short": "CGNS",
+     "name": "Communication and General Studies",
+     "aliases": [
+      "ICGNS",
+      "Institute of Comm. & General Studies (ICGNS)"
+     ],
+     "review": false
+    }
+   ]
+  },
+  {
+   "short": "COLANIM",
+   "name": "College of Animal Science and Livestock Production",
+   "type": "College",
+   "aliases": [],
+   "review": false,
+   "departments": [
+    {
+     "short": "COLANIM-DO",
+     "name": "Dean's Office, COLANIM",
+     "aliases": [
+      "COLANIM"
+     ],
+     "review": false
+    },
+    {
+     "short": "ABG",
+     "name": "Animal Breeding and Genetics",
+     "aliases": [],
+     "review": false
+    },
+    {
+     "short": "ANN",
+     "name": "Animal Nutrition",
+     "aliases": [],
+     "review": false
+    },
+    {
+     "short": "ANP",
+     "name": "Animal Physiology",
+     "aliases": [],
+     "review": false
+    },
+    {
+     "short": "APH",
+     "name": "Animal Production and Health",
+     "aliases": [],
+     "review": false
+    },
+    {
+     "short": "PRM",
+     "name": "Pasture and Range Management",
+     "aliases": [],
+     "review": false
+    }
+   ]
+  },
+  {
+   "short": "COLBIOS",
+   "name": "College of Biological Sciences",
+   "type": "College",
+   "aliases": [],
+   "review": false,
+   "departments": [
+    {
+     "short": "COLBIOS-DO",
+     "name": "Dean's Office, COLBIOS",
+     "aliases": [
+      "COLBIOS"
+     ],
+     "review": false
+    },
+    {
+     "short": "BCH",
+     "name": "Biochemistry",
+     "aliases": [],
+     "review": false
+    },
+    {
+     "short": "MCB",
+     "name": "Microbiology",
+     "aliases": [],
+     "review": false
+    },
+    {
+     "short": "PAB",
+     "name": "Pure and Applied Botany",
+     "aliases": [],
+     "review": false
+    },
+    {
+     "short": "PAZ",
+     "name": "Pure and Applied Zoology",
+     "aliases": [],
+     "review": false
+    },
+    {
+     "short": "PBH",
+     "name": "Public Health",
+     "aliases": [
+      "Public Health"
+     ],
+     "review": true
+    }
+   ]
+  },
+  {
+   "short": "COLCOMPS",
+   "name": "College of Computing",
+   "type": "College",
+   "aliases": [],
+   "review": true,
+   "departments": [
+    {
+     "short": "COLCOMPS-DO",
+     "name": "Dean's Office, COLCOMPS",
+     "aliases": [
+      "COLCOMPS"
+     ],
+     "review": false
+    },
+    {
+     "short": "CSC",
+     "name": "Computer Science",
+     "aliases": [
+      "CSC LAB"
+     ],
+     "review": false
+    },
+    {
+     "short": "ICT",
+     "name": "Information and Communication Technology",
+     "aliases": [
+      "ICT & IT",
+      "ICT & IFT"
+     ],
+     "review": true
+    },
+    {
+     "short": "SEIS",
+     "name": "Software Engineering and Information Systems",
+     "aliases": [
+      "Software Engineering & Information System",
+      "SE&IS",
+      "Software Engineering"
+     ],
+     "review": false
+    },
+    {
+     "short": "DSCS",
+     "name": "Data Science and Cyber Security",
+     "aliases": [
+      "Data Science & Cyber Security",
+      "Cyber Security"
+     ],
+     "review": false
+    }
+   ]
+  },
+  {
+   "short": "COLENDS",
+   "name": "College of Entrepreneurial and Developmental Studies",
+   "type": "College",
+   "aliases": [],
+   "review": true,
+   "departments": [
+    {
+     "short": "COLENDS-DO",
+     "name": "Dean's Office, COLENDS",
+     "aliases": [
+      "COLENDS"
+     ],
+     "review": false
+    },
+    {
+     "short": "ECN",
+     "name": "Economics",
+     "aliases": [],
+     "review": false
+    },
+    {
+     "short": "EPS",
+     "name": "Entrepreneurial Studies",
+     "aliases": [
+      "Entrepreneural Studies"
+     ],
+     "review": false
+    },
+    {
+     "short": "ACC",
+     "name": "Accounting",
+     "aliases": [],
+     "review": false
+    },
+    {
+     "short": "BFN",
+     "name": "Banking and Finance",
+     "aliases": [],
+     "review": false
+    },
+    {
+     "short": "BAM",
+     "name": "Business Administration",
+     "aliases": [
+      "Business Admin."
+     ],
+     "review": false
+    },
+    {
+     "short": "LIS",
+     "name": "Library and Information Science",
+     "aliases": [
+      "Library and Info. Science",
+      "Lib. & Info. Science"
+     ],
+     "review": false
+    },
+    {
+     "short": "CPS",
+     "name": "Cooperative Studies",
+     "aliases": [
+      "Cooperative Studies"
+     ],
+     "review": true
+    }
+   ]
+  },
+  {
+   "short": "COLENG",
+   "name": "College of Engineering",
+   "type": "College",
+   "aliases": [],
+   "review": false,
+   "departments": [
+    {
+     "short": "COLENG-DO",
+     "name": "Dean's Office, COLENG",
+     "aliases": [
+      "COLENG"
+     ],
+     "review": false
+    },
+    {
+     "short": "ABE",
+     "name": "Agricultural and Bio-Resources Engineering",
+     "aliases": [],
+     "review": false
+    },
+    {
+     "short": "CVE",
+     "name": "Civil Engineering",
+     "aliases": [],
+     "review": false
+    },
+    {
+     "short": "ELE",
+     "name": "Electrical and Electronics Engineering",
+     "aliases": [
+      "EEE"
+     ],
+     "review": false
+    },
+    {
+     "short": "MCE",
+     "name": "Mechanical Engineering",
+     "aliases": [],
+     "review": false
+    },
+    {
+     "short": "MTE",
+     "name": "Mechatronics Engineering",
+     "aliases": [],
+     "review": false
+    }
+   ]
+  },
+  {
+   "short": "COLERM",
+   "name": "College of Environmental Resources Management",
+   "type": "College",
+   "aliases": [],
+   "review": false,
+   "departments": [
+    {
+     "short": "COLERM-DO",
+     "name": "Dean's Office, COLERM",
+     "aliases": [
+      "COLERM"
+     ],
+     "review": false
+    },
+    {
+     "short": "AQFM",
+     "name": "Aquaculture and Fisheries Management",
+     "aliases": [],
+     "review": false
+    },
+    {
+     "short": "EMT",
+     "name": "Environmental Management and Toxicology",
+     "aliases": [],
+     "review": false
+    },
+    {
+     "short": "FWM",
+     "name": "Forestry and Wildlife Management",
+     "aliases": [],
+     "review": false
+    },
+    {
+     "short": "GLY",
+     "name": "Geology",
+     "aliases": [],
+     "review": true
+    },
+    {
+     "short": "WMA",
+     "name": "Water Resources Management and Agrometeorology",
+     "aliases": [],
+     "review": false
+    },
+    {
+     "short": "WEM",
+     "name": "Wildlife and Ecotourism Management",
+     "aliases": [
+      "Wild Life & Eco. Tourism"
+     ],
+     "review": true
+    }
+   ]
+  },
+  {
+   "short": "COLFHEC",
+   "name": "College of Food Science and Human Ecology",
+   "type": "College",
+   "aliases": [],
+   "review": false,
+   "departments": [
+    {
+     "short": "COLFHEC-DO",
+     "name": "Dean's Office, COLFHEC",
+     "aliases": [
+      "COLFHEC"
+     ],
+     "review": false
+    },
+    {
+     "short": "FST",
+     "name": "Food Science and Technology",
+     "aliases": [],
+     "review": false
+    },
+    {
+     "short": "HSM",
+     "name": "Home Science and Management",
+     "aliases": [],
+     "review": false
+    },
+    {
+     "short": "HTM",
+     "name": "Hospitality and Tourism Management",
+     "aliases": [],
+     "review": false
+    },
+    {
+     "short": "NTD",
+     "name": "Nutrition and Dietetics",
+     "aliases": [
+      "NUD",
+      "Dept. of Nutrition and Dietetics"
+     ],
+     "review": false
+    },
+    {
+     "short": "CTX",
+     "name": "Clothing and Textile",
+     "aliases": [
+      "Clothing & Textile"
+     ],
+     "review": true
+    }
+   ]
+  },
+  {
+   "short": "COLPHYS",
+   "name": "College of Physical Sciences",
+   "type": "College",
+   "aliases": [],
+   "review": false,
+   "departments": [
+    {
+     "short": "COLPHYS-DO",
+     "name": "Dean's Office, COLPHYS",
+     "aliases": [
+      "COLPHYS"
+     ],
+     "review": false
+    },
+    {
+     "short": "CHM",
+     "name": "Chemistry",
+     "aliases": [
+      "Chemistry Laboratory"
+     ],
+     "review": false
+    },
+    {
+     "short": "MTS",
+     "name": "Mathematics",
+     "aliases": [],
+     "review": false
+    },
+    {
+     "short": "PHS",
+     "name": "Physics",
+     "aliases": [],
+     "review": false
+    },
+    {
+     "short": "STS",
+     "name": "Statistics",
+     "aliases": [],
+     "review": false
+    }
+   ]
+  },
+  {
+   "short": "COLPLANT",
+   "name": "College of Plant Science and Crop Production",
+   "type": "College",
+   "aliases": [],
+   "review": false,
+   "departments": [
+    {
+     "short": "COLPLANT-DO",
+     "name": "Dean's Office, COLPLANT",
+     "aliases": [
+      "COLPLANT"
+     ],
+     "review": false
+    },
+    {
+     "short": "CPT",
+     "name": "Crop Protection",
+     "aliases": [],
+     "review": true
+    },
+    {
+     "short": "HRT",
+     "name": "Horticulture",
+     "aliases": [],
+     "review": false
+    },
+    {
+     "short": "PBST",
+     "name": "Plant Breeding and Seed Technology",
+     "aliases": [],
+     "review": false
+    },
+    {
+     "short": "PPCP",
+     "name": "Plant Physiology and Crop Production",
+     "aliases": [
+      "Dept.of Plant Physiology & Crop Prodution"
+     ],
+     "review": false
+    },
+    {
+     "short": "SSLM",
+     "name": "Soil Science and Land Management",
+     "aliases": [],
+     "review": false
+    }
+   ]
+  },
+  {
+   "short": "COLVET",
+   "name": "College of Veterinary Medicine",
+   "type": "College",
+   "aliases": [],
+   "review": false,
+   "departments": [
+    {
+     "short": "COLVET-DO",
+     "name": "Dean's Office, COLVET",
+     "aliases": [
+      "COLVET"
+     ],
+     "review": false
+    },
+    {
+     "short": "VAN",
+     "name": "Veterinary Anatomy",
+     "aliases": [],
+     "review": false
+    },
+    {
+     "short": "VPB",
+     "name": "Veterinary Physiology and Biochemistry",
+     "aliases": [
+      "VP & BCM",
+      "VPH & BCM"
+     ],
+     "review": true
+    },
+    {
+     "short": "VPT",
+     "name": "Veterinary Pharmacology and Toxicology",
+     "aliases": [
+      "VP&T"
+     ],
+     "review": true
+    },
+    {
+     "short": "VPP",
+     "name": "Veterinary Pathology",
+     "aliases": [
+      "VPA"
+     ],
+     "review": true
+    },
+    {
+     "short": "VMCB",
+     "name": "Veterinary Microbiology",
+     "aliases": [
+      "Vet. MCB",
+      "VMC"
+     ],
+     "review": false
+    },
+    {
+     "short": "VPE",
+     "name": "Veterinary Parasitology and Entomology",
+     "aliases": [],
+     "review": false
+    },
+    {
+     "short": "VCM",
+     "name": "Veterinary Medicine",
+     "aliases": [
+      "VM"
+     ],
+     "review": true
+    },
+    {
+     "short": "VST",
+     "name": "Veterinary Surgery and Theriogenology",
+     "aliases": [],
+     "review": true
+    },
+    {
+     "short": "VPHPM",
+     "name": "Veterinary Public Health and Preventive Medicine",
+     "aliases": [
+      "VPH & PM",
+      "VM&PM",
+      "VPM",
+      "VPH"
+     ],
+     "review": false
+    },
+    {
+     "short": "COLVET-LAB",
+     "name": "COLVET Laboratory",
+     "aliases": [
+      "COLVET LAB"
+     ],
+     "review": false
+    }
+   ]
+  },
+  {
+   "short": "Registry",
+   "name": "Registry",
+   "type": "Principal Office",
+   "aliases": [],
+   "review": false,
+   "departments": [
+    {
+     "short": "REG-GEN",
+     "name": "Registry General Administration",
+     "aliases": [
+      "Registry",
+      "General Administration"
+     ],
+     "review": false
+    },
+    {
+     "short": "REG-RO",
+     "name": "Registrar's Office",
+     "aliases": [],
+     "review": false
+    },
+    {
+     "short": "VCO",
+     "name": "Vice-Chancellor's Office",
+     "aliases": [],
+     "review": false
+    },
+    {
+     "short": "DVC-ACAD",
+     "name": "Deputy Vice-Chancellor's Office (Academic)",
+     "aliases": [],
+     "review": false
+    },
+    {
+     "short": "DVC-DEV",
+     "name": "Deputy Vice-Chancellor's Office (Development)",
+     "aliases": [
+      "Deputy Vice Chancellor's Office (Development)"
+     ],
+     "review": false
+    },
+    {
+     "short": "COUNCIL",
+     "name": "Council Affairs",
+     "aliases": [],
+     "review": false
+    },
+    {
+     "short": "SENATE",
+     "name": "Senate and Admissions Unit",
+     "aliases": [],
+     "review": false
+    },
+    {
+     "short": "EXAMS",
+     "name": "Exams and Records Unit",
+     "aliases": [],
+     "review": false
+    },
+    {
+     "short": "SAD",
+     "name": "Student Affairs Division",
+     "aliases": [],
+     "review": false
+    },
+    {
+     "short": "PGS",
+     "name": "Postgraduate School",
+     "aliases": [
+      "Post-Graduate School"
+     ],
+     "review": false
+    },
+    {
+     "short": "EST-ACAD",
+     "name": "Academic Staff Establishment Unit",
+     "aliases": [
+      "Academic Staff Estab. Unit"
+     ],
+     "review": false
+    },
+    {
+     "short": "EST-SNT",
+     "name": "Senior Non-Teaching Staff Establishment Unit",
+     "aliases": [
+      "Senior Non-Teaching Estab. Unit"
+     ],
+     "review": false
+    },
+    {
+     "short": "EST-JS",
+     "name": "Junior Staff Establishment Unit",
+     "aliases": [
+      "Junior Staff Estab. Unit",
+      "Junior Staff Estab."
+     ],
+     "review": false
+    },
+    {
+     "short": "PENSION",
+     "name": "Pension Unit",
+     "aliases": [],
+     "review": false
+    },
+    {
+     "short": "PRS",
+     "name": "Personnel Records and Statistics",
+     "aliases": [
+      "Personnel Records & Statistics"
+     ],
+     "review": false
+    },
+    {
+     "short": "SERVICOM",
+     "name": "SERVICOM",
+     "aliases": [],
+     "review": false
+    },
+    {
+     "short": "ADVANCE",
+     "name": "Office of Advancement",
+     "aliases": [
+      "Advancement and Alumni Relations"
+     ],
+     "review": false
+    },
+    {
+     "short": "PTDU",
+     "name": "Part-Time Degree Unit",
+     "aliases": [
+      "Part-Time Office",
+      "Part-Time Degree Unit/SIWES"
+     ],
+     "review": false
+    },
+    {
+     "short": "SIWES",
+     "name": "SIWES",
+     "aliases": [],
+     "review": false
+    },
+    {
+     "short": "CSLU",
+     "name": "Career Services and Linkage Unit",
+     "aliases": [],
+     "review": false
+    },
+    {
+     "short": "NHIS",
+     "name": "NHIS",
+     "aliases": [],
+     "review": false
+    },
+    {
+     "short": "PUBS",
+     "name": "Publications Unit",
+     "aliases": [],
+     "review": false
+    },
+    {
+     "short": "JOURNALS",
+     "name": "FUNAAB Journals",
+     "aliases": [],
+     "review": false
+    }
+   ]
+  },
+  {
+   "short": "Bursary",
+   "name": "Bursary",
+   "type": "Principal Office",
+   "aliases": [],
+   "review": false,
+   "departments": [
+    {
+     "short": "BUR-GEN",
+     "name": "Bursary General Office",
+     "aliases": [
+      "Bursary"
+     ],
+     "review": false
+    },
+    {
+     "short": "BUR-BO",
+     "name": "Bursar's Office",
+     "aliases": [],
+     "review": false
+    },
+    {
+     "short": "BUR-STORE",
+     "name": "Store Unit",
+     "aliases": [],
+     "review": false
+    },
+    {
+     "short": "BUR-PROC",
+     "name": "Procurement Unit",
+     "aliases": [],
+     "review": false
+    },
+    {
+     "short": "BUR-PAY",
+     "name": "Payroll Unit",
+     "aliases": [],
+     "review": false
+    },
+    {
+     "short": "BUR-PPE",
+     "name": "Payroll and Personal Entitlements",
+     "aliases": [],
+     "review": false
+    },
+    {
+     "short": "BUR-PA",
+     "name": "Personal Accounts",
+     "aliases": [],
+     "review": false
+    },
+    {
+     "short": "BUR-MAND",
+     "name": "Bursary Mandate",
+     "aliases": [],
+     "review": false
+    },
+    {
+     "short": "BUR-BEC",
+     "name": "Budget and Expenditure Control",
+     "aliases": [
+      "Budget & Expenditure Control"
+     ],
+     "review": false
+    },
+    {
+     "short": "BUR-BFP",
+     "name": "Budget and Finance Planning",
+     "aliases": [
+      "Budget & Finance Planning"
+     ],
+     "review": false
+    },
+    {
+     "short": "BUR-BIC",
+     "name": "Budget Implementation and Control",
+     "aliases": [
+      "Budget Implementation and Control Unit"
+     ],
+     "review": false
+    },
+    {
+     "short": "BUR-BCE",
+     "name": "Bills and Capital Expenditure",
+     "aliases": [
+      "Bill & Capital Expeniture",
+      "Bill & Capital Expenditure"
+     ],
+     "review": false
+    },
+    {
+     "short": "BUR-BB",
+     "name": "Bank Book",
+     "aliases": [],
+     "review": false
+    },
+    {
+     "short": "BUR-BR",
+     "name": "Bank Reconciliation",
+     "aliases": [],
+     "review": false
+    },
+    {
+     "short": "BUR-TRE",
+     "name": "Treasury",
+     "aliases": [],
+     "review": false
+    },
+    {
+     "short": "BUR-GL",
+     "name": "General Ledger",
+     "aliases": [],
+     "review": false
+    },
+    {
+     "short": "BUR-PS",
+     "name": "Payment System",
+     "aliases": [],
+     "review": false
+    },
+    {
+     "short": "BUR-FAI",
+     "name": "Fixed Assets and Insurance",
+     "aliases": [
+      "Fixed Asset &Ins"
+     ],
+     "review": false
+    },
+    {
+     "short": "BUR-CF",
+     "name": "College Finance",
+     "aliases": [],
+     "review": false
+    },
+    {
+     "short": "BUR-FSEA",
+     "name": "FS&EA",
+     "aliases": [
+      "FS&EA"
+     ],
+     "review": true
+    },
+    {
+     "short": "BUR-FIV",
+     "name": "FUNAAB Integrated Ventures (Group Accountant)",
+     "aliases": [
+      "Group Accountant, FUNAAB Intergrated Ventures"
+     ],
+     "review": false
+    }
+   ]
+  },
+  {
+   "short": "LIBRARY",
+   "name": "University Library",
+   "type": "Principal Office",
+   "aliases": [
+    "LIBRARY"
+   ],
+   "review": false,
+   "departments": [
+    {
+     "short": "LIBRARY",
+     "name": "University Library",
+     "aliases": [
+      "LIBRARY",
+      "LIBRARY (LIS)"
+     ],
+     "review": false
+    }
+   ]
+  },
+  {
+   "short": "W&S",
+   "name": "Works and Services",
+   "type": "Directorate",
+   "aliases": [
+    "Works & Services"
+   ],
+   "review": false,
+   "departments": [
+    {
+     "short": "WS-GEN",
+     "name": "Works and Services General Office",
+     "aliases": [
+      "Works & Services",
+      "W&S"
+     ],
+     "review": false
+    },
+    {
+     "short": "WS-ELE",
+     "name": "Electrical Unit",
+     "aliases": [
+      "ELECTRICAL"
+     ],
+     "review": false
+    },
+    {
+     "short": "WS-CIV",
+     "name": "Civil Unit",
+     "aliases": [
+      "CIVIL UNIT"
+     ],
+     "review": false
+    },
+    {
+     "short": "WS-MEC",
+     "name": "Mechanical Unit",
+     "aliases": [
+      "MECHANICAL",
+      "MECHICAL",
+      "MECHANICAL (INHURD)"
+     ],
+     "review": false
+    },
+    {
+     "short": "WS-WELD",
+     "name": "Welding Unit",
+     "aliases": [
+      "WELDING"
+     ],
+     "review": false
+    },
+    {
+     "short": "WS-TRAC",
+     "name": "Tractor Unit",
+     "aliases": [],
+     "review": false
+    },
+    {
+     "short": "FUNAABOT",
+     "name": "FUNAABOT",
+     "aliases": [
+      "FUNAABOT"
+     ],
+     "review": true
+    },
+    {
+     "short": "VC-LODGE",
+     "name": "Vice-Chancellor's Lodge",
+     "aliases": [
+      "V.C Lodge"
+     ],
+     "review": false
+    },
+    {
+     "short": "CEREMONIAL",
+     "name": "Ceremonial Building",
+     "aliases": [],
+     "review": false
+    }
+   ]
+  },
+  {
+   "short": "HEALTH",
+   "name": "Health Services",
+   "type": "Directorate",
+   "aliases": [
+    "Health Services"
+   ],
+   "review": false,
+   "departments": [
+    {
+     "short": "HS-GEN",
+     "name": "Health Services General Office",
+     "aliases": [
+      "Health Services"
+     ],
+     "review": false
+    },
+    {
+     "short": "HS-NUR",
+     "name": "Nursing Unit",
+     "aliases": [],
+     "review": false
+    },
+    {
+     "short": "HS-MRU",
+     "name": "Medical Records Unit",
+     "aliases": [
+      "Medical Record Unit"
+     ],
+     "review": false
+    },
+    {
+     "short": "HS-LAB",
+     "name": "Medical Laboratory",
+     "aliases": [],
+     "review": false
+    },
+    {
+     "short": "HS-CEH",
+     "name": "Community and Environmental Health Unit",
+     "aliases": [
+      "Community/Environmental Health Unit"
+     ],
+     "review": false
+    },
+    {
+     "short": "HS-PHA",
+     "name": "Pharmacy Unit",
+     "aliases": [],
+     "review": false
+    },
+    {
+     "short": "HS-CON",
+     "name": "Consulting Unit",
+     "aliases": [],
+     "review": false
+    },
+    {
+     "short": "HS-SOC",
+     "name": "Social Services",
+     "aliases": [],
+     "review": false
+    },
+    {
+     "short": "HS-XRAY",
+     "name": "X-Ray Unit",
+     "aliases": [],
+     "review": false
+    }
+   ]
+  },
+  {
+   "short": "DICTS",
+   "name": "Directorate of Information Communication Technology Services",
+   "type": "Directorate",
+   "aliases": [],
+   "review": false,
+   "departments": [
+    {
+     "short": "DICTS",
+     "name": "Directorate of Information Communication Technology Services",
+     "aliases": [
+      "DICTS"
+     ],
+     "review": false
+    }
+   ]
+  },
+  {
+   "short": "DITTECS",
+   "name": "DITTECS",
+   "type": "Directorate",
+   "aliases": [],
+   "review": true,
+   "departments": [
+    {
+     "short": "DITTECS",
+     "name": "DITTECS",
+     "aliases": [
+      "DITTECS"
+     ],
+     "review": true
+    },
+    {
+     "short": "EMC",
+     "name": "Equipment Maintenance Centre",
+     "aliases": [
+      "Equipment Maintenance Centre (EMC)"
+     ],
+     "review": false
+    },
+    {
+     "short": "ACL",
+     "name": "Agricultural Complex Laboratory",
+     "aliases": [
+      "Agric. Complex Lab."
+     ],
+     "review": false
+    },
+    {
+     "short": "COLENG-CW",
+     "name": "Central Workshop, COLENG",
+     "aliases": [
+      "Central Workshop"
+     ],
+     "review": false
+    },
+    {
+     "short": "COLENG-LAB",
+     "name": "COLENG Laboratory",
+     "aliases": [
+      "COLENG LAB"
+     ],
+     "review": false
+    },
+    {
+     "short": "CEADESE-LAB",
+     "name": "CEADESE Laboratory",
+     "aliases": [
+      "CEADESE LAB"
+     ],
+     "review": false
+    }
+   ]
+  },
+  {
+   "short": "DAP",
+   "name": "Directorate of Academic Planning",
+   "type": "Directorate",
+   "aliases": [
+    "Academic Planning"
+   ],
+   "review": false,
+   "departments": [
+    {
+     "short": "DAP",
+     "name": "Directorate of Academic Planning",
+     "aliases": [
+      "DAP",
+      "Academic Planning"
+     ],
+     "review": false
+    }
+   ]
+  },
+  {
+   "short": "DIA",
+   "name": "Directorate of Internal Audit",
+   "type": "Directorate",
+   "aliases": [
+    "Internal Audit",
+    "PIU (Internal Audit)"
+   ],
+   "review": false,
+   "departments": [
+    {
+     "short": "DIA",
+     "name": "Directorate of Internal Audit",
+     "aliases": [
+      "DIA",
+      "Internal Audit",
+      "PIU (Internal Audit)"
+     ],
+     "review": false
+    }
+   ]
+  },
+  {
+   "short": "DPP",
+   "name": "Directorate of Physical Planning",
+   "type": "Directorate",
+   "aliases": [
+    "Physical Planning Unit",
+    "PPU"
+   ],
+   "review": false,
+   "departments": [
+    {
+     "short": "DPP",
+     "name": "Directorate of Physical Planning",
+     "aliases": [
+      "DPP",
+      "Physical Planning Unit",
+      "PPU"
+     ],
+     "review": false
+    }
+   ]
+  },
+  {
+   "short": "DPR",
+   "name": "Directorate of Public Relations",
+   "type": "Directorate",
+   "aliases": [
+    "Directorate of Public Relations (DPR)"
+   ],
+   "review": false,
+   "departments": [
+    {
+     "short": "DPR",
+     "name": "Directorate of Public Relations",
+     "aliases": [
+      "DPR",
+      "Directorate of Public Relations (DPR)"
+     ],
+     "review": false
+    },
+    {
+     "short": "RADIO",
+     "name": "FUNAAB Radio",
+     "aliases": [],
+     "review": false
+    }
+   ]
+  },
+  {
+   "short": "SPORTS",
+   "name": "Directorate of Sports",
+   "type": "Directorate",
+   "aliases": [
+    "Sports Centre"
+   ],
+   "review": false,
+   "departments": [
+    {
+     "short": "SPORTS",
+     "name": "Directorate of Sports",
+     "aliases": [
+      "SPORTS",
+      "Sports Centre"
+     ],
+     "review": false
+    }
+   ]
+  },
+  {
+   "short": "DRIP",
+   "name": "DRIP",
+   "type": "Directorate",
+   "aliases": [
+    "DRIP"
+   ],
+   "review": true,
+   "departments": [
+    {
+     "short": "DRIP",
+     "name": "DRIP",
+     "aliases": [
+      "DRIP",
+      "DRIP"
+     ],
+     "review": true
+    }
+   ]
+  },
+  {
+   "short": "DACIS",
+   "name": "DACIS",
+   "type": "Directorate",
+   "aliases": [
+    "DACIS"
+   ],
+   "review": true,
+   "departments": [
+    {
+     "short": "DACIS",
+     "name": "DACIS",
+     "aliases": [
+      "DACIS",
+      "DACIS"
+     ],
+     "review": true
+    }
+   ]
+  },
+  {
+   "short": "ENV",
+   "name": "Environmental Unit",
+   "type": "Unit",
+   "aliases": [
+    "Environmental Unit"
+   ],
+   "review": false,
+   "departments": [
+    {
+     "short": "ENV",
+     "name": "Environmental Unit",
+     "aliases": [
+      "ENV",
+      "Environmental Unit"
+     ],
+     "review": false
+    }
+   ]
+  },
+  {
+   "short": "FARM",
+   "name": "Farm Centre",
+   "type": "Center",
+   "aliases": [
+    "FARM CENTRE",
+    "FARM CENTRE/DEM"
+   ],
+   "review": false,
+   "departments": [
+    {
+     "short": "DUFARMS",
+     "name": "Directorate of University Farms",
+     "aliases": [
+      "DUFARMS"
+     ],
+     "review": false
+    },
+    {
+     "short": "DEM",
+     "name": "DEM",
+     "aliases": [
+      "DEM"
+     ],
+     "review": true
+    },
+    {
+     "short": "COBFAS",
+     "name": "COBFAS",
+     "aliases": [
+      "COBFAS"
+     ],
+     "review": true
+    },
+    {
+     "short": "ICETOPP",
+     "name": "ICETOPP",
+     "aliases": [
+      "ICETOPP"
+     ],
+     "review": true
+    },
+    {
+     "short": "TREFAD",
+     "name": "TREFAD",
+     "aliases": [
+      "TREFAD"
+     ],
+     "review": true
+    },
+    {
+     "short": "FCCV",
+     "name": "FUNAAB Cattle Cooperative Venture",
+     "aliases": [
+      "FUNAAB Cattle Coop. Venture"
+     ],
+     "review": false
+    },
+    {
+     "short": "ABG-POULTRY",
+     "name": "ABG Poultry Unit",
+     "aliases": [
+      "ABG POULTARY UNIT"
+     ],
+     "review": false
+    }
+   ]
+  },
+  {
+   "short": "IFSERAR",
+   "name": "Institute of Food Security, Environmental Resources and Agricultural Research",
+   "type": "Institute",
+   "aliases": [
+    "IFSERAR"
+   ],
+   "review": false,
+   "departments": [
+    {
+     "short": "IFSERAR",
+     "name": "Institute of Food Security, Environmental Resources and Agricultural Research",
+     "aliases": [
+      "IFSERAR",
+      "IFSERAR"
+     ],
+     "review": false
+    }
+   ]
+  },
+  {
+   "short": "INHURD",
+   "name": "Institute of Human Resources Development",
+   "type": "Institute",
+   "aliases": [
+    "INHURD"
+   ],
+   "review": false,
+   "departments": [
+    {
+     "short": "INHURD",
+     "name": "Institute of Human Resources Development",
+     "aliases": [
+      "INHURD",
+      "INHURD"
+     ],
+     "review": false
+    }
+   ]
+  },
+  {
+   "short": "AMREC",
+   "name": "Agricultural Media Resources and Extension Centre",
+   "type": "Center",
+   "aliases": [
+    "AMREC"
+   ],
+   "review": false,
+   "departments": [
+    {
+     "short": "AMREC",
+     "name": "Agricultural Media Resources and Extension Centre",
+     "aliases": [
+      "AMREC",
+      "AMREC"
+     ],
+     "review": false
+    }
+   ]
+  },
+  {
+   "short": "CEADESE",
+   "name": "Centre of Excellence in Agricultural Development and Sustainable Environment",
+   "type": "Center",
+   "aliases": [
+    "CEADESE"
+   ],
+   "review": false,
+   "departments": [
+    {
+     "short": "CEADESE",
+     "name": "Centre of Excellence in Agricultural Development and Sustainable Environment",
+     "aliases": [
+      "CEADESE",
+      "CEADESE"
+     ],
+     "review": false
+    }
+   ]
+  },
+  {
+   "short": "BIOTECH",
+   "name": "Biotechnology Centre",
+   "type": "Center",
+   "aliases": [
+    "Biotechnology Centre"
+   ],
+   "review": false,
+   "departments": [
+    {
+     "short": "BIOTECH",
+     "name": "Biotechnology Centre",
+     "aliases": [
+      "BIOTECH",
+      "Biotechnology Centre"
+     ],
+     "review": false
+    }
+   ]
+  },
+  {
+   "short": "CENTS",
+   "name": "CENTS",
+   "type": "Center",
+   "aliases": [
+    "CENTS"
+   ],
+   "review": true,
+   "departments": [
+    {
+     "short": "CENTS",
+     "name": "CENTS",
+     "aliases": [
+      "CENTS",
+      "CENTS"
+     ],
+     "review": true
+    }
+   ]
+  },
+  {
+   "short": "ICPD",
+   "name": "ICPD",
+   "type": "Center",
+   "aliases": [
+    "ICPD"
+   ],
+   "review": true,
+   "departments": [
+    {
+     "short": "ICPD",
+     "name": "ICPD",
+     "aliases": [
+      "ICPD",
+      "ICPD"
+     ],
+     "review": true
+    }
+   ]
+  },
+  {
+   "short": "ICTREC",
+   "name": "ICTREC",
+   "type": "Center",
+   "aliases": [
+    "ICTREC"
+   ],
+   "review": true,
+   "departments": [
+    {
+     "short": "ICTREC",
+     "name": "ICTREC",
+     "aliases": [
+      "ICTREC",
+      "ICTREC"
+     ],
+     "review": true
+    }
+   ]
+  },
+  {
+   "short": "VTH",
+   "name": "Veterinary Teaching Hospital",
+   "type": "Unit",
+   "aliases": [
+    "VTH",
+    "VTH (Annex)",
+    "VTH (Main Campus)"
+   ],
+   "review": false,
+   "departments": [
+    {
+     "short": "VTH",
+     "name": "Veterinary Teaching Hospital",
+     "aliases": [
+      "VTH",
+      "VTH",
+      "VTH (Annex)",
+      "VTH (Main Campus)"
+     ],
+     "review": false
+    }
+   ]
+  },
+  {
+   "short": "ZOO",
+   "name": "FUNAAB Zoo Park",
+   "type": "Unit",
+   "aliases": [
+    "FUNAAB ZOO Park",
+    "Zoological Garden"
+   ],
+   "review": false,
+   "departments": [
+    {
+     "short": "ZOO",
+     "name": "FUNAAB Zoo Park",
+     "aliases": [
+      "ZOO",
+      "FUNAAB ZOO Park",
+      "Zoological Garden"
+     ],
+     "review": false
+    }
+   ]
+  },
+  {
+   "short": "STAFFSCH",
+   "name": "FUNAAB Staff School",
+   "type": "Unit",
+   "aliases": [
+    "FUNAAB Staff School"
+   ],
+   "review": false,
+   "departments": [
+    {
+     "short": "STAFFSCH",
+     "name": "FUNAAB Staff School",
+     "aliases": [
+      "STAFFSCH",
+      "FUNAAB Staff School"
+     ],
+     "review": false
+    }
+   ]
+  },
+  {
+   "short": "ENTERPRISE",
+   "name": "FUNAAB Enterprise",
+   "type": "Unit",
+   "aliases": [
+    "FUNAAB Enterprise"
+   ],
+   "review": false,
+   "departments": [
+    {
+     "short": "ENTERPRISE",
+     "name": "FUNAAB Enterprise",
+     "aliases": [
+      "ENTERPRISE",
+      "FUNAAB Enterprise"
+     ],
+     "review": false
+    }
+   ]
+  }
+ ],
+ "deployment_posts": [
+  "Head of Department",
+  "Acting Head of Department",
+  "Head of Unit",
+  "Deputy Head of Unit",
+  "Sub-Dean",
+  "College Officer",
+  "College Finance Officer",
+  "Desk Officer",
+  "Unit Officer",
+  "Administrative Officer",
+  "Executive Officer",
+  "Clerical Officer",
+  "Secretary to the Dean",
+  "Secretary to the Head of Department",
+  "Confidential Secretary",
+  "Personal Assistant",
+  "Account Officer",
+  "Internal Auditor",
+  "Store Officer",
+  "Procurement Officer",
+  "Records Officer",
+  "Examinations Officer",
+  "Admissions Officer",
+  "Laboratory Technologist",
+  "Laboratory Attendant",
+  "Workshop Technician",
+  "Farm Officer",
+  "Coordinator",
+  "Driver",
+  "Office Assistant"
+ ]
+}

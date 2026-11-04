@@ -20,5 +20,11 @@ class DatabaseSeeder extends Seeder
             AperScoringSeeder::class,
             DocumentCategorySeeder::class,
         ]);
+
+        // University structure from the nominal roll. Feature tests build their
+        // own small structure, so they skip this (OrganisationSeederTest covers it).
+        if (!app()->runningUnitTests()) {
+            $this->call(OrganisationSeeder::class);
+        }
     }
 }

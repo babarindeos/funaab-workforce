@@ -11,4 +11,9 @@ class DeploymentPost extends Model
     use HasFactory;
 
     protected $fillable = ['deployment_post'];
+
+    public function deployments()
+    {
+        return $this->hasMany(Deployment::class, 'deployment_post_id');
+    }
 }

@@ -13,7 +13,7 @@ class Admin_DeploymentPostController extends Controller
     //
     public function index()
     {
-        $deployment_posts = DeploymentPost::orderBy('created_at', 'desc')->get();
+        $deployment_posts = DeploymentPost::withCount('deployments')->orderBy('deployment_post')->get();
 
         return view('admin.deployment_posts.index', compact('deployment_posts'));
     }
