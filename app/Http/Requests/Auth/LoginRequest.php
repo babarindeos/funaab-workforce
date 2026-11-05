@@ -27,7 +27,7 @@ class LoginRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'email' => ['required', 'string', 'email'],
+            'email' => ['required', 'string', 'max:255'],   // e-mail address or Staff No. (staff portal)
             'password' => ['required', 'string'],
         ];
     }

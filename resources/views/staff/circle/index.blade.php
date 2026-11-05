@@ -33,7 +33,7 @@
                     $initials = strtoupper(mb_substr($m->surname ?? '', 0, 1) . mb_substr($m->firstname ?? '', 0, 1));
                     $email    = $m->user?->email;
                     $name     = trim(($m->title?->title ? $m->title->title . ' ' : '') . $m->surname . ', ' . $m->firstname . ' ' . $m->othernames);
-                    $designation = $m->employment?->designation?->cadreRank?->cadre_rank_name;
+                    $designation = $m->employment?->designation_name;
                 @endphp
                 <div class="wf-card flex flex-col items-center text-center py-5 {{ $m->id === $me->id ? 'ring-1 ring-funaab-200' : '' }}">
                     @if($avatar)

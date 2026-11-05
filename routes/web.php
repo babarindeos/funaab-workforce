@@ -112,6 +112,7 @@ Route::middleware('guest')->group(function(){
     Route::post('forgot-password', [PasswordResetController::class, 'email'])->middleware('throttle:5,1')->name('password.email');
     Route::get('reset-password/{token}', [PasswordResetController::class, 'reset'])->name('password.reset');
     Route::post('reset-password', [PasswordResetController::class, 'update'])->name('password.store');
+    Route::get('set-password/{token}', [PasswordResetController::class, 'invite'])->name('password.invite');
 
     Route::get('staff_updates/completed', [StaffUpdateController::class, 'completed'])->name('guests.staff_updates.completed');
 
@@ -604,3 +605,17 @@ Route::prefix('admin')->middleware(['auth','admin'])->group(function(){
 });
 
 
+
+// =====================================================================
+// Nominal roll import + login mails (Admin / Registry)
+// =====================================================================
+Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
+    Route::get ('nominal-roll',                  [\App\Http\Controllers\Admin\Admin_NominalRollController::class, 'index'])->name('admin.nominal_roll.index');
+    Route::post('nominal-roll',                  [\App\Http\Controllers\Admin\Admin_NominalRollController::class, 'store'])->name('admin.nominal_roll.store');
+    Route::get ('nominal-roll/{import}',         [\App\Http\Controllers\Admin\Admin_NominalRollController::class, 'show'])->name('admin.nominal_roll.show');
+    Route::post('nominal-roll/{import}/apply',   [\App\Http\Controllers\Admin\Admin_NominalRollController::class, 'apply'])->name('admin.nominal_roll.apply');
+
+    Route::get ('login-mails',                   [\App\Http\Controllers\Admin\Admin_LoginMailController::class, 'index'])->name('admin.login_mails.index');
+    Route::post('login-mails/staff/{staff}',     [\App\Http\Controllers\Admin\Admin_LoginMailController::class, 'send'])->name('admin.login_mails.send');
+    Route::post('login-mails/bulk',              [\App\Http\Controllers\Admin\Admin_LoginMailController::class, 'bulk'])->name('admin.login_mails.bulk');
+});

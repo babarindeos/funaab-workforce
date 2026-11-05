@@ -25,7 +25,12 @@ class EventServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // Remember when each user last signed in (shown on Login Mails).
+        Event::listen(\Illuminate\Auth\Events\Login::class, function ($event) {
+            if ($event->user instanceof \App\Models\User) {
+                $event->user->forceFill(['last_login_at' => now()])->saveQuietly();
+            }
+        });
     }
 
     /**

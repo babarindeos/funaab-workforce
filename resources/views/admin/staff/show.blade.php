@@ -9,6 +9,20 @@
             <h1 class="pg-title">Staff Profile</h1>
             <p class="pg-sub">{{ $staff->staff_no }}</p>
         </div>
+        @php
+            $lm = app(\App\Services\LoginMailService::class);
+            $lmStatus = $lm->status($staff); $lmEmail = $lm->emailFor($staff); $lmUser = $staff->user;
+            $lmLabel = ['not_sent' => 'Login mail not sent', 'sent' => 'Login mail sent ' . $lmUser?->login_mail_sent_at?->format('d M Y'),
+                        'signed_in' => 'Signed in ' . $lmUser?->last_login_at?->format('d M Y'), 'no_email' => 'No e-mail for login mail'][$lmStatus];
+        @endphp
+        <span class="text-[11px] {{ $lmStatus === 'not_sent' ? 'text-amber-700' : 'text-gray-500' }}"><i class="ti ti-mail"></i> {{ $lmLabel }}</span>
+        @if($lmEmail)
+            <form method="POST" action="{{ route('admin.login_mails.send', $staff->id) }}"
+                  onsubmit="return confirm('{{ $lmStatus === 'not_sent' ? 'Send' : 'Resend' }} the login mail to {{ $lmEmail }}?')">
+                @csrf
+                <button class="btn-wf-ghost"><i class="ti ti-send text-sm"></i> {{ $lmStatus === 'not_sent' ? 'Send login mail' : 'Resend login' }}</button>
+            </form>
+        @endif
         <a href="{{ route('admin.staff_documents.staff', $staff) }}" class="btn-wf-ghost">
             <i class="ti ti-folders text-sm"></i> Documents
         </a>
@@ -117,7 +131,7 @@
                 <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
                     <div class="{{ $cell }}"><div class="{{ $cellKey }}">EMPLOYMENT TYPE</div><div class="{{ $cellVal }}">{{ $staff->employment->employmentType?->employment_type ?? '—' }}</div></div>
                     <div class="{{ $cell }}"><div class="{{ $cellKey }}">STAFF CATEGORY</div><div class="{{ $cellVal }}">{{ $staff->employment->staffCategory?->category ?? '—' }}</div></div>
-                    <div class="{{ $cell }}"><div class="{{ $cellKey }}">DESIGNATION</div><div class="{{ $cellVal }}">{{ $staff->employment->designation?->cadreRank?->cadre_rank_name ?? '—' }}</div></div>
+                    <div class="{{ $cell }}"><div class="{{ $cellKey }}">DESIGNATION</div><div class="{{ $cellVal }}">{{ $staff->employment->designation_name ?? '—' }}</div></div>
                     <div class="{{ $cell }}"><div class="{{ $cellKey }}">IPPIS NO.</div><div class="{{ $cellVal }} font-mono text-sm">{{ $staff->employment->ippis_no ?? '—' }}</div></div>
                     <div class="{{ $cell }}"><div class="{{ $cellKey }}">DIVISION</div><div class="{{ $cellVal }}">{{ $staff->employment->division?->division_name ?? '—' }}</div></div>
                     <div class="{{ $cell }}"><div class="{{ $cellKey }}">DEPARTMENT</div><div class="{{ $cellVal }}">{{ $staff->employment->department?->department_name ?? '—' }}</div></div>

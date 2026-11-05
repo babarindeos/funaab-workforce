@@ -53,7 +53,7 @@
                                                                         focus:ring
                                                                         focus:ring-blue-100 
                                                                         focus:bg-white
-                                                                        " placeholder="Email"
+                                                                        " placeholder="E-mail or Staff No. (e.g. SP1234)"
                                                                         
                                                                         value="{{ old('email') }}"
                                                                         

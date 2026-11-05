@@ -174,7 +174,11 @@ class Staff_AuthController extends Controller
         //dd(Auth::check());
         //dd($request);
 
-        $email = $request->input('email');
+        // Staff may sign in with their e-mail address or their Staff No.
+        $email = trim((string) $request->input('email'));
+        if (!str_contains($email, '@')) {
+            $email = User::where('fileno', strtoupper($email))->whereIn('role', ['staff', 'manager'])->value('email') ?? $email;
+        }
         $password = $request->input('password');
         //dd($password);
         

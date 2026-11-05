@@ -43,6 +43,12 @@ class PasswordResetController extends Controller
         return view('auth.reset-password', ['token' => $token, 'email' => $request->query('email')]);
     }
 
+    /** "Set my password" link from a Registry login mail. */
+    public function invite(Request $request, string $token)
+    {
+        return view('auth.reset-password', ['token' => $token, 'email' => $request->query('email'), 'invite' => true]);
+    }
+
     public function update(Request $request)
     {
         $request->validate([
@@ -51,7 +57,8 @@ class PasswordResetController extends Controller
             'password' => ['required', 'confirmed', PasswordRule::min(8)],
         ]);
 
-        $status = Password::reset(
+        $invite = $request->input('broker') === 'invites';
+        $status = Password::broker($invite ? 'invites' : null)->reset(
             $request->only('email', 'password', 'password_confirmation', 'token'),
             function (User $user, string $password) {
                 $user->forceFill([
@@ -69,7 +76,9 @@ class PasswordResetController extends Controller
                 'identity' => 'identity.auth.index',
                 default    => 'welcome',
             };
-            return redirect()->route($route)->with('success', 'Your password has been reset. Please sign in.');
+            return redirect()->route($route)->with('success', $invite
+                ? 'Your password has been set. Sign in with your Staff No. or e-mail address.'
+                : 'Your password has been reset. Please sign in.');
         }
 
         return back()->withInput($request->only('email'))->withErrors(['email' => __($status)]);

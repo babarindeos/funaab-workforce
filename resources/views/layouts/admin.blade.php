@@ -183,6 +183,20 @@
         {{-- HR OPERATIONS --}}
         <p class="sb-section-label mt-1" x-show="!collapsed" x-transition.opacity>HR OPERATIONS</p>
 
+        <a href="{{ sbRoute('admin.nominal_roll.index') }}"
+           class="sb-item {{ sbActive('admin.nominal_roll.*') ? 'active' : '' }}"
+           :title="collapsed ? 'Nominal Roll Import' : ''">
+            <i class="ti ti-file-spreadsheet text-base flex-shrink-0"></i>
+            <span x-show="!collapsed" x-transition.opacity class="truncate">Nominal Roll Import</span>
+        </a>
+
+        <a href="{{ sbRoute('admin.login_mails.index') }}"
+           class="sb-item {{ sbActive('admin.login_mails.*') ? 'active' : '' }}"
+           :title="collapsed ? 'Login Mails' : ''">
+            <i class="ti ti-mail-forward text-base flex-shrink-0"></i>
+            <span x-show="!collapsed" x-transition.opacity class="truncate">Login Mails</span>
+        </a>
+
         @php $pendingDocs = \App\Models\StaffDocument::where('status', 'pending')->count(); @endphp
         <a href="{{ sbRoute('admin.staff_documents.index') }}"
            class="sb-item {{ sbActive('admin.staff_documents.*') || sbActive('admin.document_setup.*') ? 'active' : '' }}"

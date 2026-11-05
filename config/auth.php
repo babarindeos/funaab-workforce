@@ -97,6 +97,14 @@ return [
             'expire' => 60,
             'throttle' => 60,
         ],
+
+        // Login mails sent by Registry: the "set your password" link lasts longer.
+        'invites' => [
+            'provider' => 'users',
+            'table' => 'password_reset_tokens',
+            'expire' => (int) env('LOGIN_MAIL_LINK_DAYS', 7) * 1440,
+            'throttle' => 0,
+        ],
     ],
 
     /*
